@@ -4,6 +4,41 @@ import { siswaAPI } from '../../api/operator';
 
 const STEPS = ['Identitas', 'Orang Tua', 'Periodik', 'Akademik', 'Konfirmasi'];
 
+const PEKERJAAN_OPTIONS = {
+    'Tidak Bekerja': 'Tidak Bekerja',
+    'Nelayan': 'Nelayan',
+    'Petani': 'Petani',
+    'Peternak': 'Peternak',
+    'PNS/TNI/POLRI': 'PNS/TNI/POLRI',
+    'Karyawan Swasta': 'Karyawan Swasta',
+    'Pedagang Kecil': 'Pedagang Kecil',
+    'Pedagang Besar': 'Pedagang Besar',
+    'Wiraswasta': 'Wiraswasta',
+    'Wirausaha': 'Wirausaha',
+    'Buruh': 'Buruh',
+    'Pensiunan': 'Pensiunan',
+    'Tenaga Kerja Indonesia': 'Tenaga Kerja Indonesia',
+    'Karyawan BUMN': 'Karyawan BUMN',
+    'Tidak dapat diterapkan': 'Tidak dapat diterapkan',
+    'Sudah Meninggal': 'Sudah Meninggal',
+    'Lainnya': 'Lainnya'
+};
+
+const PENDIDIKAN_OPTIONS = {
+    'Tidak Sekolah': 'Tidak Sekolah',
+    'Putus SD': 'Putus SD',
+    'SD / Sederajat': 'SD / Sederajat',
+    'SMP / Sederajat': 'SMP / Sederajat',
+    'SMA / Sederajat': 'SMA / Sederajat',
+    'D1': 'D1',
+    'D2': 'D2',
+    'D3': 'D3',
+    'D4 / S1': 'D4 / S1',
+    'S2': 'S2',
+    'S3': 'S3'
+};
+
+
 const INIT_FORM = {
     jenis_pendaftaran: 'baru', nisn: '', nis: '', nama: '', tempat_lahir: '', tanggal_lahir: '',
     jenis_kelamin: 'L', agama: 'Islam', kewarganegaraan: 'WNI', no_registrasi_akta_kelahiran: '',
@@ -27,6 +62,11 @@ const INIT_FORM = {
     user_id: '',
 };
 
+const formatDateForInput = (val) => {
+    if (!val) return '';
+    return typeof val === 'string' ? val.substring(0, 10) : '';
+};
+
 const ModalFormSiswa = ({ isOpen, onClose, onSuccess, siswa, kelas = [], tahunAjarans = [] }) => {
     const [step, setStep] = useState(1);
     const [form, setForm] = useState(INIT_FORM);
@@ -45,12 +85,12 @@ const ModalFormSiswa = ({ isOpen, onClose, onSuccess, siswa, kelas = [], tahunAj
             setForm({
                 jenis_pendaftaran: siswa.jenis_pendaftaran || 'baru',
                 nisn: siswa.nisn || '', nis: siswa.nis || '', nama: siswa.nama || '',
-                tempat_lahir: siswa.tempat_lahir || '', tanggal_lahir: siswa.tanggal_lahir || '',
+                tempat_lahir: siswa.tempat_lahir || '', tanggal_lahir: formatDateForInput(siswa.tanggal_lahir),
                 jenis_kelamin: siswa.jenis_kelamin || 'L', agama: siswa.agama || 'Islam',
                 kewarganegaraan: siswa.kewarganegaraan || 'WNI', no_registrasi_akta_kelahiran: siswa.no_registrasi_akta_kelahiran || '',
                 // Parse npsn_asal dari asal_sekolah yang tersimpan: "SDN 01 (NPSN: 12345678)"
-asal_sekolah: siswa.asal_sekolah?.replace(/\s*\(NPSN:.*?\)\s*$/, '').trim() || '',
-npsn_asal: siswa.asal_sekolah?.match(/\(NPSN:\s*(\w+)\)/)?.[1] || '',no_surat_mutasi: siswa.no_surat_mutasi || '',
+                asal_sekolah: siswa.asal_sekolah?.replace(/\s*\(NPSN:.*?\)\s*$/, '').trim() || '',
+                npsn_asal: siswa.asal_sekolah?.match(/\(NPSN:\s*(\w+)\)/)?.[1] || '',no_surat_mutasi: siswa.no_surat_mutasi || '',
                 alasan_mutasi: siswa.alasan_mutasi || '',
                 nama_ayah: siswa.nama_ayah || o?.nama_ayah || '',
                 pekerjaan_ayah: siswa.pekerjaan_ayah || o?.pekerjaan_ayah || '',
@@ -85,8 +125,10 @@ npsn_asal: siswa.asal_sekolah?.match(/\(NPSN:\s*(\w+)\)/)?.[1] || '',no_surat_mu
                 alamat_siswa: siswa.alamat_siswa || '', rt: siswa.rt || '', rw: siswa.rw || '',
                 kelurahan: siswa.kelurahan || '', kecamatan: siswa.kecamatan || '',
                 kode_pos: siswa.kode_pos || '', lintang: siswa.lintang || '', bujur: siswa.bujur || '',
-                anak_ke: siswa.anak_ke || '', jumlah_saudara: siswa.jumlah_saudara || '',
-                jarak_tempat_tinggal: siswa.jarak_tempat_tinggal || '', waktu_tempuh: siswa.waktu_tempuh || '',
+                anak_ke: siswa.anak_ke != null ? String(siswa.anak_ke) : '',
+                jumlah_saudara: siswa.jumlah_saudara != null ? String(siswa.jumlah_saudara) : '',
+                jarak_tempat_tinggal: siswa.jarak_tempat_tinggal != null ? String(siswa.jarak_tempat_tinggal) : '',
+                waktu_tempuh: siswa.waktu_tempuh != null ? String(siswa.waktu_tempuh) : '',
                 moda_transportasi: siswa.moda_transportasi || '',
                 hobi: siswa.hobi || '', cita_cita: siswa.cita_cita || '',
                 no_telp_siswa: siswa.no_telp_siswa || '', hp_siswa: siswa.hp_siswa || '',
@@ -94,11 +136,13 @@ npsn_asal: siswa.asal_sekolah?.match(/\(NPSN:\s*(\w+)\)/)?.[1] || '',no_surat_mu
                 kelas_id: siswa.kelas_id || '', kelas_pararel: siswa.kelas_pararel || '', no_absen: siswa.no_absen || '',
                 tahun_ajaran_id: siswa.tahun_ajaran_id || '',
                 status: siswa.status || 'aktif', nik: siswa.nik || '', no_kk: siswa.no_kk || '',
-                tanggal_masuk: siswa.tanggal_masuk || '',
+                tanggal_masuk: formatDateForInput(siswa.tanggal_masuk),
                 nama_kepala_keluarga: siswa.nama_kepala_keluarga || '',
                 pembiaya_sekolah: siswa.pembiaya_sekolah || '', imunisasi: siswa.imunisasi || '',
-                golongan_darah: siswa.golongan_darah || '', tinggi_badan: siswa.tinggi_badan || '',
-                berat_badan: siswa.berat_badan || '', lingkar_kepala: siswa.lingkar_kepala || '',
+                golongan_darah: siswa.golongan_darah || '',
+                tinggi_badan: siswa.tinggi_badan != null ? String(siswa.tinggi_badan) : '',
+                berat_badan: siswa.berat_badan != null ? String(siswa.berat_badan) : '',
+                lingkar_kepala: siswa.lingkar_kepala != null ? String(siswa.lingkar_kepala) : '',
                 kebutuhan_khusus: siswa.kebutuhan_khusus || '', riwayat_penyakit: siswa.riwayat_penyakit || '',
                 catatan_kesehatan: siswa.catatan_kesehatan || '',
                 penerima_kps_pkh: siswa.penerima_kps_pkh ?? '0', no_kps_pkh: siswa.no_kps_pkh || '',
@@ -147,25 +191,18 @@ npsn_asal: siswa.asal_sekolah?.match(/\(NPSN:\s*(\w+)\)/)?.[1] || '',no_surat_mu
                 if (isFutureDate(f.tanggal_lahir)) errs.push('Tanggal lahir tidak boleh di masa depan');
             }
             if (!f.nis?.trim()) errs.push('NIS wajib diisi');
+            if (!f.nisn?.trim()) errs.push('NISN wajib diisi');
+            if (f.nisn?.trim() && !isDigit(f.nisn)) errs.push('NISN harus berupa angka');
+            else if (f.nisn?.trim() && f.nisn.length !== 10) errs.push('NISN harus 10 digit');
+            if (!f.nik?.trim()) errs.push('NIK wajib diisi');
+            else if (!isDigit(f.nik)) errs.push('NIK harus berupa angka');
+            else if (f.nik.length !== 16) errs.push('NIK harus 16 digit');
+            if (!f.no_kk?.trim()) errs.push('No KK wajib diisi');
+            else if (!isDigit(f.no_kk)) errs.push('No KK harus berupa angka');
+            else if (f.no_kk.length !== 16) errs.push('No KK harus 16 digit');
+            if (!f.kewarganegaraan?.trim()) errs.push('Kewarganegaraan wajib dipilih');
             if (f.jenis_kelamin !== 'L' && f.jenis_kelamin !== 'P') errs.push('Jenis kelamin tidak valid');
-            if (!f.nisn?.trim() && !f.no_registrasi_akta_kelahiran?.trim()) {
-                errs.push('NISN atau No Registrasi Akta Kelahiran wajib diisi');
-            }
-            if (f.nisn?.trim()) {
-                if (!isDigit(f.nisn)) errs.push('NISN harus berupa angka');
-                else if (f.nisn.length !== 10) errs.push('NISN harus 10 digit');
-            }
-            if (f.no_registrasi_akta_kelahiran?.trim() && !/^[\w\/-]+$/.test(f.no_registrasi_akta_kelahiran)) {
-                errs.push('No Registrasi Akta Kelahiran tidak valid');
-            }
-            if (f.nik?.trim()) {
-                if (!isDigit(f.nik)) errs.push('NIK harus berupa angka');
-                else if (f.nik.length !== 16) errs.push('NIK harus 16 digit');
-            }
-            if (f.no_kk?.trim()) {
-                if (!isDigit(f.no_kk)) errs.push('No KK harus berupa angka');
-                else if (f.no_kk.length !== 16) errs.push('No KK harus 16 digit');
-            }
+            if (!f.agama?.trim()) errs.push('Agama wajib dipilih');
             if (f.jenis_pendaftaran === 'pindahan') {
                 if (!f.asal_sekolah?.trim()) errs.push('Asal sekolah wajib diisi');
                 if (!f.no_surat_mutasi?.trim()) errs.push('No surat mutasi wajib diisi');
@@ -173,15 +210,22 @@ npsn_asal: siswa.asal_sekolah?.match(/\(NPSN:\s*(\w+)\)/)?.[1] || '',no_surat_mu
             }
         } else if (s === 2) {
             if (!f.nama_ayah?.trim()) errs.push('Nama ayah wajib diisi');
-            if (f.nik_ayah?.trim()) {
-                if (!isDigit(f.nik_ayah)) errs.push('NIK ayah harus berupa angka');
-                else if (f.nik_ayah.length !== 16) errs.push('NIK ayah harus 16 digit');
-            }
+            if (!f.nik_ayah?.trim()) errs.push('NIK ayah wajib diisi');
+            else if (!isDigit(f.nik_ayah)) errs.push('NIK ayah harus berupa angka');
+            else if (f.nik_ayah.length !== 16) errs.push('NIK ayah harus 16 digit');
+            if (!f.tahun_lahir_ayah?.toString().trim()) errs.push('Tahun lahir ayah wajib diisi');
+            if (!f.pendidikan_ayah?.trim()) errs.push('Pendidikan ayah wajib dipilih');
+            if (!f.pekerjaan_ayah?.trim()) errs.push('Pekerjaan ayah wajib dipilih');
+            if (!f.penghasilan_ayah?.trim()) errs.push('Penghasilan ayah wajib dipilih');
             if (f.no_hp_ayah?.trim() && !isDigit(f.no_hp_ayah)) errs.push('No HP ayah harus berupa angka');
-            if (f.nik_ibu?.trim()) {
-                if (!isDigit(f.nik_ibu)) errs.push('NIK ibu harus berupa angka');
-                else if (f.nik_ibu.length !== 16) errs.push('NIK ibu harus 16 digit');
-            }
+            if (!f.nama_ibu?.trim()) errs.push('Nama ibu wajib diisi');
+            if (!f.nik_ibu?.trim()) errs.push('NIK ibu wajib diisi');
+            else if (!isDigit(f.nik_ibu)) errs.push('NIK ibu harus berupa angka');
+            else if (f.nik_ibu.length !== 16) errs.push('NIK ibu harus 16 digit');
+            if (!f.tahun_lahir_ibu?.toString().trim()) errs.push('Tahun lahir ibu wajib diisi');
+            if (!f.pendidikan_ibu?.trim()) errs.push('Pendidikan ibu wajib dipilih');
+            if (!f.pekerjaan_ibu?.trim()) errs.push('Pekerjaan ibu wajib dipilih');
+            if (!f.penghasilan_ibu?.trim()) errs.push('Penghasilan ibu wajib dipilih');
             if (f.no_hp_ibu?.trim() && !isDigit(f.no_hp_ibu)) errs.push('No HP ibu harus berupa angka');
             if (f.nik_wali?.trim()) {
                 if (!isDigit(f.nik_wali)) errs.push('NIK wali harus berupa angka');
@@ -192,32 +236,24 @@ npsn_asal: siswa.asal_sekolah?.match(/\(NPSN:\s*(\w+)\)/)?.[1] || '',no_surat_mu
             else if (!isDigit(f.no_hp_ortu)) errs.push('No HP orang tua harus berupa angka');
             if (!f.alamat?.trim()) errs.push('Alamat orang tua wajib diisi');
         } else if (s === 3) {
-            if (!f.alamat_siswa?.trim()) errs.push('Alamat siswa wajib diisi');
-            if (!f.kelurahan?.trim()) errs.push('Kelurahan wajib diisi');
-            if (!f.kecamatan?.trim()) errs.push('Kecamatan wajib diisi');
-            if (f.rt?.trim() && !isDigit(f.rt)) errs.push('RT harus berupa angka');
-            if (f.rw?.trim() && !isDigit(f.rw)) errs.push('RW harus berupa angka');
-            if (f.kode_pos?.trim() && !isDigit(f.kode_pos)) errs.push('Kode pos harus berupa angka');
-            if (f.anak_ke?.trim() && !isDigit(f.anak_ke)) errs.push('Anak ke harus berupa angka');
-            if (f.jumlah_saudara?.trim() && !isDigit(f.jumlah_saudara)) errs.push('Jumlah saudara harus berupa angka');
-            if (f.tinggi_badan?.trim()) {
-                const t = parseFloat(f.tinggi_badan);
-                if (isNaN(t)) errs.push('Tinggi badan harus berupa angka');
-                else if (t < 20 || t > 250) errs.push('Tinggi badan tidak masuk akal (20-250 cm)');
-            }
-            if (f.berat_badan?.trim()) {
-                const b = parseFloat(f.berat_badan);
-                if (isNaN(b)) errs.push('Berat badan harus berupa angka');
-                else if (b < 2 || b > 300) errs.push('Berat badan tidak masuk akal (2-300 kg)');
-            }
-            if (f.lingkar_kepala?.trim()) {
-                const lk = parseFloat(f.lingkar_kepala);
-                if (isNaN(lk)) errs.push('Lingkar kepala harus berupa angka');
-                else if (lk < 20 || lk > 80) errs.push('Lingkar kepala tidak masuk akal (20-80 cm)');
-            }
-            if (f.no_telp_siswa?.trim() && !isDigit(f.no_telp_siswa)) errs.push('No telepon siswa harus berupa angka');
-            if (f.hp_siswa?.trim() && !isDigit(f.hp_siswa)) errs.push('No HP siswa harus berupa angka');
-            if (f.email_siswa?.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email_siswa)) {
+            const strVal = (v) => (v === null || v === undefined) ? '' : String(v).trim();
+            if (!strVal(f.alamat_siswa)) errs.push('Alamat siswa wajib diisi');
+            if (!strVal(f.kelurahan)) errs.push('Kelurahan wajib diisi');
+            if (!strVal(f.kecamatan)) errs.push('Kecamatan wajib diisi');
+            if (!strVal(f.rt)) errs.push('RT wajib diisi');
+            else if (!isDigit(strVal(f.rt))) errs.push('RT harus berupa angka');
+            if (!strVal(f.rw)) errs.push('RW wajib diisi');
+            else if (!isDigit(strVal(f.rw))) errs.push('RW harus berupa angka');
+            if (!strVal(f.kode_pos)) errs.push('Kode pos wajib diisi');
+            else if (!isDigit(strVal(f.kode_pos))) errs.push('Kode pos harus berupa angka');
+            else if (strVal(f.kode_pos).length !== 5) errs.push('Kode pos harus 5 digit');
+            if (!f.anak_ke?.toString().trim()) errs.push('Anak ke wajib diisi');
+            else if (!isDigit(strVal(f.anak_ke))) errs.push('Anak ke harus berupa angka');
+            if (strVal(f.jumlah_saudara) && !isDigit(strVal(f.jumlah_saudara))) errs.push('Jumlah saudara harus berupa angka');
+            if (!f.moda_transportasi?.trim()) errs.push('Moda transportasi wajib dipilih');
+            if (strVal(f.no_telp_siswa) && !isDigit(strVal(f.no_telp_siswa))) errs.push('No telepon siswa harus berupa angka');
+            if (strVal(f.hp_siswa) && !isDigit(strVal(f.hp_siswa))) errs.push('No HP siswa harus berupa angka');
+            if (strVal(f.email_siswa) && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(strVal(f.email_siswa))) {
                 errs.push('Format email siswa tidak valid');
             }
         } else if (s === 4) {
@@ -227,6 +263,25 @@ npsn_asal: siswa.asal_sekolah?.match(/\(NPSN:\s*(\w+)\)/)?.[1] || '',no_surat_mu
             } else {
                 if (isNotValidDate(f.tanggal_masuk)) errs.push('Format tanggal masuk tidak valid');
                 if (isFutureDate(f.tanggal_masuk)) errs.push('Tanggal masuk tidak boleh di masa depan');
+            }
+            if (!f.golongan_darah?.trim()) errs.push('Golongan darah wajib dipilih');
+            if (!f.tinggi_badan?.toString().trim()) errs.push('Tinggi badan wajib diisi');
+            else {
+                const t = parseFloat(f.tinggi_badan);
+                if (isNaN(t)) errs.push('Tinggi badan harus berupa angka');
+                else if (t < 30 || t > 250) errs.push('Tinggi badan tidak masuk akal (30-250 cm)');
+            }
+            if (!f.berat_badan?.toString().trim()) errs.push('Berat badan wajib diisi');
+            else {
+                const b = parseFloat(f.berat_badan);
+                if (isNaN(b)) errs.push('Berat badan harus berupa angka');
+                else if (b < 3 || b > 200) errs.push('Berat badan tidak masuk akal (3-200 kg)');
+            }
+            if (!f.lingkar_kepala?.toString().trim()) errs.push('Lingkar kepala wajib diisi');
+            else {
+                const lk = parseFloat(f.lingkar_kepala);
+                if (isNaN(lk)) errs.push('Lingkar kepala harus berupa angka');
+                else if (lk < 20 || lk > 80) errs.push('Lingkar kepala tidak masuk akal (20-80 cm)');
             }
         }
 
@@ -258,7 +313,10 @@ npsn_asal: siswa.asal_sekolah?.match(/\(NPSN:\s*(\w+)\)/)?.[1] || '',no_surat_mu
         try {
             const fd = new FormData();
             Object.entries(form).forEach(([k, v]) => {
-                if (v !== '' && v !== null) fd.append(k, v);
+                if (v !== null && v !== undefined) {
+                    const trimmedVal = typeof v === 'string' ? v.trim() : v;
+                    if (trimmedVal !== '') fd.append(k, trimmedVal);
+                }
             });
             if (fotoFile) fd.append('foto', fotoFile);
 
@@ -413,7 +471,7 @@ if (isEdit) {
                                                 </div>
                                             )}
 
-                                            <FieldText form={form} update={update} label="NISN" name="nisn" placeholder="Nomor Induk Siswa Nasional" optional />
+                                            <FieldText form={form} update={update} label="NISN *" name="nisn" placeholder="Nomor Induk Siswa Nasional" required />
                                             <FieldText form={form} update={update} label="NIS (Lokal) *" name="nis" placeholder="Nomor Induk Sekolah" required />
                                             <FieldText form={form} update={update} label="Nama Lengkap *" name="nama" placeholder="Nama lengkap tanpa singkatan" sm2 required />
                                             <FieldText form={form} update={update} label="Tempat Lahir *" name="tempat_lahir" placeholder="Kota Lahir" required />
@@ -422,12 +480,14 @@ if (isEdit) {
                                                 options={{ L: 'Laki-laki', P: 'Perempuan' }} />
                                             <FieldSelect form={form} update={update} label="Agama *" name="agama" required
                                                 options={{ Islam: 'Islam', Kristen: 'Kristen', Katolik: 'Katolik', Hindu: 'Hindu', Budha: 'Budha', Khonghucu: 'Khonghucu' }} />
-                                            <FieldSelect form={form} update={update} label="Kewarganegaraan" name="kewarganegaraan" optional
+                                            <FieldSelect form={form} update={update} label="Kewarganegaraan *" name="kewarganegaraan" required
                                                 options={{ WNI: 'WNI', WNA: 'WNA' }} />
                                             <FieldText form={form} update={update} label="No Registrasi Akta Kelahiran" name="no_registrasi_akta_kelahiran" placeholder="Nomor seri/registrasi" sm2 optional />
                                             <FieldText form={form} update={update} label="No Absen" name="no_absen" placeholder="Nomor urut absen kelas" optional />
-                                            <FieldSelect form={form} update={update} label="Yang Membiayai Sekolah" name="pembiaya_sekolah" optional
+                                            <FieldSelect form={form} update={update} label="Yang Membiayai Sekolah" name="pembiaya_sekolah" optional placeholder="-- Pilih Pembiaya (Opsional) --"
                                                 options={{ 'Orang Tua': 'Orang Tua', 'Wali': 'Wali', 'Pemerintah': 'Pemerintah', 'Swasta': 'Swasta', 'Lainnya': 'Lainnya' }} />
+                                            <FieldText form={form} update={update} label="NIK *" name="nik" placeholder="16 digit NIK siswa" required />
+                                            <FieldText form={form} update={update} label="No. Kartu Keluarga (KK) *" name="no_kk" placeholder="16 digit No. KK" required />
                                         </div>
                                         <StepErrors errors={stepErrors[1]} />
                                         {stepNav(1, 5)}
@@ -439,13 +499,14 @@ if (isEdit) {
                                             <div className="sm:col-span-2">
                                                 <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">Data Ayah <span className="normal-case font-normal">*</span></p>
                                             </div>
-                                            <FieldText form={form} update={update} label="Nama Ayah" name="nama_ayah" placeholder="Nama lengkap ayah kandung" />
-                                            <FieldText form={form} update={update} label="Pekerjaan Ayah" name="pekerjaan_ayah" placeholder="Contoh: Wiraswasta" />
-                                            <FieldText form={form} update={update} label="NIK Ayah" name="nik_ayah" placeholder="16 digit NIK ayah" />
-                                            <FieldText form={form} update={update} label="Tahun Lahir Ayah" name="tahun_lahir_ayah" type="number" placeholder="Contoh: 1975" />
-                                            <FieldSelect form={form} update={update} label="Pendidikan Terakhir Ayah" name="pendidikan_ayah"
-                                                options={{ 'Tidak Sekolah': 'Tidak Sekolah', 'SD / Sederajat': 'SD / Sederajat', 'SMP / Sederajat': 'SMP / Sederajat', 'SMA / Sederajat': 'SMA / Sederajat', D1: 'D1', D2: 'D2', D3: 'D3', 'D4 / S1': 'D4 / S1', S2: 'S2', S3: 'S3' }} />
-                                            <FieldSelect form={form} update={update} label="Penghasilan Ayah" name="penghasilan_ayah"
+                                            <FieldText form={form} update={update} label="Nama Ayah *" name="nama_ayah" placeholder="Nama lengkap ayah kandung" required />
+                                            <FieldSelect form={form} update={update} label="Pekerjaan Ayah *" name="pekerjaan_ayah" required placeholder="-- Pilih Pekerjaan --"
+                                                options={PEKERJAAN_OPTIONS} />
+                                            <FieldText form={form} update={update} label="NIK Ayah *" name="nik_ayah" placeholder="16 digit NIK ayah" required />
+                                            <FieldText form={form} update={update} label="Tahun Lahir Ayah *" name="tahun_lahir_ayah" type="number" placeholder="Contoh: 1975" required />
+                                            <FieldSelect form={form} update={update} label="Pendidikan Terakhir Ayah *" name="pendidikan_ayah" required placeholder="-- Pilih Pendidikan --"
+                                                options={PENDIDIKAN_OPTIONS} />
+                                            <FieldSelect form={form} update={update} label="Penghasilan Ayah *" name="penghasilan_ayah" required placeholder="-- Pilih Penghasilan --"
                                                 options={{
                                                     'Kurang dari Rp 500.000': 'Kurang dari Rp 500.000',
                                                     'Rp 500.000 - Rp 999.999': 'Rp 500.000 - Rp 999.999',
@@ -456,23 +517,24 @@ if (isEdit) {
                                                     'Tidak Berpenghasilan': 'Tidak Berpenghasilan',
                                                 }} />
                                             <FieldText form={form} update={update} label="Kebutuhan Khusus Ayah" name="kebutuhan_khusus_ayah" placeholder="Kosongkan jika tidak ada" />
-                                            <FieldSelect form={form} update={update} label="Status Ayah" name="status_ayah" optional
-                                                options={{ 'Hidup': 'Hidup', 'Meninggal': 'Meninggal', 'Cerai Hidup': 'Cerai Hidup', 'Cerai Mati': 'Cerai Mati' }} />
+                                            <FieldSelect form={form} update={update} label="Status Ayah" name="status_ayah" optional placeholder="-- Pilih Status --"
+                                                options={{ 'Masih Hidup': 'Masih Hidup', 'Sudah Meninggal': 'Sudah Meninggal' }} />
                                             <FieldSelect form={form} update={update} label="Kewarganegaraan Ayah" name="kewarganegaraan_ayah" optional
                                                 options={{ WNI: 'WNI', WNA: 'WNA' }} />
                                             <FieldText form={form} update={update} label="Tempat Lahir Ayah" name="tempat_lahir_ayah" placeholder="Kota lahir ayah" optional />
                                             <FieldText form={form} update={update} label="No HP Ayah" name="no_hp_ayah" type="tel" placeholder="08xxxxxxxxxx" optional />
 
                                             <div className="sm:col-span-2 border-t border-slate-100 pt-4 mt-2">
-                                                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">Data Ibu <span className="normal-case font-normal">(opsional)</span></p>
+                                                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">Data Ibu <span className="normal-case font-normal">*</span></p>
                                             </div>
-                                            <FieldText form={form} update={update} label="Nama Ibu" name="nama_ibu" placeholder="Nama lengkap ibu kandung" />
-                                            <FieldText form={form} update={update} label="Pekerjaan Ibu" name="pekerjaan_ibu" placeholder="Contoh: Ibu Rumah Tangga" />
-                                            <FieldText form={form} update={update} label="NIK Ibu" name="nik_ibu" placeholder="16 digit NIK ibu" />
-                                            <FieldText form={form} update={update} label="Tahun Lahir Ibu" name="tahun_lahir_ibu" type="number" placeholder="Contoh: 1980" />
-                                            <FieldSelect form={form} update={update} label="Pendidikan Terakhir Ibu" name="pendidikan_ibu"
-                                                options={{ 'Tidak Sekolah': 'Tidak Sekolah', 'SD / Sederajat': 'SD / Sederajat', 'SMP / Sederajat': 'SMP / Sederajat', 'SMA / Sederajat': 'SMA / Sederajat', D1: 'D1', D2: 'D2', D3: 'D3', 'D4 / S1': 'D4 / S1', S2: 'S2', S3: 'S3' }} />
-                                            <FieldSelect form={form} update={update} label="Penghasilan Ibu" name="penghasilan_ibu"
+                                            <FieldText form={form} update={update} label="Nama Ibu *" name="nama_ibu" placeholder="Nama lengkap ibu kandung" required />
+                                            <FieldSelect form={form} update={update} label="Pekerjaan Ibu *" name="pekerjaan_ibu" required placeholder="-- Pilih Pekerjaan --"
+                                                options={PEKERJAAN_OPTIONS} />
+                                            <FieldText form={form} update={update} label="NIK Ibu *" name="nik_ibu" placeholder="16 digit NIK ibu" required />
+                                            <FieldText form={form} update={update} label="Tahun Lahir Ibu *" name="tahun_lahir_ibu" type="number" placeholder="Contoh: 1980" required />
+                                            <FieldSelect form={form} update={update} label="Pendidikan Terakhir Ibu *" name="pendidikan_ibu" required placeholder="-- Pilih Pendidikan --"
+                                                options={PENDIDIKAN_OPTIONS} />
+                                            <FieldSelect form={form} update={update} label="Penghasilan Ibu *" name="penghasilan_ibu" required placeholder="-- Pilih Penghasilan --"
                                                 options={{
                                                     'Kurang dari Rp 500.000': 'Kurang dari Rp 500.000',
                                                     'Rp 500.000 - Rp 999.999': 'Rp 500.000 - Rp 999.999',
@@ -483,8 +545,8 @@ if (isEdit) {
                                                     'Tidak Berpenghasilan': 'Tidak Berpenghasilan',
                                                 }} />
                                             <FieldText form={form} update={update} label="Kebutuhan Khusus Ibu" name="kebutuhan_khusus_ibu" placeholder="Kosongkan jika tidak ada" />
-                                            <FieldSelect form={form} update={update} label="Status Ibu" name="status_ibu" optional
-                                                options={{ 'Hidup': 'Hidup', 'Meninggal': 'Meninggal', 'Cerai Hidup': 'Cerai Hidup', 'Cerai Mati': 'Cerai Mati' }} />
+                                            <FieldSelect form={form} update={update} label="Status Ibu" name="status_ibu" optional placeholder="-- Pilih Status --"
+                                                options={{ 'Masih Hidup': 'Masih Hidup', 'Sudah Meninggal': 'Sudah Meninggal' }} />
                                             <FieldSelect form={form} update={update} label="Kewarganegaraan Ibu" name="kewarganegaraan_ibu" optional
                                                 options={{ WNI: 'WNI', WNA: 'WNA' }} />
                                             <FieldText form={form} update={update} label="Tempat Lahir Ibu" name="tempat_lahir_ibu" placeholder="Kota lahir ibu" optional />
@@ -504,10 +566,11 @@ if (isEdit) {
                                             <div className="sm:col-span-2 bg-blue-50/50 p-4 rounded-2xl border border-blue-100">
                                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                                     <FieldText form={form} update={update} label="Nama Wali" name="nama_wali" placeholder="Nama lengkap wali" />
-                                                    <FieldText form={form} update={update} label="Pekerjaan Wali" name="pekerjaan_wali" placeholder="Contoh: Wiraswasta" />
+                                                    <FieldSelect form={form} update={update} label="Pekerjaan Wali" name="pekerjaan_wali" optional placeholder="-- Pilih Pekerjaan --"
+                                                        options={PEKERJAAN_OPTIONS} />
                                                     <FieldText form={form} update={update} label="NIK Wali" name="nik_wali" placeholder="16 digit NIK wali" />
                                                     <FieldText form={form} update={update} label="Tahun Lahir Wali" name="tahun_lahir_wali" type="number" placeholder="Contoh: 1980" />
-                                                    <FieldSelect form={form} update={update} label="Penghasilan Wali" name="penghasilan_wali"
+                                                    <FieldSelect form={form} update={update} label="Penghasilan Wali" name="penghasilan_wali" placeholder="-- Pilih Penghasilan --"
                                                         options={{
                                                             'Kurang dari Rp 500.000': 'Kurang dari Rp 500.000',
                                                             'Rp 500.000 - Rp 999.999': 'Rp 500.000 - Rp 999.999',
@@ -518,11 +581,11 @@ if (isEdit) {
                                                             'Tidak Berpenghasilan': 'Tidak Berpenghasilan',
                                                         }} />
                                                     <FieldText form={form} update={update} label="No HP Wali" name="no_hp_wali" type="tel" placeholder="08xxxxxxxxxx" />
-                                                    <FieldSelect form={form} update={update} label="Pendidikan Wali" name="pendidikan_wali"
-                                                        options={{ 'Tidak Sekolah': 'Tidak Sekolah', 'SD / Sederajat': 'SD / Sederajat', 'SMP / Sederajat': 'SMP / Sederajat', 'SMA / Sederajat': 'SMA / Sederajat', D1: 'D1', D2: 'D2', D3: 'D3', 'D4 / S1': 'D4 / S1', S2: 'S2', S3: 'S3' }} />
+                                                    <FieldSelect form={form} update={update} label="Pendidikan Wali" name="pendidikan_wali" optional placeholder="-- Pilih Pendidikan --"
+                                                        options={PENDIDIKAN_OPTIONS} />
                                                     <FieldText form={form} update={update} label="Alamat Wali" name="alamat_wali" type="textarea" placeholder="Alamat domisili wali" sm2 />
-                                                    <FieldSelect form={form} update={update} label="Status Wali" name="status_wali" optional
-                                                        options={{ 'Hidup': 'Hidup', 'Meninggal': 'Meninggal', 'Cerai Hidup': 'Cerai Hidup', 'Cerai Mati': 'Cerai Mati' }} />
+                                                    <FieldSelect form={form} update={update} label="Status Wali" name="status_wali" optional placeholder="-- Pilih Status --"
+                                                        options={{ 'Masih Hidup': 'Masih Hidup', 'Sudah Meninggal': 'Sudah Meninggal' }} />
                                                     <FieldSelect form={form} update={update} label="Kewarganegaraan Wali" name="kewarganegaraan_wali" optional
                                                         options={{ WNI: 'WNI', WNA: 'WNA' }} />
                                                     <FieldText form={form} update={update} label="Tempat Lahir Wali" name="tempat_lahir_wali" placeholder="Kota lahir wali" optional />
@@ -540,18 +603,18 @@ if (isEdit) {
                                                 <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">Alamat Tempat Tinggal Siswa</p>
                                             </div>
                                             <FieldText form={form} update={update} label="Alamat Lengkap Siswa *" name="alamat_siswa" type="textarea" placeholder="Alamat tempat tinggal siswa saat ini" sm2 required />
-                                            <FieldText form={form} update={update} label="RT" name="rt" placeholder="Contoh: 003" />
-                                            <FieldText form={form} update={update} label="RW" name="rw" placeholder="Contoh: 005" />
+                                            <FieldText form={form} update={update} label="RT *" name="rt" placeholder="Contoh: 003" required />
+                                            <FieldText form={form} update={update} label="RW *" name="rw" placeholder="Contoh: 005" required />
                                             <FieldText form={form} update={update} label="Desa / Kelurahan *" name="kelurahan" placeholder="Nama kelurahan" required />
                                             <FieldText form={form} update={update} label="Kecamatan *" name="kecamatan" placeholder="Nama kecamatan" required />
-                                            <FieldText form={form} update={update} label="Kode Pos" name="kode_pos" placeholder="Contoh: 12345" />
+                                            <FieldText form={form} update={update} label="Kode Pos *" name="kode_pos" placeholder="Contoh: 12345" required />
                                             <FieldText form={form} update={update} label="Lintang (Latitude)" name="lintang" type="number" placeholder="Contoh: -6.26000000" />
                                             <FieldText form={form} update={update} label="Bujur (Longitude)" name="bujur" type="number" placeholder="Contoh: 106.81000000" />
 
                                             <div className="sm:col-span-2 border-t border-slate-100 pt-4 mt-2">
                                                 <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">Data Keluarga</p>
                                             </div>
-                                            <FieldText form={form} update={update} label="Anak Ke-" name="anak_ke" type="number" placeholder="Contoh: 2" />
+                                            <FieldText form={form} update={update} label="Anak Ke- *" name="anak_ke" type="number" placeholder="Contoh: 2" required />
                                             <FieldText form={form} update={update} label="Jumlah Saudara Kandung" name="jumlah_saudara" type="number" placeholder="Contoh: 3" />
                                             <FieldText form={form} update={update} label="Nama Kepala Keluarga" name="nama_kepala_keluarga" placeholder="Nama kepala keluarga" sm2 optional />
 
@@ -560,7 +623,7 @@ if (isEdit) {
                                             </div>
                                             <FieldText form={form} update={update} label="Jarak ke Sekolah (km)" name="jarak_tempat_tinggal" type="number" placeholder="Contoh: 2.5" />
                                             <FieldText form={form} update={update} label="Waktu Tempuh (menit)" name="waktu_tempuh" type="number" placeholder="Contoh: 15" />
-                                            <FieldSelect form={form} update={update} label="Moda Transportasi" name="moda_transportasi" sm2
+                                            <FieldSelect form={form} update={update} label="Moda Transportasi *" name="moda_transportasi" required sm2 placeholder="-- Pilih Moda Transportasi --"
                                                 options={{
                                                     'Jalan Kaki': 'Jalan Kaki', Sepeda: 'Sepeda', 'Sepeda Motor': 'Sepeda Motor',
                                                     'Mobil Pribadi': 'Mobil Pribadi', 'Antar Jemput Sekolah': 'Antar Jemput Sekolah',
@@ -575,7 +638,7 @@ if (isEdit) {
                                             <FieldText form={form} update={update} label="No Telp Siswa" name="no_telp_siswa" type="tel" placeholder="Telepon rumah/pribadi" />
                                             <FieldText form={form} update={update} label="HP Siswa" name="hp_siswa" type="tel" placeholder="08xxxxxxxxxx" />
                                             <FieldText form={form} update={update} label="Email Siswa" name="email_siswa" type="email" placeholder="nama@email.com" sm2 />
-                                            <FieldSelect form={form} update={update} label="Imunisasi (Terakhir)" name="imunisasi" optional
+                                            <FieldSelect form={form} update={update} label="Imunisasi (Terakhir)" name="imunisasi" optional placeholder="-- Pilih Imunisasi (Opsional) --"
                                                 options={{ 'Lengkap': 'Lengkap', 'Tidak Lengkap': 'Tidak Lengkap', 'Belum': 'Belum', 'Tidak Diketahui': 'Tidak Diketahui' }} />
                                         </div>
                                         <StepErrors errors={stepErrors[3]} />
@@ -592,18 +655,16 @@ if (isEdit) {
                                                 options={tahunAjarans.reduce((acc, ta) => ({ ...acc, [ta.id]: `${ta.tahun}${ta.is_active ? ' (Aktif)' : ''}` }), {})} />
                                             <FieldSelect form={form} update={update} label="Status Siswa *" name="status" required placeholder="Pilih"
                                                 options={{ aktif: 'Aktif', nonaktif: 'Non-Aktif', pindah: 'Pindah Sekolah', lulus: 'Lulus' }} />
-                                            <FieldText form={form} update={update} label="NIK" name="nik" placeholder="16 digit NIK" />
-                                            <FieldText form={form} update={update} label="No. Kartu Keluarga (KK)" name="no_kk" placeholder="16 digit No. KK" />
                                             <FieldText form={form} update={update} label="Tanggal Masuk *" name="tanggal_masuk" type="date" required />
 
                                             <div className="sm:col-span-2 border-t border-slate-100 pt-4 mt-2">
                                                 <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">Data Fisik & Kesehatan</p>
                                             </div>
-                                            <FieldSelect form={form} update={update} label="Golongan Darah" name="golongan_darah" placeholder="Tidak Diketahui"
-                                                options={{ A: 'A', B: 'B', AB: 'AB', O: 'O' }} />
-                                            <FieldText form={form} update={update} label="Tinggi Badan (cm)" name="tinggi_badan" type="number" placeholder="Contoh: 125" />
-                                            <FieldText form={form} update={update} label="Berat Badan (kg)" name="berat_badan" type="number" placeholder="Contoh: 25" />
-                                            <FieldText form={form} update={update} label="Lingkar Kepala (cm)" name="lingkar_kepala" type="number" placeholder="Contoh: 51.5" />
+                                            <FieldSelect form={form} update={update} label="Golongan Darah *" name="golongan_darah" required placeholder="-- Pilih Golongan Darah --"
+                                                options={{ A: 'A', B: 'B', AB: 'AB', O: 'O', 'Tidak Diketahui': 'Tidak Diketahui' }} />
+                                            <FieldText form={form} update={update} label="Tinggi Badan (cm) *" name="tinggi_badan" type="number" placeholder="Contoh: 125" required />
+                                            <FieldText form={form} update={update} label="Berat Badan (kg) *" name="berat_badan" type="number" placeholder="Contoh: 25" required />
+                                            <FieldText form={form} update={update} label="Lingkar Kepala (cm) *" name="lingkar_kepala" type="number" placeholder="Contoh: 51.5" required />
                                             <FieldText form={form} update={update} label="Kebutuhan Khusus / ABK" name="kebutuhan_khusus" placeholder="Kosongkan jika tidak ada" sm2 />
                                             <FieldText form={form} update={update} label="Riwayat Penyakit" name="riwayat_penyakit" type="textarea" placeholder="Riwayat penyakit / alergi (opsional)" sm2 />
                                             <FieldText form={form} update={update} label="Catatan Kesehatan (Semester Ini)" name="catatan_kesehatan" type="textarea" placeholder="Kondisi kesehatan untuk semester ini..." sm2 />

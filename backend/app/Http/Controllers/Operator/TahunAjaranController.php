@@ -3,18 +3,17 @@
 namespace App\Http\Controllers\Operator;
 
 use App\Http\Controllers\Controller;
-use App\Models\TahunAjaran;
-use App\Models\Siswa;
 use App\Models\Kelas;
+use App\Models\Semester;
+use App\Models\Siswa;
+use App\Models\TahunAjaran;
 use App\Services\RiwayatKelasService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class TahunAjaranController extends Controller
 {
-    public function __construct(private RiwayatKelasService $riwayatKelasService)
-    {
-    }
+    public function __construct(private RiwayatKelasService $riwayatKelasService) {}
 
     public function index()
     {
@@ -22,13 +21,13 @@ class TahunAjaranController extends Controller
             ->orderBy('id', 'desc')
             ->get();
 
-        // For demonstration, calculating student counts for each year
         $arsipData = TahunAjaran::where('is_active', false)
             ->orderBy('id', 'desc')
             ->get()
             ->map(function ($item) {
                 $item->jumlah_siswa = DB::table('siswas')->count();
                 $item->kelulusan = 100;
+
                 return $item;
             });
 
@@ -38,15 +37,14 @@ class TahunAjaranController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'tahun'     => 'required|string',
+            'tahun' => 'required|string',
             'is_active' => 'boolean',
         ]);
 
         if ($validated['is_active'] ?? false) {
             TahunAjaran::where('is_active', true)->update(['is_active' => false]);
-            
-            // Sinkronisasi: Nonaktifkan semua semester di tahun ajaran lain
-            \App\Models\Semester::where('is_active', true)->update(['is_active' => false]);
+
+            Semester::where('is_active', true)->update(['is_active' => false]);
         }
 
         TahunAjaran::create($validated);
@@ -57,19 +55,18 @@ class TahunAjaranController extends Controller
     public function update(Request $request, $id)
     {
         $validated = $request->validate([
-            'tahun'     => 'required|string',
+            'tahun' => 'required|string',
             'is_active' => 'boolean',
         ]);
 
         $tahunAjaran = TahunAjaran::findOrFail($id);
 
-        if (($validated['is_active'] ?? false) && !$tahunAjaran->is_active) {
+        if (($validated['is_active'] ?? false) && ! $tahunAjaran->is_active) {
             TahunAjaran::where('is_active', true)->update(['is_active' => false]);
-            
-            // Sinkronisasi: Nonaktifkan semua semester dari tahun ajaran lain
-            \App\Models\Semester::where('tahun_ajaran_id', '!=', $id)
-                                ->where('is_active', true)
-                                ->update(['is_active' => false]);
+
+            Semester::where('tahun_ajaran_id', '!=', $id)
+                ->where('is_active', true)
+                ->update(['is_active' => false]);
         }
 
         $tahunAjaran->update($validated);
@@ -82,7 +79,7 @@ class TahunAjaranController extends Controller
         $tahunAjaran = TahunAjaran::findOrFail($id);
         $tahunAjaran->delete();
 
-        return response()->json(['message' => 'Tahun ajaran berhasil dihapus']);
+        return response()->json(['message' => 'Tahun ajaran berhasil dihapus dan dipindahkan ke Recycle Bin.']);
     }
 
     public function archive($id)
@@ -91,21 +88,74 @@ class TahunAjaranController extends Controller
         $tahunAjaran->is_active = false;
         $tahunAjaran->save();
 
-        // Sinkronisasi: Nonaktifkan semua semesternya
-        \App\Models\Semester::where('tahun_ajaran_id', $id)
-                            ->update(['is_active' => false]);
+        Semester::where('tahun_ajaran_id', $id)
+            ->update(['is_active' => false]);
 
         return response()->json(['message' => 'Tahun ajaran berhasil diarsipkan']);
+    }
+
+    // ─── Recycle Bin ─────────────────────────────────────────────────────
+
+    public function trash(Request $request)
+    {
+        $tahunAjarans = TahunAjaran::onlyTrashed()
+            ->with('semesters')
+            ->orderBy('deleted_at', 'desc')
+            ->paginate(10);
+
+        return response()->json([
+            'tahun_ajarans' => [
+                'data' => $tahunAjarans->map(function ($ta) {
+                    return [
+                        'id' => $ta->id,
+                        'tahun' => $ta->tahun,
+                        'is_active' => $ta->is_active,
+                        'semesters' => $ta->semesters->map(fn ($s) => [
+                            'id' => $s->id,
+                            'nama' => $s->nama,
+                        ]),
+                        'deleted_at' => $ta->deleted_at->format('d M Y, H:i'),
+                    ];
+                }),
+                'total' => $tahunAjarans->total(),
+                'current_page' => $tahunAjarans->currentPage(),
+                'last_page' => $tahunAjarans->lastPage(),
+                'from' => $tahunAjarans->firstItem(),
+                'to' => $tahunAjarans->lastItem(),
+            ],
+        ]);
+    }
+
+    public function restore($id)
+    {
+        $tahunAjaran = TahunAjaran::onlyTrashed()->findOrFail($id);
+        $tahunAjaran->restore();
+
+        return response()->json([
+            'success' => true,
+            'message' => "Tahun ajaran {$tahunAjaran->tahun} berhasil dipulihkan.",
+        ]);
+    }
+
+    public function forceDelete($id)
+    {
+        $tahunAjaran = TahunAjaran::onlyTrashed()->findOrFail($id);
+        $nama = $tahunAjaran->tahun;
+        $tahunAjaran->forceDelete();
+
+        return response()->json([
+            'success' => true,
+            'message' => "Tahun ajaran {$nama} dihapus permanen.",
+        ]);
     }
 
     public function kenaikanKelas()
     {
         $activeTahun = TahunAjaran::where('is_active', true)->first();
-        if (!$activeTahun) {
+        if (! $activeTahun) {
             return response()->json(['success' => false, 'message' => 'Silahkan aktifkan Tahun Ajaran terlebih dahulu.'], 422);
         }
 
-        // Ambil siswa yang kelasnya ada di TA aktif
         $siswas = Siswa::with('kelas')
             ->whereHas('kelas', function ($q) use ($activeTahun) {
                 $q->where('tahun_ajaran_id', $activeTahun->id);
@@ -114,26 +164,25 @@ class TahunAjaranController extends Controller
             ->get()
             ->map(function ($s) {
                 return [
-                    'id'           => $s->id,
-                    'nama'         => $s->nama,
-                    'nis'          => $s->nis,
-                    'tingkat'      => (int) ($s->kelas->tingkat ?? $s->tingkat ?? 1),
-                    'rombelAsal'   => $s->kelas
-                        ? $s->kelas->tingkat . $s->kelas->nama_kelas
+                    'id' => $s->id,
+                    'nama' => $s->nama,
+                    'nis' => $s->nis,
+                    'tingkat' => (int) ($s->kelas->tingkat ?? $s->tingkat ?? 1),
+                    'rombelAsal' => $s->kelas
+                        ? $s->kelas->tingkat.$s->kelas->nama_kelas
                         : '-',
-                    'status'       => 'belum',
+                    'status' => 'belum',
                     'tingkatTujuan' => '',
                     'rombelTujuan' => '',
-                    'rombel_id'    => $s->kelas_id,
+                    'rombel_id' => $s->kelas_id,
                 ];
             });
 
-        // Ambil SEMUA rombel dari semua TA
         $rombels = Kelas::with('tahunAjaran')->get()->map(function ($r) {
             return [
-                'id'              => $r->id,
-                'nama'            => $r->tingkat . $r->nama_kelas,
-                'tingkat'         => (int) $r->tingkat,
+                'id' => $r->id,
+                'nama' => $r->tingkat.$r->nama_kelas,
+                'tingkat' => (int) $r->tingkat,
                 'tahun_ajaran_id' => $r->tahun_ajaran_id,
             ];
         });
@@ -151,7 +200,7 @@ class TahunAjaranController extends Controller
     public function promoteSiswa(Request $request)
     {
         $request->validate([
-            'siswa'        => 'required|array',
+            'siswa' => 'required|array',
             'ta_tujuan_id' => 'required|exists:tahun_ajarans,id',
         ]);
 
@@ -163,15 +212,21 @@ class TahunAjaranController extends Controller
 
             foreach ($request->siswa as $sData) {
                 $siswa = Siswa::find($sData['id']);
-                if (!$siswa) continue;
+                if (! $siswa) {
+                    continue;
+                }
 
                 if (in_array($sData['status'], ['naik', 'tinggal'])) {
                     $rombelId = $sData['rombelTujuan'];
 
-                    if (!$rombelId || $rombelId === '-') continue;
+                    if (! $rombelId || $rombelId === '-') {
+                        continue;
+                    }
 
                     $kelas = Kelas::find($rombelId);
-                    if (!$kelas) continue;
+                    if (! $kelas) {
+                        continue;
+                    }
 
                     $jenisPerubahan = $sData['status'] === 'naik' ? 'naik_kelas' : 'turun_kelas';
                     $this->riwayatKelasService->recordPromotion(
@@ -183,10 +238,10 @@ class TahunAjaranController extends Controller
                     );
 
                     $siswa->update([
-                        'tingkat'  => $kelas->tingkat,
+                        'tingkat' => $kelas->tingkat,
                         'kelas_id' => $kelas->id,
                         'tahun_ajaran_id' => $tahunAjaranTujuan->id,
-                        'status'   => 'aktif',
+                        'status' => 'aktif',
                     ]);
                 } elseif ($sData['status'] === 'lulus') {
                     $this->riwayatKelasService->recordTerminalEvent(
@@ -199,7 +254,7 @@ class TahunAjaranController extends Controller
                     );
 
                     $siswa->update([
-                        'status'   => 'lulus',
+                        'status' => 'lulus',
                         'kelas_id' => null,
                         'tahun_ajaran_id' => $tahunAjaranTujuan->id,
                     ]);
@@ -207,15 +262,17 @@ class TahunAjaranController extends Controller
             }
 
             DB::commit();
+
             return response()->json([
                 'success' => true,
-                'message' => 'Proses kenaikan kelas berhasil.'
+                'message' => 'Proses kenaikan kelas berhasil.',
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json([
                 'success' => false,
-                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+                'message' => 'Terjadi kesalahan: '.$e->getMessage(),
             ], 500);
         }
     }

@@ -343,116 +343,7 @@ class SiswaController extends Controller
     // ─────────────────────────────────────────
     public function store(Request $request)
     {
-        $request->validate([
-            'jenis_pendaftaran' => 'required|in:baru,pindahan',
-            'user_id' => 'nullable|exists:users,id',
-            'nisn' => 'nullable|digits:10|unique:siswas,nisn',
-            'nis' => 'required|string|max:20|unique:siswas,nis',
-            'nama' => 'required|string|max:255',
-            'nik' => 'nullable|digits:16',
-            'no_kk' => 'nullable|digits:16',
-            'jenis_kelamin' => 'required|in:L,P',
-            'tempat_lahir' => 'nullable|string|max:100',
-            'tanggal_lahir' => 'nullable|date',
-            'kelas_id' => 'nullable|exists:kelas,id',
-            'status' => 'nullable|in:aktif,nonaktif,pindah,lulus',
-            'tahun_ajaran_id' => 'nullable|exists:tahun_ajarans,id',
-            'agama' => 'required|string|max:50',
-            'golongan_darah' => 'nullable|in:A,B,AB,O,Tidak Diketahui',
-            'tinggi_badan' => 'nullable|integer|min:50|max:250',
-            'berat_badan' => 'nullable|integer|min:5|max:200',
-            'catatan_kesehatan' => 'nullable|string',
-            'riwayat_penyakit' => 'nullable|string',
-            'kebutuhan_khusus' => 'nullable|string|max:100',
-            'asal_sekolah' => 'nullable|string|max:255',
-            'npsn_asal' => 'nullable|string|max:20',
-            'no_surat_mutasi' => 'required_if:jenis_pendaftaran,pindahan|nullable|string|max:100',
-            'alasan_mutasi' => 'required_if:jenis_pendaftaran,pindahan|nullable|string',
-            'tanggal_masuk' => 'required|date|before_or_equal:today',
-            'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            // Dapodik: Identitas lanjutan & data tambahan
-            'kewarganegaraan' => 'nullable|in:WNI,WNA',
-            'no_registrasi_akta_kelahiran' => 'nullable|string|max:100',
-            'lintang' => 'nullable|numeric|between:-90,90',
-            'bujur' => 'nullable|numeric|between:-180,180',
-            'kebutuhan_khusus_ayah' => 'nullable|string|max:100',
-            'kebutuhan_khusus_ibu' => 'nullable|string|max:100',
-            'hobi' => 'nullable|string|max:100',
-            'cita_cita' => 'nullable|string|max:100',
-            'no_telp_siswa' => 'nullable|string|max:20',
-            'hp_siswa' => 'nullable|string|max:20',
-            'email_siswa' => 'nullable|email|max:150',
-            'lingkar_kepala' => 'nullable|numeric|min:0|max:99.99',
-            // Dapodik: Kesejahteraan
-            'penerima_kps_pkh' => 'nullable|boolean',
-            'no_kps_pkh' => 'required_if:penerima_kps_pkh,1|nullable|string|max:100',
-            'layak_pip' => 'nullable|boolean',
-            'alasan_layak_pip' => 'required_if:layak_pip,1|nullable|string',
-            'penerima_kip' => 'nullable|boolean',
-            'no_kip' => 'required_if:penerima_kip,1|nullable|string|max:100',
-            'nama_tertera_di_kip' => 'required_if:penerima_kip,1|nullable|string|max:150',
-            // Dapodik: Alamat & Domisili Siswa
-            'alamat_siswa' => 'required|string',
-            'rt' => 'nullable|string|max:5',
-            'rw' => 'nullable|string|max:5',
-            'kelurahan' => 'required|string|max:100',
-            'kecamatan' => 'required|string|max:100',
-            'kode_pos' => 'nullable|string|max:10',
-            // Dapodik: Data Keluarga
-            'anak_ke' => 'nullable|integer|min:1|max:20',
-            'jumlah_saudara' => 'nullable|integer|min:0|max:20',
-            // Dapodik: Data Periodik / Geografis
-            'jarak_tempat_tinggal' => 'nullable|numeric|min:0|max:999',
-            'waktu_tempuh' => 'nullable|integer|min:0|max:999',
-            'moda_transportasi' => 'nullable|string|max:50',
-            // Excel fields
-            'kelas_pararel' => 'nullable|string|max:10',
-            'no_absen' => 'nullable|string|max:10',
-            'nama_kepala_keluarga' => 'nullable|string|max:255',
-            'pembiaya_sekolah' => 'nullable|string|max:100',
-            'imunisasi' => 'nullable|string|max:100',
-            'status_ayah' => 'nullable|string|max:50',
-            'kewarganegaraan_ayah' => 'nullable|string|max:10',
-            'tempat_lahir_ayah' => 'nullable|string|max:100',
-            'no_hp_ayah' => 'nullable|string|max:20',
-            'status_ibu' => 'nullable|string|max:50',
-            'kewarganegaraan_ibu' => 'nullable|string|max:10',
-            'tempat_lahir_ibu' => 'nullable|string|max:100',
-            'no_hp_ibu' => 'nullable|string|max:20',
-            'status_wali' => 'nullable|string|max:50',
-            'kewarganegaraan_wali' => 'nullable|string|max:10',
-            'tempat_lahir_wali' => 'nullable|string|max:100',
-            // data orang tua
-            'nama_ayah' => 'nullable|string|max:255',
-            'nik_ayah' => 'nullable|digits:16',
-            'tahun_lahir_ayah' => 'nullable|integer|min:1940|max:' . date('Y'),
-            'pendidikan_ayah' => 'nullable|string|max:50',
-            'nama_ibu' => 'nullable|string|max:255',
-            'nik_ibu' => 'nullable|digits:16',
-            'tahun_lahir_ibu' => 'nullable|integer|min:1940|max:' . date('Y'),
-            'pendidikan_ibu' => 'nullable|string|max:50',
-            'pekerjaan_ayah' => 'nullable|string|max:100',
-            'pekerjaan_ibu' => 'nullable|string|max:100',
-            'no_hp_ortu' => 'required|string|max:20',
-            'alamat' => 'required|string',
-            'nama_wali' => 'nullable|string|max:255',
-            'nik_wali' => 'nullable|digits:16',
-            'tahun_lahir_wali' => 'nullable|integer|min:1940|max:' . date('Y'),
-            'pekerjaan_wali' => 'nullable|string|max:100',
-            'pendidikan_wali' => 'nullable|string|max:50',
-            'no_hp_wali' => 'nullable|string|max:20',
-            'alamat_wali' => 'nullable|string',
-            'penghasilan_ayah' => 'nullable|string|max:100',
-            'penghasilan_ibu' => 'nullable|string|max:100',
-            'penghasilan_wali' => 'nullable|string|max:100',
-            // Berkas Opsional
-            'berkas_kk' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
-            'berkas_akte' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
-            'berkas_ijazah' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
-            // Berkas Mutasi
-            'berkas_surat_mutasi' => 'required_if:jenis_pendaftaran,pindahan|nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
-            'berkas_rapor_asal' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
-        ]);
+        $request->validate($this->siswaValidationRules(null, true));
 
         // ── FIX BUG-01 & BUG-02: Upload foto dilakukan DALAM transaksi ──────────
         // Jika DB::transaction gagal, file foto yang sudah terbuat akan dihapus
@@ -624,110 +515,7 @@ class SiswaController extends Controller
     {
         $siswa = Siswa::findOrFail($id);
 
-        $request->validate([
-            'user_id' => 'nullable|exists:users,id',
-            'nisn' => 'nullable|digits:10|unique:siswas,nisn,' . $id,
-            'nis' => 'required|string|max:20|unique:siswas,nis,' . $id,
-            'nama' => 'required|string|max:255',
-            'nik' => 'nullable|digits:16',
-            'no_kk' => 'nullable|digits:16',
-            'jenis_kelamin' => 'required|in:L,P',
-            'tempat_lahir' => 'nullable|string|max:100',
-            'tanggal_lahir' => 'nullable|date',
-            'kelas_id' => 'nullable|exists:kelas,id',
-            'status' => 'nullable|in:aktif,nonaktif,pindah,lulus',
-            'tahun_ajaran_id' => 'nullable|exists:tahun_ajarans,id',
-            'agama' => 'required|string|max:50',
-            'golongan_darah' => 'nullable|in:A,B,AB,O,Tidak Diketahui',
-            'tinggi_badan' => 'nullable|integer|min:50|max:250',
-            'berat_badan' => 'nullable|integer|min:5|max:200',
-            'catatan_kesehatan' => 'nullable|string',
-            'riwayat_penyakit' => 'nullable|string',
-            'kebutuhan_khusus' => 'nullable|string|max:100',
-            'asal_sekolah' => 'nullable|string|max:255',
-            'npsn_asal' => 'nullable|string|max:20',
-            'tanggal_masuk' => 'required|date|before_or_equal:today',
-            'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            // Dapodik: Identitas lanjutan & data tambahan
-            'kewarganegaraan' => 'nullable|in:WNI,WNA',
-            'no_registrasi_akta_kelahiran' => 'nullable|string|max:100',
-            'lintang' => 'nullable|numeric|between:-90,90',
-            'bujur' => 'nullable|numeric|between:-180,180',
-            'kebutuhan_khusus_ayah' => 'nullable|string|max:100',
-            'kebutuhan_khusus_ibu' => 'nullable|string|max:100',
-            'hobi' => 'nullable|string|max:100',
-            'cita_cita' => 'nullable|string|max:100',
-            'no_telp_siswa' => 'nullable|string|max:20',
-            'hp_siswa' => 'nullable|string|max:20',
-            'email_siswa' => 'nullable|email|max:150',
-            'lingkar_kepala' => 'nullable|numeric|min:0|max:99.99',
-            // Dapodik: Kesejahteraan
-            'penerima_kps_pkh' => 'nullable|boolean',
-            'no_kps_pkh' => 'required_if:penerima_kps_pkh,1|nullable|string|max:100',
-            'layak_pip' => 'nullable|boolean',
-            'alasan_layak_pip' => 'required_if:layak_pip,1|nullable|string',
-            'penerima_kip' => 'nullable|boolean',
-            'no_kip' => 'required_if:penerima_kip,1|nullable|string|max:100',
-            'nama_tertera_di_kip' => 'required_if:penerima_kip,1|nullable|string|max:150',
-            // Dapodik: Alamat & Domisili Siswa
-            'alamat_siswa' => 'required|string',
-            'rt' => 'nullable|string|max:5',
-            'rw' => 'nullable|string|max:5',
-            'kelurahan' => 'required|string|max:100',
-            'kecamatan' => 'required|string|max:100',
-            'kode_pos' => 'nullable|string|max:10',
-            // Dapodik: Data Keluarga
-            'anak_ke' => 'nullable|integer|min:1|max:20',
-            'jumlah_saudara' => 'nullable|integer|min:0|max:20',
-            // Dapodik: Data Periodik / Geografis
-            'jarak_tempat_tinggal' => 'nullable|numeric|min:0|max:999',
-            'waktu_tempuh' => 'nullable|integer|min:0|max:999',
-            'moda_transportasi' => 'nullable|string|max:50',
-            // Excel fields
-            'kelas_pararel' => 'nullable|string|max:10',
-            'no_absen' => 'nullable|string|max:10',
-            'nama_kepala_keluarga' => 'nullable|string|max:255',
-            'pembiaya_sekolah' => 'nullable|string|max:100',
-            'imunisasi' => 'nullable|string|max:100',
-            'status_ayah' => 'nullable|string|max:50',
-            'kewarganegaraan_ayah' => 'nullable|string|max:10',
-            'tempat_lahir_ayah' => 'nullable|string|max:100',
-            'no_hp_ayah' => 'nullable|string|max:20',
-            'status_ibu' => 'nullable|string|max:50',
-            'kewarganegaraan_ibu' => 'nullable|string|max:10',
-            'tempat_lahir_ibu' => 'nullable|string|max:100',
-            'no_hp_ibu' => 'nullable|string|max:20',
-            'status_wali' => 'nullable|string|max:50',
-            'kewarganegaraan_wali' => 'nullable|string|max:10',
-            'tempat_lahir_wali' => 'nullable|string|max:100',
-            // Orang Tua Dapodik
-            'nama_ayah' => 'nullable|string|max:255',
-            'nik_ayah' => 'nullable|string|max:16',
-            'tahun_lahir_ayah' => 'nullable|integer|min:1940|max:' . date('Y'),
-            'pendidikan_ayah' => 'nullable|string|max:50',
-            'pekerjaan_ayah' => 'nullable|string|max:100',
-            'nama_ibu' => 'nullable|string|max:255',
-            'nik_ibu' => 'nullable|string|max:16',
-            'tahun_lahir_ibu' => 'nullable|integer|min:1940|max:' . date('Y'),
-            'pendidikan_ibu' => 'nullable|string|max:50',
-            'pekerjaan_ibu' => 'nullable|string|max:100',
-            'no_hp_ortu' => 'required|string|max:20',
-            'alamat' => 'required|string',
-            'nama_wali' => 'nullable|string|max:255',
-            'nik_wali' => 'nullable|digits:16',
-            'tahun_lahir_wali' => 'nullable|integer|min:1940|max:' . date('Y'),
-            'pekerjaan_wali' => 'nullable|string|max:100',
-            'pendidikan_wali' => 'nullable|string|max:50',
-            'no_hp_wali' => 'nullable|string|max:20',
-            'alamat_wali' => 'nullable|string',
-            'penghasilan_ayah' => 'nullable|string|max:100',
-            'penghasilan_ibu' => 'nullable|string|max:100',
-            'penghasilan_wali' => 'nullable|string|max:100',
-            // Berkas Opsional
-            'berkas_kk' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
-            'berkas_akte' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
-            'berkas_ijazah' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
-        ]);
+        $request->validate($this->siswaValidationRules($id, false));
 
         $data = [
             'user_id' => $request->user_id,
@@ -1676,6 +1464,162 @@ TXT;
         $beasiswa = \App\Models\Beasiswa::where('siswa_id', $siswaId)->findOrFail($beasiswaId);
         $beasiswa->delete();
         return response()->json(['success' => true, 'message' => 'Data beasiswa berhasil dihapus.']);
+    }
+
+    /**
+     * Validation rules standar Dapodik & Kemenag RI untuk data siswa.
+     * Dipakai oleh store() dan update() agar konsisten.
+     *
+     * @param int|null $id  ID siswa untuk unique ignore (update), null untuk store
+     * @param bool $isStore  True = store (perlu jenis_pendaftaran & berkas mutasi)
+     * @return array
+     */
+    private function siswaValidationRules(?int $id = null, bool $isStore = true): array
+    {
+        // ── Enum standar Dapodik ──
+        $agamaEnum = 'Islam,Kristen,Katolik,Hindu,Budha,Khonghucu';
+        $pekerjaanEnum = 'Tidak Bekerja,Nelayan,Petani,Peternak,PNS/TNI/POLRI,Karyawan Swasta,Pedagang Kecil,Pedagang Besar,Wiraswasta,Wirausaha,Buruh,Pensiunan,Tenaga Kerja Indonesia,Karyawan BUMN,Tidak dapat diterapkan,Sudah Meninggal,Lainnya';
+        $pendidikanEnum = 'Tidak Sekolah,Putus SD,SD / Sederajat,SMP / Sederajat,SMA / Sederajat,D1,D2,D3,D4 / S1,S2,S3';
+        $penghasilanEnum = 'Kurang dari Rp 500.000,Rp 500.000 - Rp 999.999,Rp 1.000.000 - Rp 1.999.999,Rp 2.000.000 - Rp 4.999.999,Rp 5.000.000 - Rp 20.000.000,Lebih dari Rp 20.000.000,Tidak Berpenghasilan';
+        $modaTransportasiEnum = 'Jalan Kaki,Sepeda,Sepeda Motor,Mobil Pribadi,Antar Jemput Sekolah,Angkutan Umum,Perahu / Sampan,Lainnya';
+        $statusOrtuEnum = 'Masih Hidup,Sudah Meninggal';
+        $pembiayaEnum = 'Orang Tua,Wali,Pemerintah,Swasta,Lainnya';
+        $imunisasiEnum = 'Lengkap,Tidak Lengkap,Belum,Tidak Diketahui';
+
+        $uniqueNisn = $id ? 'unique:siswas,nisn,' . $id : 'unique:siswas,nisn';
+        $uniqueNis = $id ? 'unique:siswas,nis,' . $id : 'unique:siswas,nis';
+        $maxTahun = date('Y');
+
+        $rules = [
+            // ── Identitas Siswa ──
+            'user_id' => 'nullable|exists:users,id',
+            'nisn' => 'required|digits:10|' . $uniqueNisn,
+            'nis' => 'required|string|max:20|' . $uniqueNis,
+            'nama' => 'required|string|max:255',
+            'nik' => 'required|digits:16',
+            'no_kk' => 'required|digits:16',
+            'jenis_kelamin' => 'required|in:L,P',
+            'tempat_lahir' => 'required|string|max:100',
+            'tanggal_lahir' => 'required|date|before_or_equal:today',
+            'kelas_id' => 'nullable|exists:kelas,id',
+            'status' => 'nullable|in:aktif,nonaktif,pindah,lulus',
+            'tahun_ajaran_id' => 'nullable|exists:tahun_ajarans,id',
+            'agama' => 'required|in:' . $agamaEnum,
+            'golongan_darah' => 'required|in:A,B,AB,O,Tidak Diketahui',
+            'tinggi_badan' => 'required|numeric|min:30|max:250',
+            'berat_badan' => 'required|numeric|min:3|max:200',
+            'catatan_kesehatan' => 'nullable|string',
+            'riwayat_penyakit' => 'nullable|string',
+            'kebutuhan_khusus' => 'nullable|string|max:100',
+            'asal_sekolah' => 'nullable|string|max:255',
+            'npsn_asal' => 'nullable|string|max:20',
+            'tanggal_masuk' => 'required|date|before_or_equal:today',
+            'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+
+            // ── Dapodik: Identitas lanjutan & data tambahan ──
+            'kewarganegaraan' => 'required|in:WNI,WNA',
+            'no_registrasi_akta_kelahiran' => 'nullable|string|max:100',
+            'lintang' => 'nullable|numeric|between:-90,90',
+            'bujur' => 'nullable|numeric|between:-180,180',
+            'kebutuhan_khusus_ayah' => 'nullable|string|max:100',
+            'kebutuhan_khusus_ibu' => 'nullable|string|max:100',
+            'hobi' => 'nullable|string|max:100',
+            'cita_cita' => 'nullable|string|max:100',
+            'no_telp_siswa' => 'nullable|string|max:20',
+            'hp_siswa' => 'nullable|string|max:20',
+            'email_siswa' => 'nullable|email|max:150',
+            'lingkar_kepala' => 'required|numeric|min:20|max:80',
+
+            // ── Dapodik: Kesejahteraan ──
+            'penerima_kps_pkh' => 'nullable|boolean',
+            'no_kps_pkh' => 'required_if:penerima_kps_pkh,1|nullable|string|max:100',
+            'layak_pip' => 'nullable|boolean',
+            'alasan_layak_pip' => 'required_if:layak_pip,1|nullable|string',
+            'penerima_kip' => 'nullable|boolean',
+            'no_kip' => 'required_if:penerima_kip,1|nullable|string|max:100',
+            'nama_tertera_di_kip' => 'required_if:penerima_kip,1|nullable|string|max:150',
+
+            // ── Dapodik: Alamat & Domisili Siswa ──
+            'alamat_siswa' => 'required|string',
+            'rt' => 'required|string|max:5',
+            'rw' => 'required|string|max:5',
+            'kelurahan' => 'required|string|max:100',
+            'kecamatan' => 'required|string|max:100',
+            'kode_pos' => 'required|digits:5',
+
+            // ── Dapodik: Data Keluarga ──
+            'anak_ke' => 'required|integer|min:1|max:20',
+            'jumlah_saudara' => 'nullable|integer|min:0|max:20',
+
+            // ── Dapodik: Data Periodik / Geografis ──
+            'jarak_tempat_tinggal' => 'nullable|numeric|min:0|max:999',
+            'waktu_tempuh' => 'nullable|integer|min:0|max:999',
+            'moda_transportasi' => 'required|in:' . $modaTransportasiEnum,
+
+            // ── Field Excel / Tambahan ──
+            'kelas_pararel' => 'nullable|string|max:10',
+            'no_absen' => 'nullable|string|max:10',
+            'nama_kepala_keluarga' => 'nullable|string|max:255',
+            'pembiaya_sekolah' => 'nullable|in:' . $pembiayaEnum,
+            'imunisasi' => 'nullable|in:' . $imunisasiEnum,
+
+            // ── Dapodik: Data Orang Tua — Ayah ──
+            'nama_ayah' => 'required|string|max:255',
+            'nik_ayah' => 'required|digits:16',
+            'tahun_lahir_ayah' => 'required|integer|min:1940|max:' . $maxTahun,
+            'pendidikan_ayah' => 'required|in:' . $pendidikanEnum,
+            'pekerjaan_ayah' => 'required|in:' . $pekerjaanEnum,
+            'penghasilan_ayah' => 'required|in:' . $penghasilanEnum,
+            'status_ayah' => 'nullable|in:' . $statusOrtuEnum,
+            'kewarganegaraan_ayah' => 'nullable|in:WNI,WNA',
+            'tempat_lahir_ayah' => 'nullable|string|max:100',
+            'no_hp_ayah' => 'nullable|string|max:20',
+
+            // ── Dapodik: Data Orang Tua — Ibu ──
+            'nama_ibu' => 'required|string|max:255',
+            'nik_ibu' => 'required|digits:16',
+            'tahun_lahir_ibu' => 'required|integer|min:1940|max:' . $maxTahun,
+            'pendidikan_ibu' => 'required|in:' . $pendidikanEnum,
+            'pekerjaan_ibu' => 'required|in:' . $pekerjaanEnum,
+            'penghasilan_ibu' => 'required|in:' . $penghasilanEnum,
+            'status_ibu' => 'nullable|in:' . $statusOrtuEnum,
+            'kewarganegaraan_ibu' => 'nullable|in:WNI,WNA',
+            'tempat_lahir_ibu' => 'nullable|string|max:100',
+            'no_hp_ibu' => 'nullable|string|max:20',
+
+            // ── Dapodik: Kontak & Alamat Orang Tua ──
+            'no_hp_ortu' => 'required|string|max:20',
+            'alamat' => 'required|string',
+
+            // ── Dapodik: Data Wali (opsional) ──
+            'nama_wali' => 'nullable|string|max:255',
+            'nik_wali' => 'nullable|digits:16',
+            'tahun_lahir_wali' => 'nullable|integer|min:1940|max:' . $maxTahun,
+            'pekerjaan_wali' => 'nullable|in:' . $pekerjaanEnum,
+            'pendidikan_wali' => 'nullable|in:' . $pendidikanEnum,
+            'penghasilan_wali' => 'nullable|in:' . $penghasilanEnum,
+            'no_hp_wali' => 'nullable|string|max:20',
+            'alamat_wali' => 'nullable|string',
+            'status_wali' => 'nullable|in:' . $statusOrtuEnum,
+            'kewarganegaraan_wali' => 'nullable|in:WNI,WNA',
+            'tempat_lahir_wali' => 'nullable|string|max:100',
+
+            // ── Berkas Opsional ──
+            'berkas_kk' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+            'berkas_akte' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+            'berkas_ijazah' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+        ];
+
+        // Store-only rules: jenis pendaftaran, mutasi, berkas mutasi
+        if ($isStore) {
+            $rules['jenis_pendaftaran'] = 'required|in:baru,pindahan';
+            $rules['no_surat_mutasi'] = 'required_if:jenis_pendaftaran,pindahan|nullable|string|max:100';
+            $rules['alasan_mutasi'] = 'required_if:jenis_pendaftaran,pindahan|nullable|string';
+            $rules['berkas_surat_mutasi'] = 'required_if:jenis_pendaftaran,pindahan|nullable|file|mimes:pdf,jpg,jpeg,png|max:5120';
+            $rules['berkas_rapor_asal'] = 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120';
+        }
+
+        return $rules;
     }
 
     private function dataTambahanPayload(Request $request): array

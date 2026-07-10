@@ -11,9 +11,15 @@ export const siswaAPI = {
     store: (data) => api.post('/operator/data-siswa', data, {
         headers: { 'Content-Type': 'multipart/form-data' }
     }),
-    update: (id, data) => api.put(`/operator/data-siswa/${id}`, data, {
-    headers: { 'Content-Type': 'multipart/form-data' }
-}),
+    update: (id, data) => {
+        if (data instanceof FormData) {
+            data.append('_method', 'PUT');
+            return api.post(`/operator/data-siswa/${id}`, data, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+        }
+        return api.put(`/operator/data-siswa/${id}`, data);
+    },
     destroy: (id) => api.delete(`/operator/data-siswa/${id}`),
     trash: (params = {}) => api.get('/operator/data-siswa/trash', { params }),
     restore: (id) => api.post(`/operator/data-siswa/${id}/restore`),
@@ -48,9 +54,15 @@ export const guruAPI = {
     store: (data) => api.post('/operator/data-guru', data, {
         headers: { 'Content-Type': 'multipart/form-data' }
     }),
-    update: (id, data) => api.put(`/operator/data-guru/${id}`, data, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-    }),
+    update: (id, data) => {
+        if (data instanceof FormData) {
+            data.append('_method', 'PUT');
+            return api.post(`/operator/data-guru/${id}`, data, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+        }
+        return api.put(`/operator/data-guru/${id}`, data);
+    },
     show: (id) => api.get(`/operator/data-guru/${id}/show`),
     destroy: (id) => api.delete(`/operator/data-guru/${id}`),
     trash: () => api.get('/operator/data-guru/trash'),
@@ -105,6 +117,9 @@ export const tahunAjaranAPI = {
     store: (data) => api.post('/operator/tahun-ajaran', data),
     update: (id, data) => api.put(`/operator/tahun-ajaran/${id}`, data),
     destroy: (id) => api.delete(`/operator/tahun-ajaran/${id}`),
+    trash: (params) => api.get('/operator/tahun-ajaran/trash', { params }),
+    restore: (id) => api.post(`/operator/tahun-ajaran/${id}/restore`),
+    forceDelete: (id) => api.delete(`/operator/tahun-ajaran/${id}/force`),
     archive: (id) => api.patch(`/operator/tahun-ajaran/${id}/archive`),
     getKenaikanKelas: () => api.get('/operator/kenaikan-kelas'),
     promoteSiswa: (data) => api.post('/operator/tahun-ajaran/promote', data),

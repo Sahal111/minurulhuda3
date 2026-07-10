@@ -2,6 +2,11 @@ import React, { useState } from 'react';
 import { X, Save, User, GraduationCap, MapPin, Phone } from 'lucide-react';
 import { siswaAPI } from '../../../api/operator';
 
+const formatDateForInput = (val) => {
+    if (!val) return '';
+    return typeof val === 'string' ? val.substring(0, 10) : '';
+};
+
 const ModalFormSiswa = ({ isOpen, onClose, onSuccess, siswa = null, readonly = false }) => {
     if (!isOpen) return null;
 
@@ -9,29 +14,32 @@ const ModalFormSiswa = ({ isOpen, onClose, onSuccess, siswa = null, readonly = f
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [form, setForm] = useState({
-        nis: siswa?.nis || '',
-        nisn: siswa?.nisn || '',
-        nama: siswa?.nama || '',
-        jenis_kelamin: siswa?.jenis_kelamin || '',
-        tempat_lahir: siswa?.tempat_lahir || '',
-        tanggal_lahir: siswa?.tanggal_lahir || '',
-        agama: siswa?.agama || '',
-        nik: siswa?.nik || '',
-        no_kk: siswa?.no_kk || '',
-        kebutuhan_khusus: siswa?.kebutuhan_khusus || '',
-        asal_sekolah: siswa?.asal_sekolah || '',
-        tanggal_masuk: siswa?.tanggal_masuk || '',
-        kelas_id: siswa?.kelas_id || '',
-        alamat_siswa: siswa?.alamat_siswa || '',
-        rt: siswa?.rt || '',
-        rw: siswa?.rw || '',
-        kelurahan: siswa?.kelurahan || '',
-        kecamatan: siswa?.kecamatan || '',
-        kode_pos: siswa?.kode_pos || '',
-        nama_ayah: siswa?.nama_ayah || '',
-        nama_ibu: siswa?.nama_ibu || '',
-        nama_wali: siswa?.nama_wali || '',
-    });
+    jenis_pendaftaran: siswa?.jenis_pendaftaran || 'baru',   // ← TAMBAH, required di backend
+    nis: siswa?.nis || '',
+    nisn: siswa?.nisn || '',
+    nama: siswa?.nama || '',
+    jenis_kelamin: siswa?.jenis_kelamin || '',
+    tempat_lahir: siswa?.tempat_lahir || '',
+    tanggal_lahir: formatDateForInput(siswa?.tanggal_lahir),
+    agama: siswa?.agama || '',
+    nik: siswa?.nik || '',
+    no_kk: siswa?.no_kk || '',
+    kebutuhan_khusus: siswa?.kebutuhan_khusus || '',
+    asal_sekolah: siswa?.asal_sekolah || '',
+    tanggal_masuk: formatDateForInput(siswa?.tanggal_masuk),
+    kelas_id: siswa?.kelas_id || '',
+    alamat_siswa: siswa?.alamat_siswa || '',
+    rt: siswa?.rt || '',
+    rw: siswa?.rw || '',
+    kelurahan: siswa?.kelurahan || '',   // ← sudah ada, pastikan diisi user
+    kecamatan: siswa?.kecamatan || '',  // ← sudah ada, pastikan diisi user
+    kode_pos: siswa?.kode_pos || '',
+    no_hp_ortu: siswa?.no_hp_ortu || '',    // ← TAMBAH, required di backend
+    alamat: siswa?.alamat || '',             // ← TAMBAH, required di backend
+    nama_ayah: siswa?.nama_ayah || '',
+    nama_ibu: siswa?.nama_ibu || '',
+    nama_wali: siswa?.nama_wali || '',
+});
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -39,32 +47,33 @@ const ModalFormSiswa = ({ isOpen, onClose, onSuccess, siswa = null, readonly = f
     };
 
     const handleSubmit = async (e) => {
-        e.preventDefault();
-        setLoading(true);
-        setError(null);
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
 
-        try {
-            const formData = new FormData();
-            Object.entries(form).forEach(([key, val]) => {
-                if (val !== '' && val !== null) {
-                    formData.append(key, val);
-                }
-            });
-
-            if (siswa) {
-                await siswaAPI.update(siswa.id, formData);
-            } else {
-                await siswaAPI.store(formData);
+    try {
+        const formData = new FormData();
+        Object.entries(form).forEach(([key, val]) => {
+            // Kirim semua field termasuk yang kosong, biar Laravel yang validasi
+            if (val !== null && val !== undefined) {
+                formData.append(key, val);
             }
+        });
 
-            onSuccess?.();
-            onClose();
-        } catch (err) {
-            setError(err.response?.data?.message || err.message);
-        } finally {
-            setLoading(false);
+        if (siswa) {
+            await siswaAPI.update(siswa.id, formData);
+        } else {
+            await siswaAPI.store(formData);
         }
-    };
+
+        onSuccess?.();
+        onClose();
+    } catch (err) {
+        setError(err.response?.data?.message || err.message);
+    } finally {
+        setLoading(false);
+    }
+};
 
     const tabs = [
         { id: 'pribadi', label: 'Data Pribadi', icon: <User className="w-4 h-4" /> },
@@ -174,7 +183,7 @@ const ModalFormSiswa = ({ isOpen, onClose, onSuccess, siswa = null, readonly = f
                                                 <option value="Kristen">Kristen</option>
                                                 <option value="Katolik">Katolik</option>
                                                 <option value="Hindu">Hindu</option>
-                                                <option value="Buddha">Buddha</option>
+                                                <option value="Budha">Budha</option>
                                                 <option value="Khonghucu">Khonghucu</option>
                                             </select>
                                         </div>
@@ -221,13 +230,17 @@ const ModalFormSiswa = ({ isOpen, onClose, onSuccess, siswa = null, readonly = f
                                             <input type="text" name="rw" value={form.rw} onChange={handleChange} className={inputClass} disabled={readonly} />
                                         </div>
                                         <div>
-                                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Kelurahan</label>
-                                            <input type="text" name="kelurahan" value={form.kelurahan} onChange={handleChange} className={inputClass} disabled={readonly} />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Kecamatan</label>
-                                            <input type="text" name="kecamatan" value={form.kecamatan} onChange={handleChange} className={inputClass} disabled={readonly} />
-                                        </div>
+    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+        Kelurahan {!readonly && <span className="text-red-500">*</span>}
+    </label>
+    <input type="text" name="kelurahan" value={form.kelurahan} onChange={handleChange} className={inputClass} required={!readonly} disabled={readonly} />
+</div>
+<div>
+    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+        Kecamatan {!readonly && <span className="text-red-500">*</span>}
+    </label>
+    <input type="text" name="kecamatan" value={form.kecamatan} onChange={handleChange} className={inputClass} required={!readonly} disabled={readonly} />
+</div>
                                         <div>
                                             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Kode Pos</label>
                                             <input type="text" name="kode_pos" value={form.kode_pos} onChange={handleChange} className={inputClass} disabled={readonly} />
@@ -237,24 +250,37 @@ const ModalFormSiswa = ({ isOpen, onClose, onSuccess, siswa = null, readonly = f
                             )}
 
                             {activeTab === 'ortu' && (
-                                <div className="space-y-4">
-                                    <h4 className="text-lg font-semibold text-slate-800 dark:text-white mb-4">Data Orang Tua / Wali</h4>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                        <div>
-                                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Nama Ayah</label>
-                                            <input type="text" name="nama_ayah" value={form.nama_ayah} onChange={handleChange} className={inputClass} placeholder="Nama ayah" disabled={readonly} />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Nama Ibu</label>
-                                            <input type="text" name="nama_ibu" value={form.nama_ibu} onChange={handleChange} className={inputClass} placeholder="Nama ibu" disabled={readonly} />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Nama Wali</label>
-                                            <input type="text" name="nama_wali" value={form.nama_wali} onChange={handleChange} className={inputClass} placeholder="Nama wali (jika ada)" disabled={readonly} />
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
+    <div className="space-y-4">
+        <h4 className="text-lg font-semibold text-slate-800 dark:text-white mb-4">Data Orang Tua / Wali</h4>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Nama Ayah</label>
+                <input type="text" name="nama_ayah" value={form.nama_ayah} onChange={handleChange} className={inputClass} placeholder="Nama ayah" disabled={readonly} />
+            </div>
+            <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Nama Ibu</label>
+                <input type="text" name="nama_ibu" value={form.nama_ibu} onChange={handleChange} className={inputClass} placeholder="Nama ibu" disabled={readonly} />
+            </div>
+            <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Nama Wali</label>
+                <input type="text" name="nama_wali" value={form.nama_wali} onChange={handleChange} className={inputClass} placeholder="Nama wali (jika ada)" disabled={readonly} />
+            </div>
+            {/* ← TAMBAH: field required oleh backend */}
+            <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                    No. HP Orang Tua {!readonly && <span className="text-red-500">*</span>}
+                </label>
+                <input type="text" name="no_hp_ortu" value={form.no_hp_ortu} onChange={handleChange} className={inputClass} placeholder="08xxxxxxxxxx" required={!readonly} disabled={readonly} />
+            </div>
+            <div className="sm:col-span-2">
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                    Alamat Orang Tua {!readonly && <span className="text-red-500">*</span>}
+                </label>
+                <textarea name="alamat" value={form.alamat} onChange={handleChange} className={inputClass} rows="2" placeholder="Alamat domisili orang tua" required={!readonly} disabled={readonly} />
+            </div>
+        </div>
+    </div>
+)}
                         </form>
                     </div>
                 </div>

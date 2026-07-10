@@ -3,9 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Semester extends Model
 {
+    use SoftDeletes;
+
     protected $fillable = [
         'tahun_ajaran_id',
         'nama',
@@ -15,29 +20,25 @@ class Semester extends Model
     ];
 
     protected $casts = [
-        'is_active'   => 'boolean',
-        'tgl_mulai'   => 'date',
-        'tgl_selesai'  => 'date',
+        'is_active' => 'boolean',
+        'tgl_mulai' => 'date',
+        'tgl_selesai' => 'date',
     ];
 
     // ─── Relationships ───
 
-    public function tahunAjaran()
+    public function tahunAjaran(): BelongsTo
     {
         return $this->belongsTo(TahunAjaran::class);
     }
 
-    public function guruMapels()
+    public function guruMapels(): HasMany
     {
         return $this->hasMany(GuruMapel::class);
     }
 
     // ─── Scopes ───
 
-    /**
-     * Scope: semester aktif saat ini
-     * Usage: Semester::active()->first()
-     */
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
@@ -45,11 +46,8 @@ class Semester extends Model
 
     // ─── Accessors ───
 
-    /**
-     * Label lengkap: "2024/2025 Ganjil"
-     */
     public function getFullLabelAttribute()
     {
-        return ($this->tahunAjaran->tahun ?? '?') . ' ' . $this->nama;
+        return ($this->tahunAjaran->tahun ?? '?').' '.$this->nama;
     }
 }

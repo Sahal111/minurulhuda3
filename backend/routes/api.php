@@ -1,46 +1,39 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AuthController;
-
-// ── Operator Controllers ──
-use App\Http\Controllers\Operator\SiswaController;
-use App\Http\Controllers\Operator\GuruController;
-use App\Http\Controllers\Operator\KelasController;
-use App\Http\Controllers\Operator\SemesterController;
-use App\Http\Controllers\Operator\TahunAjaranController;
-use App\Http\Controllers\Operator\UserManagementController;
-use App\Http\Controllers\Operator\GuruDiklatController;
-use App\Http\Controllers\Operator\GuruInpassingController;
-use App\Http\Controllers\Operator\GuruDokumenController;
-
-// ── Guru Controllers ──
-use App\Http\Controllers\Guru\DashboardController as GuruDashboardController;
-use App\Http\Controllers\Guru\AbsensiController as GuruAbsensiController;
-use App\Http\Controllers\Guru\NilaiController as GuruNilaiController;
-use App\Http\Controllers\Guru\JadwalController as GuruJadwalController;
-use App\Http\Controllers\Guru\WaliKelasController;
-
-// ── Kepsek Controllers ──
-use App\Http\Controllers\Kepsek\DashboardController as KepsekDashboardController;
-use App\Http\Controllers\Kepsek\SdmController;
-use App\Http\Controllers\Kepsek\AkademikController;
-
-// ── Ortu Controllers ──
-use App\Http\Controllers\Ortu\DashboardController as OrtuDashboardController;
-
-// ── Bendahara Controllers ──
-use App\Http\Controllers\Bendahara\DashboardController as BendaraDashboardController;
-use App\Http\Controllers\Bendahara\TagihanController as BendaraTagihanController;
-use App\Http\Controllers\Bendahara\PembayaranController as BendaraPembayaranController;
-
-// ── WaliKelas Controllers ──
-use App\Http\Controllers\WaliKelas\DashboardController as WaliKelasDashboardController;
-use App\Http\Controllers\WaliKelas\SiswaController as WaliKelasSiswaController;
-
-// ── AdminPpdb Controllers ──
 use App\Http\Controllers\AdminPpdb\DashboardController as AdminPpdbDashboardController;
 use App\Http\Controllers\AdminPpdb\PendaftarController as AdminPpdbPendaftarController;
+// ── Operator Controllers ──
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Bendahara\DashboardController as BendaraDashboardController;
+use App\Http\Controllers\Bendahara\PembayaranController as BendaraPembayaranController;
+use App\Http\Controllers\Bendahara\TagihanController as BendaraTagihanController;
+use App\Http\Controllers\Guru\AbsensiController as GuruAbsensiController;
+use App\Http\Controllers\Guru\DashboardController as GuruDashboardController;
+use App\Http\Controllers\Guru\JadwalController as GuruJadwalController;
+use App\Http\Controllers\Guru\NilaiController as GuruNilaiController;
+use App\Http\Controllers\Guru\WaliKelasController;
+// ── Guru Controllers ──
+use App\Http\Controllers\Kepsek\AkademikController;
+use App\Http\Controllers\Kepsek\DashboardController as KepsekDashboardController;
+use App\Http\Controllers\Kepsek\SdmController;
+use App\Http\Controllers\Operator\GuruController;
+use App\Http\Controllers\Operator\GuruDiklatController;
+// ── Kepsek Controllers ──
+use App\Http\Controllers\Operator\GuruDokumenController;
+use App\Http\Controllers\Operator\GuruInpassingController;
+use App\Http\Controllers\Operator\KelasController;
+// ── Ortu Controllers ──
+use App\Http\Controllers\Operator\SemesterController;
+// ── Bendahara Controllers ──
+use App\Http\Controllers\Operator\SiswaController;
+use App\Http\Controllers\Operator\TahunAjaranController;
+use App\Http\Controllers\Operator\UserManagementController;
+// ── WaliKelas Controllers ──
+use App\Http\Controllers\Ortu\DashboardController as OrtuDashboardController;
+use App\Http\Controllers\WaliKelas\DashboardController as WaliKelasDashboardController;
+// ── AdminPpdb Controllers ──
+use App\Http\Controllers\WaliKelas\SiswaController as WaliKelasSiswaController;
+use Illuminate\Support\Facades\Route;
 
 // =====================================================================
 // AUTH (public — tidak perlu token)
@@ -160,9 +153,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::patch('/semester/{id}/aktif', [SemesterController::class, 'setActive']);
 
         Route::get('/tahun-ajaran', [TahunAjaranController::class, 'index']);
+        Route::get('/tahun-ajaran/trash', [TahunAjaranController::class, 'trash']);
         Route::post('/tahun-ajaran', [TahunAjaranController::class, 'store']);
         Route::put('/tahun-ajaran/{id}', [TahunAjaranController::class, 'update']);
         Route::delete('/tahun-ajaran/{id}', [TahunAjaranController::class, 'destroy']);
+        Route::post('/tahun-ajaran/{id}/restore', [TahunAjaranController::class, 'restore']);
+        Route::delete('/tahun-ajaran/{id}/force', [TahunAjaranController::class, 'forceDelete']);
         Route::patch('/tahun-ajaran/{id}/archive', [TahunAjaranController::class, 'archive']);
         Route::get('/kenaikan-kelas', [TahunAjaranController::class, 'kenaikanKelas']);
         Route::post('/tahun-ajaran/promote', [TahunAjaranController::class, 'promoteSiswa']);

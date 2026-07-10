@@ -226,6 +226,10 @@
         </div>
         <div class="flex gap-2">
             <button @click="viewMode = 'arsip'" class="flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 sm:px-5 py-2.5 rounded-xl font-medium transition-all shadow-sm active:scale-95">
+                <i data-lucide="trash-2" class="w-5 h-5"></i>
+                <span class="hidden sm:inline">Recycle Bin</span>
+            </button>
+            <button @click="viewMode = 'arsip'" class="flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 sm:px-5 py-2.5 rounded-xl font-medium transition-all shadow-sm active:scale-95">
                 <i data-lucide="archive" class="w-5 h-5"></i>
                 <span class="hidden sm:inline">Arsip</span>
             </button>
@@ -355,7 +359,7 @@
                                     <button @click="openModal(item)" class="text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors tooltip-trigger" title="Edit Data">
                                         <i data-lucide="pencil" class="w-4 h-4"></i>
                                     </button>
-                                    <button @click="deleteData(item.id)" class="text-slate-400 hover:text-red-600 dark:hover:text-red-400 transition-colors tooltip-trigger" title="Hapus Data">
+                                    <button @click="deleteData(item.id, item.tahun)" class="text-slate-400 hover:text-red-600 dark:hover:text-red-400 transition-colors tooltip-trigger" title="Hapus Data">
                                         <i data-lucide="trash-2" class="w-4 h-4"></i>
                                     </button>
                                 </div>
@@ -498,6 +502,102 @@
             </div>
         </div>
     </div> <!-- End Promotion Modal Background -->
+
+    <!-- 9. Modal Recycle Bin -->
+    <div x-show="activeTrashModal" style="display: none;">
+        <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 transition-opacity" @click="closeTrashModal()"></div>
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+            <div class="bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl w-full max-w-xl pointer-events-auto flex flex-col max-h-[90vh] animate-modal border border-slate-100 dark:border-slate-800">
+                <div class="px-8 pt-8 pb-6 flex items-center justify-between shrink-0 border-b border-slate-100 dark:border-slate-800">
+                    <div>
+                        <h3 class="text-xl font-black text-slate-800 dark:text-white uppercase tracking-tighter flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-xl bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center">
+                                <i data-lucide="trash-2" class="w-4 h-4 text-rose-500"></i>
+                            </div>
+                            RECYCLE <span class="text-rose-500">BIN</span>
+                        </h3>
+                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-1">Tahun ajaran yang dihapus — dapat dipulihkan</p>
+                    </div>
+                    <button @click="closeTrashModal()" class="w-10 h-10 flex items-center justify-center bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-full transition-all">
+                        <i data-lucide="x" class="w-5 h-5 text-slate-500"></i>
+                    </button>
+                </div>
+
+                <div class="flex-1 overflow-y-auto p-8">
+                    <template x-if="trashLoading">
+                        <div class="flex justify-center py-10">
+                            <span class="w-6 h-6 border-2 border-rose-500 border-t-transparent rounded-full animate-spin"></span>
+                        </div>
+                    </template>
+                    <template x-if="!trashLoading && trashData.length === 0">
+                        <div class="text-center py-12 text-slate-400">
+                            <div class="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                                <i data-lucide="trash-2" class="w-8 h-8 opacity-30"></i>
+                            </div>
+                            <p class="font-bold text-sm">Recycle Bin kosong</p>
+                            <p class="text-xs mt-1">Tidak ada tahun ajaran yang dihapus</p>
+                        </div>
+                    </template>
+                    <template x-if="!trashLoading && trashData.length > 0">
+                        <div class="space-y-3">
+                            <template x-for="item in trashData" :key="item.id">
+                                <div class="flex items-center gap-4 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800">
+                                    <div class="w-10 h-10 rounded-xl bg-slate-200 dark:bg-slate-700 flex items-center justify-center shrink-0">
+                                        <i data-lucide="calendar" class="w-5 h-5 text-slate-400"></i>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-sm font-bold text-slate-800 dark:text-white truncate" x-text="item.tahun"></p>
+                                        <p class="text-[10px] text-slate-400" x-text="'Dihapus: ' + item.deleted_at"></p>
+                                        <template x-if="item.semesters && item.semesters.length > 0">
+                                            <div class="flex flex-wrap gap-1 mt-1">
+                                                <template x-for="sem in item.semesters" :key="sem.id">
+                                                    <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400" x-text="sem.nama"></span>
+                                                </template>
+                                            </div>
+                                        </template>
+                                    </div>
+                                    <div class="flex gap-2 shrink-0">
+                                        <button @click="restoreTrash(item.id, item.tahun)" :disabled="trashProcessing === item.id"
+                                            class="px-3 py-2 bg-emerald-100 dark:bg-emerald-900/30 hover:bg-emerald-200 dark:hover:bg-emerald-900/50 text-emerald-700 dark:text-emerald-400 rounded-xl text-[10px] font-bold transition-all flex items-center gap-1 disabled:opacity-50">
+                                            <i data-lucide="undo-2" class="w-3 h-3"></i> Pulihkan
+                                        </button>
+                                        <button @click="forceDeleteTrash(item.id, item.tahun)" :disabled="trashProcessing === item.id"
+                                            class="px-3 py-2 bg-rose-100 dark:bg-rose-900/30 hover:bg-rose-200 dark:hover:bg-rose-900/50 text-rose-700 dark:text-rose-400 rounded-xl text-[10px] font-bold transition-all flex items-center gap-1 disabled:opacity-50">
+                                            <i data-lucide="trash-2" class="w-3 h-3"></i> Hapus
+                                        </button>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+
+                    <template x-if="!trashLoading && trashLastPage > 1">
+                        <div class="mt-6 flex items-center justify-between">
+                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest" x-text="'Menampilkan ' + trashFrom + '–' + trashTo + ' dari ' + trashTotal"></p>
+                            <div class="flex items-center gap-2">
+                                <button @click="loadTrash(trashCurrentPage - 1)" :disabled="trashCurrentPage <= 1"
+                                    class="px-3 py-2 text-xs font-bold text-slate-500 bg-slate-100 dark:bg-slate-800 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-all flex items-center gap-1 disabled:opacity-40">
+                                    <i data-lucide="chevron-left" class="w-4 h-4"></i> Sebelumnya
+                                </button>
+                                <button @click="loadTrash(trashCurrentPage + 1)" :disabled="trashCurrentPage >= trashLastPage"
+                                    class="px-3 py-2 text-xs font-bold text-slate-500 bg-slate-100 dark:bg-slate-800 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-all flex items-center gap-1 disabled:opacity-40">
+                                    Berikutnya <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                <div class="px-8 py-5 bg-slate-50/50 dark:bg-slate-800/30 border-t border-slate-100 dark:border-slate-800 shrink-0">
+                    <p class="text-[10px] text-slate-400 flex items-center gap-1.5">
+                        <i data-lucide="info" class="w-3 h-3 shrink-0"></i>
+                        Data yang dihapus permanen <strong>tidak dapat dipulihkan</strong>.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     </div> <!-- END MAIN VIEW -->
 </div> <!-- END WRAPPER -->
 
@@ -510,7 +610,18 @@
             filterStatus: 'all',
             activeModal: false,
             activePromotionModal: false,
+            activeTrashModal: false,
             modalTitle: 'Tambah Tahun Ajaran',
+
+            // Trash State
+            trashData: [],
+            trashLoading: false,
+            trashProcessing: null,
+            trashCurrentPage: 1,
+            trashLastPage: 1,
+            trashTotal: 0,
+            trashFrom: 0,
+            trashTo: 0,
             
             // Real Data from Backend
             tahunAjaran: @json($tahunAjarans),
@@ -613,8 +724,8 @@
                     alert('Gagal menyimpan data.');
                 }
             },
-            async deleteData(id) {
-                if(confirm('Apakah Anda yakin ingin menghapus tahun ajaran ini?')) {
+            async deleteData(id, tahun) {
+                if(confirm(`Yakin hapus tahun ajaran ${tahun}? Data akan dipindahkan ke Recycle Bin.`)) {
                     try {
                         const response = await fetch(`/operator/tahun-ajaran/${id}`, {
                             method: 'DELETE',
@@ -626,6 +737,81 @@
                     } catch (error) {
                         alert('Gagal menghapus data.');
                     }
+                }
+            },
+
+            // ── Recycle Bin ─────────────────────────────
+            openTrashModal() {
+                this.activeTrashModal = true;
+                this.$dispatch('modal-open');
+                this.loadTrash(1);
+            },
+            closeTrashModal() {
+                this.activeTrashModal = false;
+                this.$dispatch('modal-close');
+            },
+            async loadTrash(page = 1) {
+                this.trashLoading = true;
+                try {
+                    const response = await fetch(`/operator/tahun-ajaran/trash?page=${page}`, {
+                        headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+                    });
+                    const result = await response.json();
+                    const ta = result.tahun_ajarans || { data: [], total: 0, current_page: 1, last_page: 1, from: 0, to: 0 };
+                    this.trashData = ta.data || [];
+                    this.trashCurrentPage = ta.current_page || 1;
+                    this.trashLastPage = ta.last_page || 1;
+                    this.trashTotal = ta.total || 0;
+                    this.trashFrom = ta.from || 0;
+                    this.trashTo = ta.to || 0;
+                    setTimeout(() => lucide.createIcons(), 50);
+                } catch (error) {
+                    console.error('Gagal memuat Recycle Bin', error);
+                } finally {
+                    this.trashLoading = false;
+                }
+            },
+            async restoreTrash(id, tahun) {
+                if (!confirm(`Pulihkan tahun ajaran "${tahun}"?`)) return;
+                this.trashProcessing = id;
+                try {
+                    const response = await fetch(`/operator/tahun-ajaran/${id}/restore`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json'
+                        }
+                    });
+                    const result = await response.json();
+                    alert(result.message);
+                    this.loadTrash(this.trashCurrentPage);
+                } catch (error) {
+                    alert('Gagal memulihkan data.');
+                } finally {
+                    this.trashProcessing = null;
+                }
+            },
+            async forceDeleteTrash(id, tahun) {
+                if (!confirm(`Hapus permanen "${tahun}"? Data TIDAK dapat dipulihkan!`)) return;
+                if (!confirm(`KONFIRMASI: Hapus permanen tahun ajaran "${tahun}"? Semua data terkait akan ikut terhapus!`)) return;
+                this.trashProcessing = id;
+                try {
+                    const response = await fetch(`/operator/tahun-ajaran/${id}/force`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json'
+                        }
+                    });
+                    const result = await response.json();
+                    alert(result.message);
+                    this.loadTrash(this.trashCurrentPage);
+                } catch (error) {
+                    alert('Gagal menghapus permanen.');
+                } finally {
+                    this.trashProcessing = null;
                 }
             },
             async archiveYear(id) {
