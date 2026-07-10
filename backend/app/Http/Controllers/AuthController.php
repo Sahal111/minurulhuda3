@@ -62,6 +62,7 @@ class AuthController extends Controller
 
             $role = $user->primaryRole();
             $roleName = $role ? $role->name : 'guest';
+            $allRoles = $user->roles->pluck('name');
 
             $token = $user->createToken('auth_token')->plainTextToken;
 
@@ -72,6 +73,7 @@ class AuthController extends Controller
                     'name' => $user->name,
                     'email' => $user->email,
                     'role' => $roleName,
+                    'roles' => $allRoles,
                 ],
                 'token' => $token,
             ]);
@@ -96,12 +98,14 @@ class AuthController extends Controller
         $user = $request->user();
         $role = $user->primaryRole();
         $roleName = $role ? $role->name : 'guest';
+        $allRoles = $user->roles->pluck('name');
 
         return response()->json([
             'id' => $user->id,
             'name' => $user->name,
             'email' => $user->email,
             'role' => $roleName,
+            'roles' => $allRoles,
         ]);
     }
 }

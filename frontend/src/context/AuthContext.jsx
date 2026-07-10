@@ -48,8 +48,13 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    const switchRole = (newRole) => {
+        if (!user) return;
+        setUser((prev) => ({ ...prev, role: newRole }));
+    };
+
     return (
-        <AuthContext.Provider value={{ user, login, logout, loading }}>
+        <AuthContext.Provider value={{ user, login, logout, loading, switchRole }}>
             {children}
         </AuthContext.Provider>
     );

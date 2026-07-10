@@ -64,6 +64,29 @@ import OrtuAbsensiPage from '../pages/ortu/AbsensiPage';
 import OrtuPembayaranPage from '../pages/ortu/PembayaranPage';
 import OrtuSettingPage from '../pages/ortu/SettingPage';
 
+// Bendahara Pages
+import BendaharaDashboardPage from '../pages/bendahara/DashboardPage';
+import BendaharaTagihanPage from '../pages/bendahara/TagihanPage';
+import BendaharaPembayaranPage from '../pages/bendahara/PembayaranPage';
+import BendaharaLaporanPage from '../pages/bendahara/LaporanPage';
+import BendaharaSettingPage from '../pages/bendahara/SettingPage';
+
+// Wali Kelas Pages
+import WaliKelasDashboardPage from '../pages/wali-kelas/DashboardPage';
+import WaliKelasSiswaPage from '../pages/wali-kelas/SiswaPage';
+import WaliKelasAbsensiPage from '../pages/wali-kelas/AbsensiPage';
+import WaliKelasNilaiPage from '../pages/wali-kelas/NilaiPage';
+import WaliKelasCatatanPage from '../pages/wali-kelas/CatatanPage';
+import WaliKelasSettingPage from '../pages/wali-kelas/SettingPage';
+
+// Admin PPDB Pages
+import AdminPPDBDashboardPage from '../pages/admin-ppdb/DashboardPage';
+import AdminPPDBPendaftarPage from '../pages/admin-ppdb/PendaftarPage';
+import AdminPPDBVerifikasiBerkasPage from '../pages/admin-ppdb/VerifikasiBerkasPage';
+import AdminPPDBPembayaranPage from '../pages/admin-ppdb/PembayaranPage';
+import AdminPPDBLaporanPage from '../pages/admin-ppdb/LaporanPage';
+import AdminPPDBSettingPage from '../pages/admin-ppdb/SettingPage';
+
 // Protected Route Component
 const ProtectedRoute = ({ children, allowedRoles }) => {
     const { user, loading } = useAuth();
@@ -80,7 +103,10 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
         return <Navigate to="/login" replace />;
     }
 
-    if (allowedRoles && !allowedRoles.includes(user.role)) {
+    const userRoles = user.roles || [user.role];
+    const hasAccess = !allowedRoles || allowedRoles.some(r => userRoles.includes(r));
+
+    if (!hasAccess) {
         return <Navigate to={`/${user.role}/dashboard`} replace />;
     }
 
@@ -225,6 +251,62 @@ export const router = createBrowserRouter([
             { path: 'absensi', element: <OrtuAbsensiPage /> },
             { path: 'pembayaran', element: <OrtuPembayaranPage /> },
             { path: 'setting', element: <OrtuSettingPage /> },
+        ]
+    },
+
+    // ============ BENDAHARA ROUTES ============
+    {
+        path: '/bendahara',
+        element: (
+            <ProtectedRoute allowedRoles={['bendahara']}>
+                <DashboardLayout />
+            </ProtectedRoute>
+        ),
+        children: [
+            { index: true, element: <Navigate to="dashboard" replace /> },
+            { path: 'dashboard',  element: <BendaharaDashboardPage /> },
+            { path: 'tagihan',    element: <BendaharaTagihanPage /> },
+            { path: 'pembayaran', element: <BendaharaPembayaranPage /> },
+            { path: 'laporan',    element: <BendaharaLaporanPage /> },
+            { path: 'setting',    element: <BendaharaSettingPage /> },
+        ]
+    },
+
+    // ============ WALI KELAS ROUTES ============
+    {
+        path: '/wali-kelas',
+        element: (
+            <ProtectedRoute allowedRoles={['wali-kelas']}>
+                <DashboardLayout />
+            </ProtectedRoute>
+        ),
+        children: [
+            { index: true, element: <Navigate to="dashboard" replace /> },
+            { path: 'dashboard', element: <WaliKelasDashboardPage /> },
+            { path: 'siswa',     element: <WaliKelasSiswaPage /> },
+            { path: 'absensi',   element: <WaliKelasAbsensiPage /> },
+            { path: 'nilai',     element: <WaliKelasNilaiPage /> },
+            { path: 'catatan',   element: <WaliKelasCatatanPage /> },
+            { path: 'setting',   element: <WaliKelasSettingPage /> },
+        ]
+    },
+
+    // ============ ADMIN PPDB ROUTES ============
+    {
+        path: '/admin-ppdb',
+        element: (
+            <ProtectedRoute allowedRoles={['admin-ppdb']}>
+                <DashboardLayout />
+            </ProtectedRoute>
+        ),
+        children: [
+            { index: true, element: <Navigate to="dashboard" replace /> },
+            { path: 'dashboard',  element: <AdminPPDBDashboardPage /> },
+            { path: 'pendaftar',  element: <AdminPPDBPendaftarPage /> },
+            { path: 'verifikasi', element: <AdminPPDBVerifikasiBerkasPage /> },
+            { path: 'pembayaran', element: <AdminPPDBPembayaranPage /> },
+            { path: 'laporan',    element: <AdminPPDBLaporanPage /> },
+            { path: 'setting',    element: <AdminPPDBSettingPage /> },
         ]
     },
 

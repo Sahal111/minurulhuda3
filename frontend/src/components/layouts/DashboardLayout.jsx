@@ -1,17 +1,38 @@
 import React, { useState } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 import OperatorSidebar from './OperatorSidebar';
 import GuruSidebar from './GuruSidebar';
 import KepsekSidebar from './KepsekSidebar';
 import OrtuSidebar from './OrtuSidebar';
+import BendaharaSidebar from './BendaharaSidebar';
+import WaliKelasSidebar from './WaliKelasSidebar';
+import AdminPpdbSidebar from './AdminPpdbSidebar';
 import { useAuth } from '../../hooks/useAuth';
-import { Menu, LogOut, Moon, Sun, ChevronRight } from 'lucide-react';
+import { Menu, LogOut, Moon, Sun, ChevronRight, Repeat } from 'lucide-react';
+
+const labelMap = {
+    operator: 'Operator',
+    guru: 'Guru',
+    kepsek: 'Kepala Sekolah',
+    ortu: 'Orang Tua',
+    bendahara: 'Bendahara',
+    'wali-kelas': 'Wali Kelas',
+    'admin-ppdb': 'Admin PPDB',
+};
 
 const DashboardLayout = () => {
-    const { user, logout } = useAuth();
+    const { user, logout, switchRole } = useAuth();
+    const navigate = useNavigate();
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-    const [isDarkMode, setIsDarkMode] = useState(false); // Could be handled by context later
+    const [isDarkMode, setIsDarkMode] = useState(false);
+    const [roleDropdown, setRoleDropdown] = useState(false);
+
+    const handleSwitchRole = (newRole) => {
+        switchRole(newRole);
+        setRoleDropdown(false);
+        navigate(`/${newRole}/dashboard`);
+    };
 
     return (
         <div className={`min-h-screen flex flex-col bg-slate-50 text-slate-800 transition-colors duration-300 ${isDarkMode ? 'dark bg-slate-950 text-slate-100' : ''}`}>
@@ -43,6 +64,27 @@ const DashboardLayout = () => {
                     sidebarOpen={sidebarOpen} 
                     setSidebarOpen={setSidebarOpen} 
                     sidebarCollapsed={sidebarCollapsed} 
+                />
+            )}
+            {user?.role === 'bendahara' && (
+                <BendaharaSidebar
+                    sidebarOpen={sidebarOpen}
+                    setSidebarOpen={setSidebarOpen}
+                    sidebarCollapsed={sidebarCollapsed}
+                />
+            )}
+            {user?.role === 'wali-kelas' && (
+                <WaliKelasSidebar
+                    sidebarOpen={sidebarOpen}
+                    setSidebarOpen={setSidebarOpen}
+                    sidebarCollapsed={sidebarCollapsed}
+                />
+            )}
+            {user?.role === 'admin-ppdb' && (
+                <AdminPPDBSidebar
+                    sidebarOpen={sidebarOpen}
+                    setSidebarOpen={setSidebarOpen}
+                    sidebarCollapsed={sidebarCollapsed}
                 />
             )}
 
@@ -87,10 +129,32 @@ const DashboardLayout = () => {
                             
                             <div className="h-8 w-px bg-slate-200 dark:bg-slate-700 mx-1"></div>
                             
-                            <div className="flex items-center gap-3 pl-1 cursor-pointer hover:opacity-80 transition-opacity">
+                            <div className="flex items-center gap-3 pl-1">
                                 <div className="hidden sm:block text-right">
                                     <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 leading-none mb-1">{user?.name}</p>
-                                    <p className="text-[10px] text-slate-500 font-medium uppercase tracking-wider">{user?.role}</p>
+                                    <div className="relative">
+                                        <button
+                                            onClick={() => setRoleDropdown(!roleDropdown)}
+                                            className="text-[10px] text-slate-500 font-medium uppercase tracking-wider hover:text-slate-700 flex items-center gap-1"
+                                        >
+                                            {user?.roles?.length > 1 && <Repeat className="w-3 h-3" />}
+                                            {labelMap[user?.role] || user?.role}
+                                            {user?.roles?.length > 1 && <ChevronRight className={`w-3 h-3 transition-transform ${roleDropdown ? 'rotate-90' : ''}`} />}
+                                        </button>
+                                        {roleDropdown && user?.roles?.length > 1 && (
+                                            <div className="absolute right-0 mt-1 w-44 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 py-1 z-50">
+                                                {user.roles.filter(r => r !== user.role).map((r) => (
+                                                    <button
+                                                        key={r}
+                                                        onClick={() => handleSwitchRole(r)}
+                                                        className="w-full text-left px-4 py-2 text-xs font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                                                    >
+                                                        {labelMap[r] || r}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                                 <div className="w-9 h-9 rounded-full bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center text-emerald-600 dark:text-emerald-400 font-bold border-2 border-white dark:border-slate-800 shadow-sm">
                                     {user?.name?.charAt(0) || 'U'}

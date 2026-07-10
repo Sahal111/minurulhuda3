@@ -29,6 +29,19 @@ use App\Http\Controllers\Kepsek\AkademikController;
 // ── Ortu Controllers ──
 use App\Http\Controllers\Ortu\DashboardController as OrtuDashboardController;
 
+// ── Bendahara Controllers ──
+use App\Http\Controllers\Bendahara\DashboardController as BendaraDashboardController;
+use App\Http\Controllers\Bendahara\TagihanController as BendaraTagihanController;
+use App\Http\Controllers\Bendahara\PembayaranController as BendaraPembayaranController;
+
+// ── WaliKelas Controllers ──
+use App\Http\Controllers\WaliKelas\DashboardController as WaliKelasDashboardController;
+use App\Http\Controllers\WaliKelas\SiswaController as WaliKelasSiswaController;
+
+// ── AdminPpdb Controllers ──
+use App\Http\Controllers\AdminPpdb\DashboardController as AdminPpdbDashboardController;
+use App\Http\Controllers\AdminPpdb\PendaftarController as AdminPpdbPendaftarController;
+
 // =====================================================================
 // AUTH (public — tidak perlu token)
 // =====================================================================
@@ -202,5 +215,56 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/absensi', [OrtuDashboardController::class, 'absensi']);
         Route::get('/nilai', [OrtuDashboardController::class, 'nilai']);
         Route::get('/pembayaran', [OrtuDashboardController::class, 'pembayaran']);
+    });
+
+    // =================================================================
+    // BENDAHARA
+    // =================================================================
+    Route::middleware(['role:bendahara'])->prefix('bendahara')->group(function () {
+        Route::get('/dashboard', [BendaraDashboardController::class, 'index']);
+
+        // Tagihan
+        Route::get('/tagihan', [BendaraTagihanController::class, 'index']);
+        Route::post('/tagihan', [BendaraTagihanController::class, 'store']);
+        Route::put('/tagihan/{id}', [BendaraTagihanController::class, 'update']);
+        Route::delete('/tagihan/{id}', [BendaraTagihanController::class, 'destroy']);
+
+        // Pembayaran
+        Route::get('/pembayaran', [BendaraPembayaranController::class, 'index']);
+        Route::post('/pembayaran', [BendaraPembayaranController::class, 'store']);
+        Route::delete('/pembayaran/{id}', [BendaraPembayaranController::class, 'destroy']);
+        Route::get('/pembayaran/laporan', [BendaraPembayaranController::class, 'laporan']);
+        Route::get('/tunggakan', [BendaraPembayaranController::class, 'tunggakan']);
+    });
+
+    // =================================================================
+    // WALI KELAS
+    // =================================================================
+    Route::middleware(['role:wali_kelas'])->prefix('wali-kelas')->group(function () {
+        Route::get('/dashboard', [WaliKelasDashboardController::class, 'index']);
+
+        // Data siswa di kelas
+        Route::get('/siswa', [WaliKelasSiswaController::class, 'index']);
+        Route::get('/siswa/{id}/absensi', [WaliKelasSiswaController::class, 'absensi']);
+        Route::get('/siswa/{id}/nilai', [WaliKelasSiswaController::class, 'nilai']);
+
+        // Catatan wali kelas
+        Route::get('/catatan', [WaliKelasSiswaController::class, 'catatanIndex']);
+        Route::post('/catatan', [WaliKelasSiswaController::class, 'catatanStore']);
+    });
+
+    // =================================================================
+    // ADMIN PPDB
+    // =================================================================
+    Route::middleware(['role:admin_ppdb'])->prefix('admin-ppdb')->group(function () {
+        Route::get('/dashboard', [AdminPpdbDashboardController::class, 'index']);
+
+        // Pendaftar
+        Route::get('/pendaftar', [AdminPpdbPendaftarController::class, 'index']);
+        Route::get('/pendaftar/{id}', [AdminPpdbPendaftarController::class, 'show']);
+        Route::patch('/pendaftar/{id}/status', [AdminPpdbPendaftarController::class, 'updateStatus']);
+
+        // Verifikasi berkas
+        Route::patch('/berkas/{berkasId}/verifikasi', [AdminPpdbPendaftarController::class, 'verifikasiBerkas']);
     });
 });
