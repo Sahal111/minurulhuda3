@@ -1,0 +1,102 @@
+{
+  "timestamp": "2026-06-13T20:52:41.686711",
+  "seed_count": 25,
+  "phases": {
+    "cleanup": {
+      "removed": 21,
+      "status": "PASS"
+    },
+    "seed": {
+      "total_inserted": 25,
+      "by_category": {
+        "project_goal": 2,
+        "domain_knowledge": 3,
+        "architecture": 3,
+        "tech_decision": 2,
+        "coding_convention": 5,
+        "deployment": 4,
+        "constraint": 1,
+        "indexing_stats": 5
+      },
+      "status": "PASS"
+    },
+    "retrieval": {
+      "tests": [
+        {
+          "query": "FastAPI",
+          "category": null,
+          "description": "Cross-category search",
+          "hits": 2,
+          "passed": true
+        },
+        {
+          "query": "Laravel",
+          "category": null,
+          "description": "Framework keyword search",
+          "hits": 4,
+          "passed": true
+        },
+        {
+          "query": "PSR-12",
+          "category": "coding_convention",
+          "description": "Category-scoped search",
+          "hits": 1,
+          "passed": true
+        },
+        {
+          "query": "4GB",
+          "category": "deployment",
+          "description": "Deployment category search",
+          "hits": 1,
+          "passed": true
+        },
+        {
+          "query": "78 classes",
+          "category": "indexing_stats",
+          "description": "Indexing stats search",
+          "hits": 1,
+          "passed": true
+        },
+        {
+          "query": "Siswa",
+          "category": null,
+          "description": "Domain entity search",
+          "hits": 5,
+          "passed": true
+        },
+        {
+          "query": "ChromaDB",
+          "category": null,
+          "description": "Tech decision search",
+          "hits": 3,
+          "passed": true
+        }
+      ],
+      "all_passed": true,
+      "status": "PASS"
+    },
+    "update": {
+      "content_update": true,
+      "metadata_update": true,
+      "content_verified": true,
+      "metadata_verified": true,
+      "status": "PASS"
+    },
+    "delete": {
+      "delete_ok": true,
+      "count_before": 25,
+      "count_after": 24,
+      "record_gone": true,
+      "status": "PASS"
+    },
+    "persistence": {
+      "memories_loaded": 25,
+      "expected": 25,
+      "categories_match": true,
+      "search_works": true,
+      "context_string_ok": true,
+      "status": "PASS"
+    }
+  },
+  "overall_status": "ALL PASS \u2705"
+}

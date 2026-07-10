@@ -1,0 +1,20 @@
+# AI Tools Dependencies
+# =====================
+# Install: pip install -r requirements.txt
+
+# Embedding & Vector Search
+sentence-transformers>=2.2.0
+chromadb>=0.4.0
+
+# Token Counting
+tiktoken>=0.5.0
+
+# PHP Parsing (regex-based, no heavy dependency)
+# Built-in: re, json, os, pathlib, sqlite3
+
+# Optional: for faster JSON operations
+orjson>=3.9.0
+
+# FastAPI Context Builder API
+fastapi>=0.110.0
+uvicorn[standard]>=0.29.0

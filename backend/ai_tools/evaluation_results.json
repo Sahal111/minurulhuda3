@@ -1,0 +1,212 @@
+[
+  {
+    "q": "What fields are required to create a new Siswa?",
+    "exp": "app/Http/Controllers/Operator/SiswaController.php",
+    "cat": "Student Management",
+    "retrieved_source": "app/Models/Beasiswa.php, app/Models/DataTambahanSiswa.php, app/Models/BerkasSiswa.php, memory/decisions.md, memory/progress.md, app/Models/Siswa.php",
+    "context_snippet": "=== SEMANTIC CODE CONTEXT FOR: 'What fields are required to create a new Siswa?' ===\n\n--- Relevant Functions/Methods ---\n\nFile: app/Models/Beasiswa.php (Lines: 21-25)\nSymbol: Beasiswa::siswa\n```php\n\n    public function siswa()\n    {\n        return $this->belongsTo(Siswa::class);\n    }\n\n```\n\nFile: app/Models/BerkasSiswa.php (Lines: 35-39)\nSymbol: BerkasSiswa::siswa\n```php\n\n    public function siswa()\n    {\n        return $this->belongsTo(Siswa::class, 'siswa_id');\n    }\n\n```\n\nFile: app/Models/DataTambahanSiswa.php (Lines: 30-34)\nSymbol: DataTambahanSiswa::siswa\n```php\n\n    public function siswa()\n    {\n        return $this->belongsTo(Siswa::class);\n    }\n\n```\n\n--- Relevant Class Structures ---\n\nFile: app/Models/Siswa.php\nClass Skeleton: App\\Models\\Siswa\n```php\nnamespace App\\Models;\n\nclass Siswa extends Model {\n    use SoftDeletes;\n\n    $fillable;\n    $casts;\n\n    protected static function boot() { ... }\n    public function kelas() { ... }\n    public function user() { ... }\n    public fu"
+  },
+  {
+    "q": "How does the Siswa soft delete cascade work?",
+    "exp": "app/Models/Siswa.php",
+    "cat": "Student Management",
+    "retrieved_source": "app/Models/Beasiswa.php, app/Models/DataTambahanSiswa.php, memory/project_structure.md, app/Models/BerkasSiswa.php, memory/architecture.md, memory/decisions.md, app/Models/Siswa.php",
+    "context_snippet": "=== SEMANTIC CODE CONTEXT FOR: 'How does the Siswa soft delete cascade work?' ===\n\n--- Relevant Functions/Methods ---\n\nFile: app/Models/Beasiswa.php (Lines: 21-25)\nSymbol: Beasiswa::siswa\n```php\n\n    public function siswa()\n    {\n        return $this->belongsTo(Siswa::class);\n    }\n\n```\n\nFile: app/Models/BerkasSiswa.php (Lines: 35-39)\nSymbol: BerkasSiswa::siswa\n```php\n\n    public function siswa()\n    {\n        return $this->belongsTo(Siswa::class, 'siswa_id');\n    }\n\n```\n\nFile: app/Models/DataTambahanSiswa.php (Lines: 30-34)\nSymbol: DataTambahanSiswa::siswa\n```php\n\n    public function siswa()\n    {\n        return $this->belongsTo(Siswa::class);\n    }\n\n```\n\n--- Relevant Class Structures ---\n\nFile: app/Models/Siswa.php\nClass Skeleton: App\\Models\\Siswa\n```php\nnamespace App\\Models;\n\nclass Siswa extends Model {\n    use SoftDeletes;\n\n    $fillable;\n    $casts;\n\n    protected static function boot() { ... }\n    public function kelas() { ... }\n    public function user() { ... }\n    public funct"
+  },
+  {
+    "q": "Where are the student documents stored?",
+    "exp": "ai_tools/memory_store.sqlite (Memory)",
+    "cat": "Student Management",
+    "retrieved_source": "memory/architecture.md, memory/decisions.md",
+    "context_snippet": "=== SEMANTIC CODE CONTEXT FOR: 'Where are the student documents stored?' ===\n\n\n--- Other Potentially Relevant Files ---\n- app/Models/Kelas.php (relevance: 0.30)\n\n=============================================\n\n=== RELEVANT DOCUMENTATION ===\n\n--- Source: memory/decisions.md ---\n## 15. Manajemen Gambar: Storage Public + Private\n\n**Keputusan**: Foto profil di `storage/public`, dokumen/berkas di `storage/local`\n\n**Alasan**:\n- Foto profil boleh diakses langsung via URL (tidak sensitif)\n- Dokumen siswa/guru bersifat sensitif (harus melalui controller untuk download, bukan direct URL)\n- Memisahkan disk mencegah akses tidak sah ke dokumen privat\n\n--- Source: memory/architecture.md ---\n## Service Layer\n\n### `RiwayatKelasService`\n`app/Services/RiwayatKelasService.php`\n\nMengelola semua operasi pencatatan riwayat perpindahan kelas siswa:\n\n| Method | Fungsi |\n|--------|--------|\n| `recordClassMove()` | Catat pindah kelas |\n| `recordReactivation()` | Catat siswa aktif kembali |\n| `recordTerminalEvent"
+  },
+  {
+    "q": "How are OrangTua related to Siswa?",
+    "exp": "app/Models/Siswa.php",
+    "cat": "Student Management",
+    "retrieved_source": "app/Models/OrangTua.php, memory/coding_style.md, memory/project_structure.md, app/Http/Controllers/Operator/SiswaController.php, app/Models/Siswa.php, memory/project_overview.md",
+    "context_snippet": "=== SEMANTIC CODE CONTEXT FOR: 'How are OrangTua related to Siswa?' ===\n\n--- Relevant Functions/Methods ---\n\nFile: app/Http/Controllers/Operator/SiswaController.php (Lines: 1366-1370)\nSymbol: SiswaController::beasiswaIndex\n```php\n    public function beasiswaIndex($siswaId)\n    {\n        $beasiswas = \\App\\Models\\Beasiswa::where('siswa_id', $siswaId)->latest()->get();\n        return response()->json(['beasiswa' => $beasiswas]);\n    }\n\n```\n\nFile: app/Http/Controllers/Operator/SiswaController.php (Lines: 1371-1394)\nSymbol: SiswaController::beasiswaStore\n```php\n\n    public function beasiswaStore(Request $request, $siswaId)\n    {\n        $request->validate([\n            'nama' => 'required|string|max:255',\n            'jenis' => 'nullable|string|max:100',\n            'tahun_mulai' => 'nullable|string|max:4',\n            'tahun_selesai' => 'nullable|string|max:4',\n            'nominal' => 'nullable|integer',\n            'keterangan' => 'nullable|string',\n        ]);\n\n        $beasiswa = \\App\\"
+  },
+  {
+    "q": "Who manages the class schedules?",
+    "exp": "app/Http/Controllers/Operator/KelasController.php",
+    "cat": "Class Management",
+    "retrieved_source": "memory/architecture.md, memory/progress.md, app/Services/RiwayatKelasService.php",
+    "context_snippet": "=== SEMANTIC CODE CONTEXT FOR: 'Who manages the class schedules?' ===\n\n--- Relevant Functions/Methods ---\n\nFile: app/Services/RiwayatKelasService.php (Lines: 17-40)\nSymbol: RiwayatKelasService::recordClassMove\n```php\n\n    public function recordClassMove(\n        Siswa $siswa,\n        Kelas $kelas,\n        ?int $tahunAjaranId,\n        CarbonInterface|string|null $tanggal = null,\n        ?string $catatan = null\n    ): RiwayatKelas {\n        $tanggal = $this->dateString($tanggal);\n\n        $this->closeLatestOpenHistory($siswa, $tanggal);\n\n        return RiwayatKelas::create([\n            'siswa_id' => $siswa->id,\n            'kelas_id' => $kelas->id,\n            'tahun_ajaran_id' => $tahunAjaranId,\n            'semester' => $this->activeSemesterName($tahunAjaranId),\n            'nama_kelas_snapshot' => $this->kelasSnapshot($kelas),\n            'tanggal_masuk' => $tanggal,\n            'tanggal_keluar' => null,\n            'jenis_perubahan' => 'pindah_kelas',\n            'catatan' => $catat"
+  },
+  {
+    "q": "What is the relationship between Kelas and WaliKelas?",
+    "exp": "app/Models/Kelas.php",
+    "cat": "Class Management",
+    "retrieved_source": "app/Models/WaliKelas.php, app/Models/Kelas.php, app/Models/RiwayatKelas.php, memory/coding_style.md, memory/architecture.md, memory/project_overview.md",
+    "context_snippet": "=== SEMANTIC CODE CONTEXT FOR: 'What is the relationship between Kelas and WaliKelas?' ===\n\n--- Relevant Functions/Methods ---\n\nFile: app/Models/Kelas.php (Lines: 34-38)\nSymbol: Kelas::waliKelas\n```php\n\n    public function waliKelas()\n    {\n        return $this->belongsTo(Guru::class, 'wali_kelas_id');\n    }\n\n```\n\nFile: app/Models/RiwayatKelas.php (Lines: 23-27)\nSymbol: RiwayatKelas::kelas\n```php\n\n    public function kelas()\n    {\n        return $this->belongsTo(Kelas::class);\n    }\n\n```\n\nFile: app/Models/WaliKelas.php (Lines: 27-31)\nSymbol: WaliKelas::kelas\n```php\n\n    public function kelas()\n    {\n        return $this->belongsTo(Kelas::class);\n    }\n\n```\n\n--- Relevant Class Structures ---\n\nFile: app/Models/Kelas.php\nClass Skeleton: App\\Models\\Kelas\n```php\nnamespace App\\Models;\n\nclass Kelas extends Model {\n    $fillable;\n    $casts;\n\n    public function getFullNameAttribute() { ... }\n    public function siswas() { ... }\n    public function waliKelas() { ... }\n    public function tahun"
+  },
+  {
+    "q": "How is the active Semester determined?",
+    "exp": "app/Models/Semester.php",
+    "cat": "Class Management",
+    "retrieved_source": "app/Models/Semester.php, app/Http/Controllers/Operator/SemesterController.php, memory/architecture.md, memory/progress.md, app/Models/GuruMapel.php",
+    "context_snippet": "=== SEMANTIC CODE CONTEXT FOR: 'How is the active Semester determined?' ===\n\n--- Relevant Functions/Methods ---\n\nFile: app/Http/Controllers/Operator/SemesterController.php (Lines: 90-106)\nSymbol: SemesterController::setActive\n```php\n\n    public function setActive($id)\n    {\n        Semester::where('is_active', true)->update(['is_active' => false]);\n\n        $semester = Semester::findOrFail($id);\n        $semester->is_active = true;\n        $semester->save();\n\n        // Sinkronisasi: Aktifkan Tahun Ajaran dari semester ini, nonaktifkan yg lain\n        TahunAjaran::where('is_active', true)->update(['is_active' => false]);\n        if ($semester->tahun_ajaran_id) {\n            TahunAjaran::where('id', $semester->tahun_ajaran_id)->update(['is_active' => true]);\n        }\n\n        return response()->json(['message' => 'Semester berhasil diaktifkan.']);\n    }\n\n```\n\nFile: app/Models/GuruMapel.php (Lines: 42-46)\nSymbol: GuruMapel::semester\n```php\n\n    public function semester()\n    {\n        r"
+  },
+  {
+    "q": "How does the PlotGuruMapel work?",
+    "exp": "app/Models/PlotGuruMapel.php",
+    "cat": "Class Management",
+    "retrieved_source": "memory/coding_style.md, app/Models/Guru.php, docs/erd/index.html, app/Models/Nilai.php, app/Models/PlotGuruMapel.php, app/Models/GuruMapel.php",
+    "context_snippet": "=== SEMANTIC CODE CONTEXT FOR: 'How does the PlotGuruMapel work?' ===\n\n--- Relevant Functions/Methods ---\n\nFile: app/Models/Nilai.php (Lines: 16-20)\nSymbol: Nilai::plotGuruMapel\n```php\n\n    public function plotGuruMapel()\n    {\n        return $this->belongsTo(PlotGuruMapel::class);\n    }\n\n```\n\nFile: app/Models/PlotGuruMapel.php (Lines: 10-14)\nSymbol: PlotGuruMapel::guru\n```php\n\n    public function guru()\n    {\n        return $this->belongsTo(Guru::class);\n    }\n\n```\n\nFile: app/Models/PlotGuruMapel.php (Lines: 15-19)\nSymbol: PlotGuruMapel::mapel\n```php\n\n    public function mapel()\n    {\n        return $this->belongsTo(Mapel::class);\n    }\n\n```\n\n--- Relevant Class Structures ---\n\nFile: app/Models/Guru.php\nClass Skeleton: App\\Models\\Guru\n```php\nnamespace App\\Models;\n\nclass Guru extends Model {\n    use HasFactory, SoftDeletes;\n\n    $table;\n    $fillable;\n    $casts;\n    $appends;\n\n    protected static function boot() { ... }\n    public function user() { ... }\n    public function kelasWali("
+  },
+  {
+    "q": "What are the valid mutation statuses for a student?",
+    "exp": "app/Services/RiwayatKelasService.php",
+    "cat": "Mutation Process",
+    "retrieved_source": "memory/architecture.md, app/Http/Controllers/Operator/GuruController.php, memory/progress.md",
+    "context_snippet": "=== SEMANTIC CODE CONTEXT FOR: 'What are the valid mutation statuses for a student?' ===\n\n--- Relevant Functions/Methods ---\n\nFile: app/Http/Controllers/Operator/GuruController.php (Lines: 694-766)\nSymbol: GuruController::validateGuru\n```php\n\n    private function validateGuru(Request $request, ?int $id = null): array\n    {\n        $uniqueNuptk = 'required|string|max:50|unique:gurus,nuptk' . ($id ? \",{$id}\" : '');\n        $uniqueEmail = 'required|email|max:100|unique:gurus,email' . ($id ? \",{$id}\" : '');\n        // NIK: nullable, tapi jika diisi harus 16 digit dan unique\n        $nikRule = 'nullable|string|max:20|unique:gurus,nik' . ($id ? \",{$id}\" : '');\n\n        return $request->validate([\n            'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',\n            'user_id' => 'nullable|exists:users,id',\n            // Identitas\n            'nip' => 'nullable|string|max:30',\n            'nik' => $nikRule,\n            'no_kk' => 'nullable|string|max:20',\n            'no_karpeg' => "
+  },
+  {
+    "q": "How does RiwayatKelasService handle a student mutating out?",
+    "exp": "app/Services/RiwayatKelasService.php",
+    "cat": "Mutation Process",
+    "retrieved_source": "app/Http/Middleware/RoleMiddleware.php, app/Models/Kelas.php, app/Models/RiwayatKelas.php, memory/project_structure.md, app/Console/Commands/NormalizeRiwayatKelas.php, memory/architecture.md, app/Http/Controllers/Operator/SiswaController.php, memory/decisions.md",
+    "context_snippet": "=== SEMANTIC CODE CONTEXT FOR: 'How does RiwayatKelasService handle a student mutating out?' ===\n\n--- Relevant Functions/Methods ---\n\nFile: app/Console/Commands/NormalizeRiwayatKelas.php (Lines: 15-60)\nSymbol: NormalizeRiwayatKelas::handle\n```php\n\n    public function handle(RiwayatKelasService $riwayatKelasService): int\n    {\n        $dryRun = (bool) $this->option('dry-run');\n        $siswaIds = collect($this->option('siswa-id'))\n            ->filter(fn ($id) => is_numeric($id))\n            ->map(fn ($id) => (int) $id)\n            ->values()\n            ->all();\n\n        $summary = $riwayatKelasService->normalizeExistingHistories(\n            $siswaIds !== [] ? $siswaIds : null,\n            $dryRun\n        );\n\n        $this->info($dryRun ? 'Dry run selesai. Tidak ada data yang diubah.' : 'Normalisasi riwayat kelas selesai.');\n        $this->table(\n            ['Metric', 'Value'],\n            [\n                ['Siswa dicek', $summary['checked_students']],\n                ['Baris akan/b"
+  },
+  {
+    "q": "What happens to the class history when a student graduates?",
+    "exp": "app/Services/RiwayatKelasService.php",
+    "cat": "Mutation Process",
+    "retrieved_source": "memory/architecture.md, app/Models/Guru.php, memory/progress.md, app/Services/RiwayatKelasService.php",
+    "context_snippet": "=== SEMANTIC CODE CONTEXT FOR: 'What happens to the class history when a student graduates?' ===\n\n--- Relevant Functions/Methods ---\n\nFile: app/Models/Guru.php (Lines: 384-388)\nSymbol: Guru::waliKelasHistory\n```php\n\n    public function waliKelasHistory()\n    {\n        return $this->hasMany(WaliKelas::class);\n    }\n\n```\n\nFile: app/Services/RiwayatKelasService.php (Lines: 17-40)\nSymbol: RiwayatKelasService::recordClassMove\n```php\n\n    public function recordClassMove(\n        Siswa $siswa,\n        Kelas $kelas,\n        ?int $tahunAjaranId,\n        CarbonInterface|string|null $tanggal = null,\n        ?string $catatan = null\n    ): RiwayatKelas {\n        $tanggal = $this->dateString($tanggal);\n\n        $this->closeLatestOpenHistory($siswa, $tanggal);\n\n        return RiwayatKelas::create([\n            'siswa_id' => $siswa->id,\n            'kelas_id' => $kelas->id,\n            'tahun_ajaran_id' => $tahunAjaranId,\n            'semester' => $this->activeSemesterName($tahunAjaranId),\n           "
+  },
+  {
+    "q": "How is a student promoted to the next grade?",
+    "exp": "app/Services/RiwayatKelasService.php",
+    "cat": "Promotion Process",
+    "retrieved_source": "memory/architecture.md, memory/progress.md",
+    "context_snippet": "=== SEMANTIC CODE CONTEXT FOR: 'How is a student promoted to the next grade?' ===\n\n\n--- Other Potentially Relevant Files ---\n- app/Services/RiwayatKelasService.php (relevance: 0.40)\n- app/Models/Kelas.php (relevance: 0.30)\n- app/Http/Middleware/RoleMiddleware.php (relevance: 0.25)\n\n=============================================\n\n=== RELEVANT DOCUMENTATION ===\n\n--- Source: memory/progress.md ---\n## Timeline Pengembangan (berdasarkan migrasi)\n\n| Periode | Aktivitas |\n|---------|-----------|\n| Feb 2026 | Setup awal: user, role, guru, kelas, siswa, orang tua, jadwal, nilai, absensi, pembayaran, rapor, PPDB |\n| Apr 2026 | Ekspansi: foto siswa, agama siswa, parent meeting, data Dapodik orang tua |\n| Mei 2026 awal | Modul semester, riwayat kelas, sertifikasi guru, tambahan fields guru |\n| Mei 2026 tengah | Modul guru lengkap: jabatan, pendidikan, sertifikasi, rekening, keluarga, diklat, inpassing, dokumen, absensi |\n| Mei 2026 akhir | Refaktor nilais, tagihan, riwayat kelas, mutasi, perkembang"
+  },
+  {
+    "q": "Where is the status_kenaikan recorded?",
+    "exp": "app/Models/Rapor.php",
+    "cat": "Promotion Process",
+    "retrieved_source": "memory/architecture.md, memory/progress.md, memory/decisions.md",
+    "context_snippet": "=== SEMANTIC CODE CONTEXT FOR: 'Where is the status_kenaikan recorded?' ===\n\n\n--- Other Potentially Relevant Files ---\n- database/migrations/2026_05_16_030749_alter_rapors_table_add_status_kenaikan.php (relevance: 2.00)\n\n=============================================\n\n=== RELEVANT DOCUMENTATION ===\n\n--- Source: memory/progress.md ---\n# Progress \u2014 minurulhuda3\n\n> Diperbarui: 2026-06-13\n\n--- Source: memory/architecture.md ---\n## Database: 103 Migrasi\n\nPeriode pengembangan migrasi:\n- **Feb 2026**: Struktur dasar (users, roles, guru, kelas, siswa, orang tua, jadwal, nilai, absensi, pembayaran, rapor, PPDB)\n- **Apr\u2013Mei 2026**: Ekspansi besar-besaran \u2014 Dapodik fields, modul guru lengkap (jabatan, pendidikan, sertifikasi, rekening, keluarga, diklat, inpassing, dokumen, absensi), refaktor nilais, tagihan, riwayat kelas, prestasi, beasiswa, data tambahan siswa\n\n--- Source: memory/decisions.md ---\n# Decisions \u2014 minurulhuda3\n\n> Diperbarui: 2026-06-13\n> Dokumen ini mencatat keputusan arsitektur dan"
+  },
+  {
+    "q": "What happens if a student fails to promote (tinggal kelas)?",
+    "exp": "app/Services/RiwayatKelasService.php",
+    "cat": "Promotion Process",
+    "retrieved_source": "app/Models/WaliKelas.php, app/Models/Kelas.php, app/Models/RiwayatKelas.php, memory/architecture.md, memory/progress.md, memory/project_overview.md, app/Services/RiwayatKelasService.php",
+    "context_snippet": "=== SEMANTIC CODE CONTEXT FOR: 'What happens if a student fails to promote (tinggal kelas)?' ===\n\n--- Relevant Functions/Methods ---\n\nFile: app/Models/RiwayatKelas.php (Lines: 23-27)\nSymbol: RiwayatKelas::kelas\n```php\n\n    public function kelas()\n    {\n        return $this->belongsTo(Kelas::class);\n    }\n\n```\n\nFile: app/Models/WaliKelas.php (Lines: 27-31)\nSymbol: WaliKelas::kelas\n```php\n\n    public function kelas()\n    {\n        return $this->belongsTo(Kelas::class);\n    }\n\n```\n\nFile: app/Services/RiwayatKelasService.php (Lines: 17-40)\nSymbol: RiwayatKelasService::recordClassMove\n```php\n\n    public function recordClassMove(\n        Siswa $siswa,\n        Kelas $kelas,\n        ?int $tahunAjaranId,\n        CarbonInterface|string|null $tanggal = null,\n        ?string $catatan = null\n    ): RiwayatKelas {\n        $tanggal = $this->dateString($tanggal);\n\n        $this->closeLatestOpenHistory($siswa, $tanggal);\n\n        return RiwayatKelas::create([\n            'siswa_id' => $siswa->id,\n     "
+  },
+  {
+    "q": "What models does Guru cascade to on soft delete?",
+    "exp": "app/Models/Guru.php",
+    "cat": "Models & Relationships",
+    "retrieved_source": "app/Models/GuruDokumen.php, app/Models/Guru.php, app/Models/GuruDiklat.php, app/Models/GuruAbsensi.php, memory/project_structure.md, memory/architecture.md, memory/decisions.md",
+    "context_snippet": "=== SEMANTIC CODE CONTEXT FOR: 'What models does Guru cascade to on soft delete?' ===\n\n--- Relevant Functions/Methods ---\n\nFile: app/Models/GuruAbsensi.php (Lines: 27-31)\nSymbol: GuruAbsensi::guru\n```php\n\n    public function guru()\n    {\n        return $this->belongsTo(Guru::class);\n    }\n\n```\n\nFile: app/Models/GuruDiklat.php (Lines: 47-51)\nSymbol: GuruDiklat::guru\n```php\n\n    public function guru()\n    {\n        return $this->belongsTo(Guru::class);\n    }\n\n```\n\nFile: app/Models/GuruDokumen.php (Lines: 65-68)\nSymbol: GuruDokumen::guru\n```php\n    public function guru()\n    {\n        return $this->belongsTo(Guru::class);\n    }\n\n```\n\n--- Relevant Class Structures ---\n\nFile: app/Models/Guru.php\nClass Skeleton: App\\Models\\Guru\n```php\nnamespace App\\Models;\n\nclass Guru extends Model {\n    use HasFactory, SoftDeletes;\n\n    $table;\n    $fillable;\n    $casts;\n    $appends;\n\n    protected static function boot() { ... }\n    public function user() { ... }\n    public function kelasWali() { ... }\n   "
+  },
+  {
+    "q": "What is the primary key of the Pembayaran model?",
+    "exp": "app/Models/Pembayaran.php",
+    "cat": "Models & Relationships",
+    "retrieved_source": "app/Models/CalonSiswa.php, memory/project_structure.md, memory/architecture.md, app/Http/Requests/Auth/LoginRequest.php, memory/decisions.md, app/Models/Pembayaran.php, app/Imports/SiswaImport.php",
+    "context_snippet": "=== SEMANTIC CODE CONTEXT FOR: 'What is the primary key of the Pembayaran model?' ===\n\n--- Relevant Functions/Methods ---\n\nFile: app/Imports/SiswaImport.php (Lines: 43-222)\nSymbol: SiswaImport::model\n```php\n\n    public function model(array $row): ?Siswa\n    {\n        // Skip baris yang benar-benar kosong\n        $allEmpty = collect($row)->filter(fn($v) => !is_null($v) && trim((string)$v) !== '')->isEmpty();\n        if ($allEmpty) return null;\n\n        $nis  = trim($row['nis'] ?? '');\n        $nisn = trim($row['nisn'] ?? '');\n        $nama = trim($row['nama_lengkap'] ?? ($row['nama'] ?? ''));\n\n        if (!$nis) {\n            $this->stats['skipped']++;\n            return null;\n        }\n\n        // Resolve kelas & tingkat\n        $kelasRaw = trim($row['kelas'] ?? '');\n        $kelasId  = $this->resolveKelas($kelasRaw);\n        $tingkat  = 1;\n        if ($kelasId) {\n            $kelas   = Kelas::find($kelasId);\n            $tingkat = $kelas?->tingkat ?? 1;\n        }\n\n        $data = [\n  "
+  },
+  {
+    "q": "How is the Role model related to the User model?",
+    "exp": "app/Models/User.php",
+    "cat": "Models & Relationships",
+    "retrieved_source": "memory/architecture.md, app/Http/Controllers/Operator/UserManagementController.php, memory/decisions.md, app/Models/User.php, app/Models/Role.php",
+    "context_snippet": "=== SEMANTIC CODE CONTEXT FOR: 'How is the Role model related to the User model?' ===\n\n--- Relevant Functions/Methods ---\n\nFile: app/Http/Controllers/Operator/UserManagementController.php (Lines: 202-235)\nSymbol: UserManagementController::handleRoleProfile\n```php\n\n    private function handleRoleProfile($user, $data)\n    {\n        if (in_array($data['role'], ['guru', 'wali_kelas'])) {\n\n            $user->guru()->updateOrCreate(\n                ['user_id' => $user->id],\n                [\n                    'nip' => $data['nip'] ?? null,\n                    'extra_info' => $data['extra_info'] ?? null\n                ]\n            );\n        }\n\n        if ($data['role'] === 'bendahara') {\n\n            $user->bendahara()->updateOrCreate(\n                ['user_id' => $user->id],\n                [\n                    'jenis_bendahara' => $data['extra_info'] ?? null\n                ]\n            );\n        }\n\n        if ($data['role'] === 'admin_ppdb') {\n\n            $user->adminPpdb()->upda"
+  },
+  {
+    "q": "Does the Rapor model have soft deletes?",
+    "exp": "app/Models/Rapor.php",
+    "cat": "Models & Relationships",
+    "retrieved_source": "memory/coding_style.md, resources/views/operator/dataSiswa.blade.php, memory/architecture.md, memory/decisions.md, app/Models/Rapor.php, app/Imports/SiswaImport.php",
+    "context_snippet": "=== SEMANTIC CODE CONTEXT FOR: 'Does the Rapor model have soft deletes?' ===\n\n--- Relevant Functions/Methods ---\n\nFile: app/Imports/SiswaImport.php (Lines: 43-222)\nSymbol: SiswaImport::model\n```php\n\n    public function model(array $row): ?Siswa\n    {\n        // Skip baris yang benar-benar kosong\n        $allEmpty = collect($row)->filter(fn($v) => !is_null($v) && trim((string)$v) !== '')->isEmpty();\n        if ($allEmpty) return null;\n\n        $nis  = trim($row['nis'] ?? '');\n        $nisn = trim($row['nisn'] ?? '');\n        $nama = trim($row['nama_lengkap'] ?? ($row['nama'] ?? ''));\n\n        if (!$nis) {\n            $this->stats['skipped']++;\n            return null;\n        }\n\n        // Resolve kelas & tingkat\n        $kelasRaw = trim($row['kelas'] ?? '');\n        $kelasId  = $this->resolveKelas($kelasRaw);\n        $tingkat  = 1;\n        if ($kelasId) {\n            $kelas   = Kelas::find($kelasId);\n            $tingkat = $kelas?->tingkat ?? 1;\n        }\n\n        $data = [\n           "
+  },
+  {
+    "q": "Which controller handles the creation of Guru?",
+    "exp": "app/Http/Controllers/Operator/GuruController.php",
+    "cat": "Controllers",
+    "retrieved_source": "app/Http/Controllers/Operator/GuruController.php, app/Models/Guru.php, app/Models/GuruDiklat.php, app/Models/GuruAbsensi.php, memory/decisions.md, memory/progress.md, app/Http/Controllers/Controller.php",
+    "context_snippet": "=== SEMANTIC CODE CONTEXT FOR: 'Which controller handles the creation of Guru?' ===\n\n--- Relevant Functions/Methods ---\n\nFile: app/Http/Controllers/Operator/GuruController.php (Lines: 694-766)\nSymbol: GuruController::validateGuru\n```php\n\n    private function validateGuru(Request $request, ?int $id = null): array\n    {\n        $uniqueNuptk = 'required|string|max:50|unique:gurus,nuptk' . ($id ? \",{$id}\" : '');\n        $uniqueEmail = 'required|email|max:100|unique:gurus,email' . ($id ? \",{$id}\" : '');\n        // NIK: nullable, tapi jika diisi harus 16 digit dan unique\n        $nikRule = 'nullable|string|max:20|unique:gurus,nik' . ($id ? \",{$id}\" : '');\n\n        return $request->validate([\n            'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',\n            'user_id' => 'nullable|exists:users,id',\n            // Identitas\n            'nip' => 'nullable|string|max:30',\n            'nik' => $nikRule,\n            'no_kk' => 'nullable|string|max:20',\n            'no_karpeg' => 'null"
+  },
+  {
+    "q": "What is the namespace of the AuthController?",
+    "exp": "app/Http/Controllers/AuthController.php",
+    "cat": "Controllers",
+    "retrieved_source": "app/Http/Controllers/AuthController.php, memory/project_structure.md, memory/decisions.md, app/Http/Controllers/Controller.php",
+    "context_snippet": "=== SEMANTIC CODE CONTEXT FOR: 'What is the namespace of the AuthController?' ===\n\n--- Relevant Functions/Methods ---\n\nFile: app/Http/Controllers/AuthController.php (Lines: 12-15)\nSymbol: AuthController::login\n```php\n    public function login()\n    {\n        return view('auth.login');\n    }\n\n```\n\nFile: app/Http/Controllers/AuthController.php (Lines: 16-20)\nSymbol: AuthController::register\n```php\n\n    public function register()\n    {\n        return view('auth.register');\n    }\n\n```\n\nFile: app/Http/Controllers/AuthController.php (Lines: 21-38)\nSymbol: AuthController::prosesRegister\n```php\n\n    public function prosesRegister(Request $r)\n    {\n        $r->validate([\n            'name' => 'required',\n            'email' => 'required|unique:users',\n            'password' => 'required|min:6'\n        ]);\n\n        User::create([\n            'name' => $r->name,\n            'email' => $r->email,\n            'password' => Hash::make($r->password),\n            'role' => 'ortu' // \ud83d\udc48 paksa jadi ortu\n"
+  },
+  {
+    "q": "Does GuruDiklatController extend Controller?",
+    "exp": "app/Http/Controllers/Operator/GuruDiklatController.php",
+    "cat": "Controllers",
+    "retrieved_source": "app/Http/Controllers/Operator/GuruDiklatController.php, memory/progress.md, memory/decisions.md, app/Http/Controllers/Controller.php",
+    "context_snippet": "=== SEMANTIC CODE CONTEXT FOR: 'Does GuruDiklatController extend Controller?' ===\n\n--- Relevant Functions/Methods ---\n\nFile: app/Http/Controllers/Operator/GuruDiklatController.php (Lines: 14-37)\nSymbol: GuruDiklatController::index\n```php\n\n    public function index($guruId)\n    {\n        $guru = Guru::with(['diklats'])->findOrFail($guruId);\n\n        $diklats = $guru->diklats->map(fn($d) => $d->append([\n            'tanggal_mulai_fmt',\n            'tanggal_selesai_fmt',\n            'durasi_label',\n            'jenis_label',\n            'tingkat_label',\n            'peran_label',\n            'file_sertifikat_url',\n        ]));\n\n        $grouped = $diklats->groupBy('jenis_label');\n\n        return response()->json([\n            'guru'    => $guru->only(['id', 'nama', 'nuptk', 'foto']),\n            'diklats' => $grouped,\n            'total'   => $diklats->count(),\n            'total_jp'=> $diklats->sum('jumlah_jam'),\n        ]);\n    }\n\n```\n\nFile: app/Http/Controllers/Operator/GuruDiklatContr"
+  },
+  {
+    "q": "Which controller manages the academic years?",
+    "exp": "app/Http/Controllers/Operator/TahunAjaranController.php",
+    "cat": "Controllers",
+    "retrieved_source": "app/Http/Controllers/AdminUserController.php, tests/Feature/RiwayatKelasWorkflowTest.php, memory/architecture.md, memory/progress.md, memory/project_overview.md, app/Http/Controllers/Controller.php",
+    "context_snippet": "=== SEMANTIC CODE CONTEXT FOR: 'Which controller manages the academic years?' ===\n\n--- Relevant Functions/Methods ---\n\nFile: tests/Feature/RiwayatKelasWorkflowTest.php (Lines: 28-55)\nSymbol: createAcademicContext\n```php\n\nfunction createAcademicContext(): array\n{\n    $tahun = TahunAjaran::forceCreate([\n        'tahun' => '2025/2026',\n        'is_active' => true,\n    ]);\n\n    Semester::forceCreate([\n        'tahun_ajaran_id' => $tahun->id,\n        'nama' => 'Ganjil',\n        'is_active' => true,\n    ]);\n\n    $kelasSatu = Kelas::forceCreate([\n        'nama_kelas' => 'A',\n        'tingkat' => 1,\n        'tahun_ajaran_id' => $tahun->id,\n    ]);\n\n    $kelasDua = Kelas::forceCreate([\n        'nama_kelas' => 'A',\n        'tingkat' => 2,\n        'tahun_ajaran_id' => $tahun->id,\n    ]);\n\n    return [$tahun, $kelasSatu, $kelasDua];\n}\n\n```\n\nFile: app/Http/Controllers/AdminUserController.php (Lines: 15-35)\nSymbol: AdminUserController::index\n```php\n    public function index(Request $r)\n    {\n       "
+  },
+  {
+    "q": "What middleware protects the operator routes?",
+    "exp": "routes/web.php",
+    "cat": "Routes",
+    "retrieved_source": "tests/Feature/RiwayatKelasWorkflowTest.php, database/seeders/OperatorSeeder.php, memory/project_structure.md, memory/architecture.md, app/Models/User.php, memory/progress.md",
+    "context_snippet": "=== SEMANTIC CODE CONTEXT FOR: 'What middleware protects the operator routes?' ===\n\n--- Relevant Functions/Methods ---\n\nFile: app/Models/User.php (Lines: 96-100)\nSymbol: User::isOperator\n```php\n\n    public function isOperator()\n    {\n        return $this->hasRole('operator');\n    }\n\n```\n\nFile: tests/Feature/RiwayatKelasWorkflowTest.php (Lines: 11-27)\nSymbol: actingAsOperator\n```php\n\nfunction actingAsOperator(): User\n{\n    $user = User::forceCreate([\n        'name' => 'Operator',\n        'email' => 'operator@example.test',\n        'password' => 'password',\n        'is_active' => true,\n    ]);\n\n    $role = Role::forceCreate(['name' => 'operator']);\n    $user->roles()->attach($role);\n\n    test()->actingAs($user);\n\n    return $user;\n}\n\n```\n\nFile: database/seeders/OperatorSeeder.php (Lines: 12-25)\nSymbol: OperatorSeeder::run\n```php\n    public function run()\n    {\n        $user = User::firstOrCreate(\n            ['email' => 'operator@gmail.com'],\n            [\n                'name' => 'Supe"
+  },
+  {
+    "q": "Are there any public routes available?",
+    "exp": "routes/web.php",
+    "cat": "Routes",
+    "retrieved_source": "memory/architecture.md, memory/progress.md, memory/project_structure.md, app/Models/User.php",
+    "context_snippet": "=== SEMANTIC CODE CONTEXT FOR: 'Are there any public routes available?' ===\n\n--- Relevant Functions/Methods ---\n\nFile: app/Models/User.php (Lines: 72-75)\nSymbol: User::hasAnyRole\n```php\n    public function hasAnyRole($roles)\n    {\n        return $this->roles->whereIn('name', (array) $roles)->isNotEmpty();\n    }\n\n```\n\n--- Other Potentially Relevant Files ---\n- app/Models/Guru.php (relevance: 2.88)\n- app/Models/Siswa.php (relevance: 2.16)\n- routes/console.php (relevance: 2.00)\n- routes/web.php (relevance: 2.00)\n- app/Models/User.php (relevance: 1.04)\n\n=============================================\n\n=== RELEVANT DOCUMENTATION ===\n\n--- Source: memory/architecture.md ---\n## Routing\n\nFile tunggal `routes/web.php` (307 baris) mengorganisasi semua route dalam kelompok middleware:\n\n```\n[PUBLIC]          GET /  /profile  /program  /gallery  /ppdb\n[AUTH]            GET/POST /login  /register\n                  POST /logout\n[role:ortu]       /ortu/*\n[role:guru]       /guru/*  /guru/wali/*\n[role:keps"
+  },
+  {
+    "q": "What is the route prefix for the bendahara role?",
+    "exp": "routes/web.php",
+    "cat": "Routes",
+    "retrieved_source": "memory/architecture.md, app/Models/Bendahara.php, app/Models/User.php, app/Models/Role.php, memory/progress.md",
+    "context_snippet": "=== SEMANTIC CODE CONTEXT FOR: 'What is the route prefix for the bendahara role?' ===\n\n--- Relevant Functions/Methods ---\n\nFile: app/Models/User.php (Lines: 52-55)\nSymbol: User::bendahara\n```php\n    public function bendahara()\n    {\n        return $this->hasOne(Bendahara::class);\n    }\n\n```\n\nFile: app/Models/User.php (Lines: 68-71)\nSymbol: User::hasRole\n```php\n    public function hasRole($role)\n    {\n        return $this->roles()->where('name', $role)->exists();\n    }\n\n```\n\nFile: app/Models/User.php (Lines: 72-75)\nSymbol: User::hasAnyRole\n```php\n    public function hasAnyRole($roles)\n    {\n        return $this->roles->whereIn('name', (array) $roles)->isNotEmpty();\n    }\n\n```\n\n--- Relevant Class Structures ---\n\nFile: app/Models/Bendahara.php\nClass Skeleton: App\\Models\\Bendahara\n```php\nnamespace App\\Models;\n\nclass Bendahara extends Model {\n    $fillable;\n\n    public function user() { ... }\n}\n```\n\nFile: app/Models/Role.php\nClass Skeleton: App\\Models\\Role\n```php\nnamespace App\\Models;\n\nclas"
+  },
+  {
+    "q": "How are the PPDB routes protected?",
+    "exp": "routes/web.php",
+    "cat": "Routes",
+    "retrieved_source": "app/Models/AdminPpdbProfile.php, memory/progress.md, memory/project_structure.md, app/Http/Controllers/HomeController.php, memory/architecture.md, app/Models/User.php, app/Models/BerkasPendaftar.php",
+    "context_snippet": "=== SEMANTIC CODE CONTEXT FOR: 'How are the PPDB routes protected?' ===\n\n--- Relevant Functions/Methods ---\n\nFile: app/Http/Controllers/HomeController.php (Lines: 26-29)\nSymbol: HomeController::ppdb\n```php\n    public function ppdb()\n    {\n        return view('ppdb');\n    }\n\n```\n\nFile: app/Models/User.php (Lines: 58-61)\nSymbol: User::adminPpdb\n```php\n    public function adminPpdb()\n    {\n        return $this->hasOne(AdminPpdbProfile::class);\n    }\n\n```\n\nFile: app/Models/User.php (Lines: 111-115)\nSymbol: User::isAdminPpdb\n```php\n\n    public function isAdminPpdb()\n    {\n        return $this->hasRole('admin_ppdb');\n    }\n\n```\n\n--- Relevant Class Structures ---\n\nFile: app/Models/AdminPpdbProfile.php\nClass Skeleton: App\\Models\\AdminPpdbProfile\n```php\nnamespace App\\Models;\n\nclass AdminPpdbProfile extends Model {\n    $fillable;\n\n    public function user() { ... }\n}\n```\n\nFile: app/Models/BerkasPendaftar.php\nClass Skeleton: App\\Models\\BerkasPendaftar\n```php\nnamespace App\\Models;\n\nclass BerkasPen"
+  },
+  {
+    "q": "How many migration files exist in the project?",
+    "exp": "ai_tools/memory_store.sqlite (Memory)",
+    "cat": "Database Migrations",
+    "retrieved_source": "app/Models/GuruDokumen.php, app/Models/GuruDiklat.php, memory/project_structure.md, app/Http/Controllers/Operator/UserManagementController.php, memory/progress.md",
+    "context_snippet": "=== SEMANTIC CODE CONTEXT FOR: 'How many migration files exist in the project?' ===\n\n--- Relevant Functions/Methods ---\n\nFile: app/Http/Controllers/Operator/UserManagementController.php (Lines: 236-242)\nSymbol: UserManagementController::deleteAllProfiles\n```php\n\n    private function deleteAllProfiles($user)\n    {\n        $user->guru()->delete();\n        $user->bendahara()->delete();\n        $user->adminPpdb()->delete();\n    }\n\n```\n\nFile: app/Models/GuruDiklat.php (Lines: 99-105)\nSymbol: GuruDiklat::getFileSertifikatUrlAttribute\n```php\n\n    public function getFileSertifikatUrlAttribute(): ?string\n    {\n        return $this->file_sertifikat\n            ? Storage::disk('public')->url($this->file_sertifikat)\n            : null;\n    }\n\n```\n\nFile: app/Models/GuruDokumen.php (Lines: 75-84)\nSymbol: GuruDokumen::getFileSizeHumanAttribute\n```php\n\n    public function getFileSizeHumanAttribute(): string\n    {\n        $bytes = $this->file_size ?? 0;\n        if ($bytes < 1024)\n            return $by"
+  },
+  {
+    "q": "Are there separate tables for guru_pendidikans and guru_sertifikasis?",
+    "exp": "database/migrations",
+    "cat": "Database Migrations",
+    "retrieved_source": "memory/architecture.md, app/Models/Guru.php, memory/decisions.md",
+    "context_snippet": "=== SEMANTIC CODE CONTEXT FOR: 'Are there separate tables for guru_pendidikans and guru_sertifikasis?' ===\n\n\n--- Relevant Class Structures ---\n\nFile: app/Models/Guru.php\nClass Skeleton: App\\Models\\Guru\n```php\nnamespace App\\Models;\n\nclass Guru extends Model {\n    use HasFactory, SoftDeletes;\n\n    $table;\n    $fillable;\n    $casts;\n    $appends;\n\n    protected static function boot() { ... }\n    public function user() { ... }\n    public function kelasWali() { ... }\n    public function nilais() { ... }\n    public function absensis() { ... }\n    public function scopeSearch($query, string $keyword) { ... }\n    public function getMasaBaktiAttribute() { ... }\n    public function getMasaGtyAttribute() { ... }\n    public function dokumens() { ... }\n    public function diklats() { ... }\n    public function inpassings() { ... }\n    public function inpassingAktif() { ... }\n    public function pendidikans() { ... }\n    public function sertifikasis() { ... }\n    public function guruMapels() { ... }\n "
+  },
+  {
+    "q": "What columns are in the role_user pivot table?",
+    "exp": "database/migrations",
+    "cat": "Database Migrations",
+    "retrieved_source": "app/Models/Role.php, memory/decisions.md, memory/architecture.md, app/Models/User.php",
+    "context_snippet": "=== SEMANTIC CODE CONTEXT FOR: 'What columns are in the role_user pivot table?' ===\n\n\n--- Relevant Class Structures ---\n\nFile: app/Models/Role.php\nClass Skeleton: App\\Models\\Role\n```php\nnamespace App\\Models;\n\nclass Role extends Model {\n    public function users() { ... }\n}\n```\n\nFile: app/Models/User.php\nClass Skeleton: App\\Models\\User\n```php\nnamespace App\\Models;\n\nclass User extends Authenticatable {\n    use HasFactory, Notifiable;\n\n    $fillable;\n    $hidden;\n    $casts;\n\n    public function roles() { ... }\n    public function guru() { ... }\n    public function bendahara() { ... }\n    public function adminPpdb() { ... }\n    public function orangTua() { ... }\n    public function hasRole($role) { ... }\n    public function hasAnyRole($roles) { ... }\n    public function isGuru() { ... }\n    public function isWaliKelas() { ... }\n    public function isKepsek() { ... }\n    public function isOperator() { ... }\n    public function isBendahara() { ... }\n    public function isOrtu() { ... }\n    "
+  },
+  {
+    "q": "Is there a deleted_at column in the siswas table?",
+    "exp": "database/migrations",
+    "cat": "Database Migrations",
+    "retrieved_source": "app/Models/OrangTua.php, app/Exports/GuruExport.php, app/Models/Kelas.php, memory/coding_style.md, memory/decisions.md, app/Models/Siswa.php",
+    "context_snippet": "=== SEMANTIC CODE CONTEXT FOR: 'Is there a deleted_at column in the siswas table?' ===\n\n--- Relevant Functions/Methods ---\n\nFile: app/Models/Kelas.php (Lines: 29-33)\nSymbol: Kelas::siswas\n```php\n    \n    public function siswas()\n    {\n        return $this->hasMany(Siswa::class);\n    }\n\n```\n\nFile: app/Models/OrangTua.php (Lines: 41-45)\nSymbol: OrangTua::siswas\n```php\n\n    public function siswas()\n    {\n        return $this->belongsToMany(Siswa::class, 'orang_tua_siswa')->withPivot('hubungan_keluarga')->withTimestamps();\n    }\n\n```\n\nFile: app/Exports/GuruExport.php (Lines: 62-73)\nSymbol: GuruExport::columnFormats\n```php\n\n    public function columnFormats(): array\n    {\n        return [\n            'A' => NumberFormat::FORMAT_TEXT,\n            'C' => NumberFormat::FORMAT_TEXT,\n            'D' => NumberFormat::FORMAT_TEXT,\n            'AM' => NumberFormat::FORMAT_TEXT,\n            'AN' => NumberFormat::FORMAT_TEXT,\n            'AW' => NumberFormat::FORMAT_TEXT,\n        ];\n    }\n\n```\n\n--- R"
+  }
+]
