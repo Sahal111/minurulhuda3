@@ -29,6 +29,8 @@ const ModalFormSiswa = ({ isOpen, onClose, onSuccess, siswa, kelas = [], tahunAj
     const [fotoPreview, setFotoPreview] = useState(null);
     const [fotoFile, setFotoFile] = useState(null);
     const [submitting, setSubmitting] = useState(false);
+    const [stepErrors, setStepErrors] = useState({});
+    const [touchSteps, setTouchSteps] = useState({});
     const sliderRef = useRef(null);
     const isEdit = !!siswa;
 
@@ -93,6 +95,8 @@ const ModalFormSiswa = ({ isOpen, onClose, onSuccess, siswa, kelas = [], tahunAj
             setFotoFile(null);
         }
         setStep(1);
+        setStepErrors({});
+        setTouchSteps({});
     }, [isOpen, siswa]);
 
     const update = (key, val) => setForm(prev => ({ ...prev, [key]: val }));
@@ -105,8 +109,44 @@ const ModalFormSiswa = ({ isOpen, onClose, onSuccess, siswa, kelas = [], tahunAj
         }
     };
 
+    const validateStep = (s) => {
+        const f = form;
+        const errs = [];
+
+        if (s === 1) {
+            if (!f.nama?.trim()) errs.push('Nama lengkap wajib diisi');
+            if (!f.tempat_lahir?.trim()) errs.push('Tempat lahir wajib diisi');
+            if (!f.tanggal_lahir) errs.push('Tanggal lahir wajib diisi');
+            if (!f.nis?.trim()) errs.push('NIS wajib diisi');
+            if (f.jenis_pendaftaran === 'pindahan') {
+                if (!f.asal_sekolah?.trim()) errs.push('Asal sekolah wajib diisi');
+                if (!f.no_surat_mutasi?.trim()) errs.push('No surat mutasi wajib diisi');
+                if (!f.alasan_mutasi?.trim()) errs.push('Alasan pindah wajib diisi');
+            }
+        } else if (s === 2) {
+            if (!f.nama_ayah?.trim()) errs.push('Nama ayah wajib diisi');
+            if (!f.no_hp_ortu?.trim()) errs.push('No HP orang tua wajib diisi');
+            if (!f.alamat?.trim()) errs.push('Alamat orang tua wajib diisi');
+        } else if (s === 3) {
+            if (!f.alamat_siswa?.trim()) errs.push('Alamat siswa wajib diisi');
+            if (!f.kelurahan?.trim()) errs.push('Kelurahan wajib diisi');
+            if (!f.kecamatan?.trim()) errs.push('Kecamatan wajib diisi');
+        } else if (s === 4) {
+            if (!f.tahun_ajaran_id) errs.push('Tahun ajaran wajib dipilih');
+            if (!f.tanggal_masuk) errs.push('Tanggal masuk wajib diisi');
+        }
+
+        setStepErrors(prev => ({ ...prev, [s]: errs }));
+        setTouchSteps(prev => ({ ...prev, [s]: true }));
+        return errs.length === 0;
+    };
+
     const goToStep = (target) => {
         if (target < 1 || target > 5) return;
+        const direction = target > step;
+        if (direction) {
+            if (!validateStep(step)) return;
+        }
         setStep(target);
         if (sliderRef.current) {
             sliderRef.current.style.transform = `translateX(-${(target - 1) * 20}%)`;
@@ -116,6 +156,10 @@ const ModalFormSiswa = ({ isOpen, onClose, onSuccess, siswa, kelas = [], tahunAj
     const apiUrl = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:8000';
 
     const handleSubmit = async () => {
+        if (!validateStep(4)) {
+            setStep(4);
+            return;
+        }
         setSubmitting(true);
         try {
             const fd = new FormData();
@@ -143,38 +187,6 @@ const ModalFormSiswa = ({ isOpen, onClose, onSuccess, siswa, kelas = [], tahunAj
     if (!isOpen) return null;
 
     const isPindahan = form.jenis_pendaftaran === 'pindahan';
-    const FieldText = ({ label, name, type = 'text', placeholder, required, optional, sm2 }) => (
-        <div className={sm2 ? 'sm:col-span-2' : ''}>
-            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">
-                {label} {required && <span className="text-rose-400 normal-case">*</span>}
-                {optional && <span className="text-slate-300 normal-case font-normal">(opsional)</span>}
-            </label>
-            {type === 'textarea' ? (
-                <textarea value={form[name] || ''} onChange={e => update(name, e.target.value)}
-                    placeholder={placeholder} rows={3}
-                    className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10 outline-none text-sm text-slate-700 resize-none" />
-            ) : (
-                <input type={type} value={form[name] || ''} onChange={e => update(name, e.target.value)}
-                    placeholder={placeholder}
-                    className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10 outline-none text-sm text-slate-700" />
-            )}
-        </div>
-    );
-    const FieldSelect = ({ label, name, options, placeholder, required, optional, sm2 }) => (
-        <div className={sm2 ? 'sm:col-span-2' : ''}>
-            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">
-                {label} {required && <span className="text-rose-400 normal-case">*</span>}
-                {optional && <span className="text-slate-300 normal-case font-normal">(opsional)</span>}
-            </label>
-            <select value={form[name] || ''} onChange={e => update(name, e.target.value)}
-                className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10 outline-none text-sm text-slate-700">
-                {placeholder && <option value="">{placeholder}</option>}
-                {Object.entries(options).map(([val, lbl]) => (
-                    <option key={val} value={val}>{lbl}</option>
-                ))}
-            </select>
-        </div>
-    );
 
     const stepIndicator = (
         <div className="px-6 sm:px-10 pt-6 pb-4">
@@ -183,20 +195,25 @@ const ModalFormSiswa = ({ isOpen, onClose, onSuccess, siswa, kelas = [], tahunAj
                 <div className="absolute top-5 left-5 h-[2px] bg-emerald-500 transition-all duration-500 z-0"
                     style={{ width: `${((step - 1) / (STEPS.length - 1)) * 100}%` }} />
                 <div className="flex justify-between relative z-10">
-                    {STEPS.map((s, i) => (
-                        <div key={s} className="flex flex-col items-center gap-2">
-                            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ring-4 ring-white transition-all text-sm ${
-                                i + 1 === step ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-500/30' :
-                                i + 1 < step ? 'bg-emerald-100 text-emerald-600' :
-                                'bg-white border-2 border-slate-200 text-slate-400'
-                            }`}>
-                                {i + 1}
+                    {STEPS.map((s, i) => {
+                        const n = i + 1;
+                        const hasErr = touchSteps[n] && stepErrors[n]?.length > 0;
+                        return (
+                            <div key={s} className="flex flex-col items-center gap-2">
+                                <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ring-4 ring-white transition-all text-sm ${
+                                    hasErr ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/30' :
+                                    n === step ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-500/30' :
+                                    n < step ? 'bg-emerald-100 text-emerald-600' :
+                                    'bg-white border-2 border-slate-200 text-slate-400'
+                                }`}>
+                                    {hasErr ? '!' : n}
+                                </div>
+                                <span className={`text-[9px] font-black uppercase tracking-wider hidden sm:block ${hasErr ? 'text-rose-500' : n === step ? 'text-emerald-600' : 'text-slate-400'}`}>
+                                    {s}
+                                </span>
                             </div>
-                            <span className={`text-[9px] font-black uppercase tracking-wider hidden sm:block ${i + 1 === step ? 'text-emerald-600' : 'text-slate-400'}`}>
-                                {s}
-                            </span>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             </div>
         </div>
@@ -296,42 +313,43 @@ const ModalFormSiswa = ({ isOpen, onClose, onSuccess, siswa, kelas = [], tahunAj
                                                     <div className="sm:col-span-2">
                                                         <p className="text-[10px] font-black uppercase tracking-widest text-amber-600 mb-3">Data Sekolah Asal & Mutasi</p>
                                                     </div>
-                                                    <FieldText label="Asal Sekolah *" name="asal_sekolah" placeholder="SD/MI asal" required />
-                                                    <FieldText label="NPSN Sekolah Asal" name="npsn_asal" placeholder="NPSN" optional />
-                                                    <FieldText label="No. Surat Mutasi *" name="no_surat_mutasi" placeholder="Nomor surat pindah" required />
-                                                    <FieldText label="Alasan Pindah *" name="alasan_mutasi" placeholder="Alasan pindah ke sekolah ini" required />
+                                                    <FieldText form={form} update={update} label="Asal Sekolah *" name="asal_sekolah" placeholder="SD/MI asal" required />
+                                                    <FieldText form={form} update={update} label="NPSN Sekolah Asal" name="npsn_asal" placeholder="NPSN" optional />
+                                                    <FieldText form={form} update={update} label="No. Surat Mutasi *" name="no_surat_mutasi" placeholder="Nomor surat pindah" required />
+                                                    <FieldText form={form} update={update} label="Alasan Pindah *" name="alasan_mutasi" placeholder="Alasan pindah ke sekolah ini" required />
                                                 </div>
                                             )}
 
-                                            <FieldText label="NISN" name="nisn" placeholder="Nomor Induk Siswa Nasional" optional />
-                                            <FieldText label="NIS (Lokal) *" name="nis" placeholder="Nomor Induk Sekolah" required />
-                                            <FieldText label="Nama Lengkap *" name="nama" placeholder="Nama lengkap tanpa singkatan" sm2 required />
-                                            <FieldText label="Tempat Lahir *" name="tempat_lahir" placeholder="Kota Lahir" required />
-                                            <FieldText label="Tanggal Lahir *" name="tanggal_lahir" type="date" required />
-                                            <FieldSelect label="Jenis Kelamin *" name="jenis_kelamin" required
+                                            <FieldText form={form} update={update} label="NISN" name="nisn" placeholder="Nomor Induk Siswa Nasional" optional />
+                                            <FieldText form={form} update={update} label="NIS (Lokal) *" name="nis" placeholder="Nomor Induk Sekolah" required />
+                                            <FieldText form={form} update={update} label="Nama Lengkap *" name="nama" placeholder="Nama lengkap tanpa singkatan" sm2 required />
+                                            <FieldText form={form} update={update} label="Tempat Lahir *" name="tempat_lahir" placeholder="Kota Lahir" required />
+                                            <FieldText form={form} update={update} label="Tanggal Lahir *" name="tanggal_lahir" type="date" required />
+                                            <FieldSelect form={form} update={update} label="Jenis Kelamin *" name="jenis_kelamin" required
                                                 options={{ L: 'Laki-laki', P: 'Perempuan' }} />
-                                            <FieldSelect label="Agama *" name="agama" required
+                                            <FieldSelect form={form} update={update} label="Agama *" name="agama" required
                                                 options={{ Islam: 'Islam', Kristen: 'Kristen', Katolik: 'Katolik', Hindu: 'Hindu', Budha: 'Budha', Khonghucu: 'Khonghucu' }} />
-                                            <FieldSelect label="Kewarganegaraan" name="kewarganegaraan" optional
+                                            <FieldSelect form={form} update={update} label="Kewarganegaraan" name="kewarganegaraan" optional
                                                 options={{ WNI: 'WNI', WNA: 'WNA' }} />
-                                            <FieldText label="No Registrasi Akta Kelahiran" name="no_registrasi_akta_kelahiran" placeholder="Nomor seri/registrasi" sm2 optional />
+                                            <FieldText form={form} update={update} label="No Registrasi Akta Kelahiran" name="no_registrasi_akta_kelahiran" placeholder="Nomor seri/registrasi" sm2 optional />
                                         </div>
+                                        <StepErrors errors={stepErrors[1]} />
                                         {stepNav(1, 5)}
                                     </div>
-
+ 
                                     {/* STEP 2: ORANG TUA */}
                                     <div className="flex flex-col justify-between pr-2" style={{ width: '20%' }}>
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 overflow-y-auto max-h-[55vh] pr-2">
                                             <div className="sm:col-span-2">
                                                 <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">Data Ayah <span className="normal-case font-normal">*</span></p>
                                             </div>
-                                            <FieldText label="Nama Ayah" name="nama_ayah" placeholder="Nama lengkap ayah kandung" />
-                                            <FieldText label="Pekerjaan Ayah" name="pekerjaan_ayah" placeholder="Contoh: Wiraswasta" />
-                                            <FieldText label="NIK Ayah" name="nik_ayah" placeholder="16 digit NIK ayah" />
-                                            <FieldText label="Tahun Lahir Ayah" name="tahun_lahir_ayah" type="number" placeholder="Contoh: 1975" />
-                                            <FieldSelect label="Pendidikan Terakhir Ayah" name="pendidikan_ayah"
+                                            <FieldText form={form} update={update} label="Nama Ayah" name="nama_ayah" placeholder="Nama lengkap ayah kandung" />
+                                            <FieldText form={form} update={update} label="Pekerjaan Ayah" name="pekerjaan_ayah" placeholder="Contoh: Wiraswasta" />
+                                            <FieldText form={form} update={update} label="NIK Ayah" name="nik_ayah" placeholder="16 digit NIK ayah" />
+                                            <FieldText form={form} update={update} label="Tahun Lahir Ayah" name="tahun_lahir_ayah" type="number" placeholder="Contoh: 1975" />
+                                            <FieldSelect form={form} update={update} label="Pendidikan Terakhir Ayah" name="pendidikan_ayah"
                                                 options={{ 'Tidak Sekolah': 'Tidak Sekolah', 'SD / Sederajat': 'SD / Sederajat', 'SMP / Sederajat': 'SMP / Sederajat', 'SMA / Sederajat': 'SMA / Sederajat', D1: 'D1', D2: 'D2', D3: 'D3', 'D4 / S1': 'D4 / S1', S2: 'S2', S3: 'S3' }} />
-                                            <FieldSelect label="Penghasilan Ayah" name="penghasilan_ayah"
+                                            <FieldSelect form={form} update={update} label="Penghasilan Ayah" name="penghasilan_ayah"
                                                 options={{
                                                     'Kurang dari Rp 500.000': 'Kurang dari Rp 500.000',
                                                     'Rp 500.000 - Rp 999.999': 'Rp 500.000 - Rp 999.999',
@@ -341,18 +359,18 @@ const ModalFormSiswa = ({ isOpen, onClose, onSuccess, siswa, kelas = [], tahunAj
                                                     'Lebih dari Rp 20.000.000': 'Lebih dari Rp 20.000.000',
                                                     'Tidak Berpenghasilan': 'Tidak Berpenghasilan',
                                                 }} />
-                                            <FieldText label="Kebutuhan Khusus Ayah" name="kebutuhan_khusus_ayah" placeholder="Kosongkan jika tidak ada" />
+                                            <FieldText form={form} update={update} label="Kebutuhan Khusus Ayah" name="kebutuhan_khusus_ayah" placeholder="Kosongkan jika tidak ada" />
 
                                             <div className="sm:col-span-2 border-t border-slate-100 pt-4 mt-2">
                                                 <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">Data Ibu <span className="normal-case font-normal">(opsional)</span></p>
                                             </div>
-                                            <FieldText label="Nama Ibu" name="nama_ibu" placeholder="Nama lengkap ibu kandung" />
-                                            <FieldText label="Pekerjaan Ibu" name="pekerjaan_ibu" placeholder="Contoh: Ibu Rumah Tangga" />
-                                            <FieldText label="NIK Ibu" name="nik_ibu" placeholder="16 digit NIK ibu" />
-                                            <FieldText label="Tahun Lahir Ibu" name="tahun_lahir_ibu" type="number" placeholder="Contoh: 1980" />
-                                            <FieldSelect label="Pendidikan Terakhir Ibu" name="pendidikan_ibu"
+                                            <FieldText form={form} update={update} label="Nama Ibu" name="nama_ibu" placeholder="Nama lengkap ibu kandung" />
+                                            <FieldText form={form} update={update} label="Pekerjaan Ibu" name="pekerjaan_ibu" placeholder="Contoh: Ibu Rumah Tangga" />
+                                            <FieldText form={form} update={update} label="NIK Ibu" name="nik_ibu" placeholder="16 digit NIK ibu" />
+                                            <FieldText form={form} update={update} label="Tahun Lahir Ibu" name="tahun_lahir_ibu" type="number" placeholder="Contoh: 1980" />
+                                            <FieldSelect form={form} update={update} label="Pendidikan Terakhir Ibu" name="pendidikan_ibu"
                                                 options={{ 'Tidak Sekolah': 'Tidak Sekolah', 'SD / Sederajat': 'SD / Sederajat', 'SMP / Sederajat': 'SMP / Sederajat', 'SMA / Sederajat': 'SMA / Sederajat', D1: 'D1', D2: 'D2', D3: 'D3', 'D4 / S1': 'D4 / S1', S2: 'S2', S3: 'S3' }} />
-                                            <FieldSelect label="Penghasilan Ibu" name="penghasilan_ibu"
+                                            <FieldSelect form={form} update={update} label="Penghasilan Ibu" name="penghasilan_ibu"
                                                 options={{
                                                     'Kurang dari Rp 500.000': 'Kurang dari Rp 500.000',
                                                     'Rp 500.000 - Rp 999.999': 'Rp 500.000 - Rp 999.999',
@@ -362,13 +380,13 @@ const ModalFormSiswa = ({ isOpen, onClose, onSuccess, siswa, kelas = [], tahunAj
                                                     'Lebih dari Rp 20.000.000': 'Lebih dari Rp 20.000.000',
                                                     'Tidak Berpenghasilan': 'Tidak Berpenghasilan',
                                                 }} />
-                                            <FieldText label="Kebutuhan Khusus Ibu" name="kebutuhan_khusus_ibu" placeholder="Kosongkan jika tidak ada" />
+                                            <FieldText form={form} update={update} label="Kebutuhan Khusus Ibu" name="kebutuhan_khusus_ibu" placeholder="Kosongkan jika tidak ada" />
 
                                             <div className="sm:col-span-2 border-t border-slate-100 pt-4 mt-2">
                                                 <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">Kontak & Alamat</p>
                                             </div>
-                                            <FieldText label="No HP Orang Tua *" name="no_hp_ortu" type="tel" placeholder="08xxxxxxxxxx" required />
-                                            <FieldText label="Alamat Lengkap *" name="alamat" type="textarea" placeholder="Alamat domisili orang tua" sm2 required />
+                                            <FieldText form={form} update={update} label="No HP Orang Tua *" name="no_hp_ortu" type="tel" placeholder="08xxxxxxxxxx" required />
+                                            <FieldText form={form} update={update} label="Alamat Lengkap *" name="alamat" type="textarea" placeholder="Alamat domisili orang tua" sm2 required />
 
                                             <div className="sm:col-span-2 border-t border-slate-100 pt-4 mt-2">
                                                 <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">
@@ -377,11 +395,11 @@ const ModalFormSiswa = ({ isOpen, onClose, onSuccess, siswa, kelas = [], tahunAj
                                             </div>
                                             <div className="sm:col-span-2 bg-blue-50/50 p-4 rounded-2xl border border-blue-100">
                                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                                    <FieldText label="Nama Wali" name="nama_wali" placeholder="Nama lengkap wali" />
-                                                    <FieldText label="Pekerjaan Wali" name="pekerjaan_wali" placeholder="Contoh: Wiraswasta" />
-                                                    <FieldText label="NIK Wali" name="nik_wali" placeholder="16 digit NIK wali" />
-                                                    <FieldText label="Tahun Lahir Wali" name="tahun_lahir_wali" type="number" placeholder="Contoh: 1980" />
-                                                    <FieldSelect label="Penghasilan Wali" name="penghasilan_wali"
+                                                    <FieldText form={form} update={update} label="Nama Wali" name="nama_wali" placeholder="Nama lengkap wali" />
+                                                    <FieldText form={form} update={update} label="Pekerjaan Wali" name="pekerjaan_wali" placeholder="Contoh: Wiraswasta" />
+                                                    <FieldText form={form} update={update} label="NIK Wali" name="nik_wali" placeholder="16 digit NIK wali" />
+                                                    <FieldText form={form} update={update} label="Tahun Lahir Wali" name="tahun_lahir_wali" type="number" placeholder="Contoh: 1980" />
+                                                    <FieldSelect form={form} update={update} label="Penghasilan Wali" name="penghasilan_wali"
                                                         options={{
                                                             'Kurang dari Rp 500.000': 'Kurang dari Rp 500.000',
                                                             'Rp 500.000 - Rp 999.999': 'Rp 500.000 - Rp 999.999',
@@ -391,43 +409,44 @@ const ModalFormSiswa = ({ isOpen, onClose, onSuccess, siswa, kelas = [], tahunAj
                                                             'Lebih dari Rp 20.000.000': 'Lebih dari Rp 20.000.000',
                                                             'Tidak Berpenghasilan': 'Tidak Berpenghasilan',
                                                         }} />
-                                                    <FieldText label="No HP Wali" name="no_hp_wali" type="tel" placeholder="08xxxxxxxxxx" />
-                                                    <FieldSelect label="Pendidikan Wali" name="pendidikan_wali"
+                                                    <FieldText form={form} update={update} label="No HP Wali" name="no_hp_wali" type="tel" placeholder="08xxxxxxxxxx" />
+                                                    <FieldSelect form={form} update={update} label="Pendidikan Wali" name="pendidikan_wali"
                                                         options={{ 'Tidak Sekolah': 'Tidak Sekolah', 'SD / Sederajat': 'SD / Sederajat', 'SMP / Sederajat': 'SMP / Sederajat', 'SMA / Sederajat': 'SMA / Sederajat', D1: 'D1', D2: 'D2', D3: 'D3', 'D4 / S1': 'D4 / S1', S2: 'S2', S3: 'S3' }} />
-                                                    <FieldText label="Alamat Wali" name="alamat_wali" type="textarea" placeholder="Alamat domisili wali" sm2 />
+                                                    <FieldText form={form} update={update} label="Alamat Wali" name="alamat_wali" type="textarea" placeholder="Alamat domisili wali" sm2 />
                                                 </div>
                                             </div>
                                         </div>
+                                        <StepErrors errors={stepErrors[2]} />
                                         {stepNav(2, 5)}
                                     </div>
-
+ 
                                     {/* STEP 3: PERIODIK & DOMISILI */}
                                     <div className="flex flex-col justify-between pr-2" style={{ width: '20%' }}>
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 overflow-y-auto max-h-[55vh] pr-2">
                                             <div className="sm:col-span-2">
                                                 <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">Alamat Tempat Tinggal Siswa</p>
                                             </div>
-                                            <FieldText label="Alamat Lengkap Siswa *" name="alamat_siswa" type="textarea" placeholder="Alamat tempat tinggal siswa saat ini" sm2 required />
-                                            <FieldText label="RT" name="rt" placeholder="Contoh: 003" />
-                                            <FieldText label="RW" name="rw" placeholder="Contoh: 005" />
-                                            <FieldText label="Desa / Kelurahan *" name="kelurahan" placeholder="Nama kelurahan" required />
-                                            <FieldText label="Kecamatan *" name="kecamatan" placeholder="Nama kecamatan" required />
-                                            <FieldText label="Kode Pos" name="kode_pos" placeholder="Contoh: 12345" />
-                                            <FieldText label="Lintang (Latitude)" name="lintang" type="number" placeholder="Contoh: -6.26000000" />
-                                            <FieldText label="Bujur (Longitude)" name="bujur" type="number" placeholder="Contoh: 106.81000000" />
+                                            <FieldText form={form} update={update} label="Alamat Lengkap Siswa *" name="alamat_siswa" type="textarea" placeholder="Alamat tempat tinggal siswa saat ini" sm2 required />
+                                            <FieldText form={form} update={update} label="RT" name="rt" placeholder="Contoh: 003" />
+                                            <FieldText form={form} update={update} label="RW" name="rw" placeholder="Contoh: 005" />
+                                            <FieldText form={form} update={update} label="Desa / Kelurahan *" name="kelurahan" placeholder="Nama kelurahan" required />
+                                            <FieldText form={form} update={update} label="Kecamatan *" name="kecamatan" placeholder="Nama kecamatan" required />
+                                            <FieldText form={form} update={update} label="Kode Pos" name="kode_pos" placeholder="Contoh: 12345" />
+                                            <FieldText form={form} update={update} label="Lintang (Latitude)" name="lintang" type="number" placeholder="Contoh: -6.26000000" />
+                                            <FieldText form={form} update={update} label="Bujur (Longitude)" name="bujur" type="number" placeholder="Contoh: 106.81000000" />
 
                                             <div className="sm:col-span-2 border-t border-slate-100 pt-4 mt-2">
                                                 <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">Data Keluarga</p>
                                             </div>
-                                            <FieldText label="Anak Ke-" name="anak_ke" type="number" placeholder="Contoh: 2" />
-                                            <FieldText label="Jumlah Saudara Kandung" name="jumlah_saudara" type="number" placeholder="Contoh: 3" />
+                                            <FieldText form={form} update={update} label="Anak Ke-" name="anak_ke" type="number" placeholder="Contoh: 2" />
+                                            <FieldText form={form} update={update} label="Jumlah Saudara Kandung" name="jumlah_saudara" type="number" placeholder="Contoh: 3" />
 
                                             <div className="sm:col-span-2 border-t border-slate-100 pt-4 mt-2">
                                                 <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">Data Geografis ke Sekolah</p>
                                             </div>
-                                            <FieldText label="Jarak ke Sekolah (km)" name="jarak_tempat_tinggal" type="number" placeholder="Contoh: 2.5" />
-                                            <FieldText label="Waktu Tempuh (menit)" name="waktu_tempuh" type="number" placeholder="Contoh: 15" />
-                                            <FieldSelect label="Moda Transportasi" name="moda_transportasi" sm2
+                                            <FieldText form={form} update={update} label="Jarak ke Sekolah (km)" name="jarak_tempat_tinggal" type="number" placeholder="Contoh: 2.5" />
+                                            <FieldText form={form} update={update} label="Waktu Tempuh (menit)" name="waktu_tempuh" type="number" placeholder="Contoh: 15" />
+                                            <FieldSelect form={form} update={update} label="Moda Transportasi" name="moda_transportasi" sm2
                                                 options={{
                                                     'Jalan Kaki': 'Jalan Kaki', Sepeda: 'Sepeda', 'Sepeda Motor': 'Sepeda Motor',
                                                     'Mobil Pribadi': 'Mobil Pribadi', 'Antar Jemput Sekolah': 'Antar Jemput Sekolah',
@@ -437,54 +456,56 @@ const ModalFormSiswa = ({ isOpen, onClose, onSuccess, siswa, kelas = [], tahunAj
                                             <div className="sm:col-span-2 border-t border-slate-100 pt-4 mt-2">
                                                 <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">Data Pendukung & Kontak Pribadi Siswa</p>
                                             </div>
-                                            <FieldText label="Hobi" name="hobi" placeholder="Contoh: Membaca" />
-                                            <FieldText label="Cita-cita" name="cita_cita" placeholder="Contoh: Dokter" />
-                                            <FieldText label="No Telp Siswa" name="no_telp_siswa" type="tel" placeholder="Telepon rumah/pribadi" />
-                                            <FieldText label="HP Siswa" name="hp_siswa" type="tel" placeholder="08xxxxxxxxxx" />
-                                            <FieldText label="Email Siswa" name="email_siswa" type="email" placeholder="nama@email.com" sm2 />
+                                            <FieldText form={form} update={update} label="Hobi" name="hobi" placeholder="Contoh: Membaca" />
+                                            <FieldText form={form} update={update} label="Cita-cita" name="cita_cita" placeholder="Contoh: Dokter" />
+                                            <FieldText form={form} update={update} label="No Telp Siswa" name="no_telp_siswa" type="tel" placeholder="Telepon rumah/pribadi" />
+                                            <FieldText form={form} update={update} label="HP Siswa" name="hp_siswa" type="tel" placeholder="08xxxxxxxxxx" />
+                                            <FieldText form={form} update={update} label="Email Siswa" name="email_siswa" type="email" placeholder="nama@email.com" sm2 />
                                         </div>
+                                        <StepErrors errors={stepErrors[3]} />
                                         {stepNav(3, 5)}
                                     </div>
-
+ 
                                     {/* STEP 4: AKADEMIK */}
                                     <div className="flex flex-col justify-between pr-2" style={{ width: '20%' }}>
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 overflow-y-auto max-h-[55vh] pr-2">
-                                            <FieldSelect label="Kelas" name="kelas_id" sm2 placeholder="-- Belum Ditentukan (Opsional) --"
+                                            <FieldSelect form={form} update={update} label="Kelas" name="kelas_id" sm2 placeholder="-- Belum Ditentukan (Opsional) --"
                                                 options={kelas.reduce((acc, k) => ({ ...acc, [k.id]: `Kelas ${k.full_name || k.nama}` }), {})} />
-                                            <FieldSelect label="Tahun Ajaran *" name="tahun_ajaran_id" required placeholder="-- Pilih Tahun Ajaran --"
+                                            <FieldSelect form={form} update={update} label="Tahun Ajaran *" name="tahun_ajaran_id" required placeholder="-- Pilih Tahun Ajaran --"
                                                 options={tahunAjarans.reduce((acc, ta) => ({ ...acc, [ta.id]: `${ta.tahun}${ta.is_active ? ' (Aktif)' : ''}` }), {})} />
-                                            <FieldSelect label="Status Siswa *" name="status" required placeholder="Pilih"
+                                            <FieldSelect form={form} update={update} label="Status Siswa *" name="status" required placeholder="Pilih"
                                                 options={{ aktif: 'Aktif', nonaktif: 'Non-Aktif', pindah: 'Pindah Sekolah', lulus: 'Lulus' }} />
-                                            <FieldText label="NIK" name="nik" placeholder="16 digit NIK" />
-                                            <FieldText label="No. Kartu Keluarga (KK)" name="no_kk" placeholder="16 digit No. KK" />
-                                            <FieldText label="Tanggal Masuk *" name="tanggal_masuk" type="date" required />
+                                            <FieldText form={form} update={update} label="NIK" name="nik" placeholder="16 digit NIK" />
+                                            <FieldText form={form} update={update} label="No. Kartu Keluarga (KK)" name="no_kk" placeholder="16 digit No. KK" />
+                                            <FieldText form={form} update={update} label="Tanggal Masuk *" name="tanggal_masuk" type="date" required />
 
                                             <div className="sm:col-span-2 border-t border-slate-100 pt-4 mt-2">
                                                 <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">Data Fisik & Kesehatan</p>
                                             </div>
-                                            <FieldSelect label="Golongan Darah" name="golongan_darah" placeholder="Tidak Diketahui"
+                                            <FieldSelect form={form} update={update} label="Golongan Darah" name="golongan_darah" placeholder="Tidak Diketahui"
                                                 options={{ A: 'A', B: 'B', AB: 'AB', O: 'O' }} />
-                                            <FieldText label="Tinggi Badan (cm)" name="tinggi_badan" type="number" placeholder="Contoh: 125" />
-                                            <FieldText label="Berat Badan (kg)" name="berat_badan" type="number" placeholder="Contoh: 25" />
-                                            <FieldText label="Lingkar Kepala (cm)" name="lingkar_kepala" type="number" placeholder="Contoh: 51.5" />
-                                            <FieldText label="Kebutuhan Khusus / ABK" name="kebutuhan_khusus" placeholder="Kosongkan jika tidak ada" sm2 />
-                                            <FieldText label="Riwayat Penyakit" name="riwayat_penyakit" type="textarea" placeholder="Riwayat penyakit / alergi (opsional)" sm2 />
-                                            <FieldText label="Catatan Kesehatan (Semester Ini)" name="catatan_kesehatan" type="textarea" placeholder="Kondisi kesehatan untuk semester ini..." sm2 />
+                                            <FieldText form={form} update={update} label="Tinggi Badan (cm)" name="tinggi_badan" type="number" placeholder="Contoh: 125" />
+                                            <FieldText form={form} update={update} label="Berat Badan (kg)" name="berat_badan" type="number" placeholder="Contoh: 25" />
+                                            <FieldText form={form} update={update} label="Lingkar Kepala (cm)" name="lingkar_kepala" type="number" placeholder="Contoh: 51.5" />
+                                            <FieldText form={form} update={update} label="Kebutuhan Khusus / ABK" name="kebutuhan_khusus" placeholder="Kosongkan jika tidak ada" sm2 />
+                                            <FieldText form={form} update={update} label="Riwayat Penyakit" name="riwayat_penyakit" type="textarea" placeholder="Riwayat penyakit / alergi (opsional)" sm2 />
+                                            <FieldText form={form} update={update} label="Catatan Kesehatan (Semester Ini)" name="catatan_kesehatan" type="textarea" placeholder="Kondisi kesehatan untuk semester ini..." sm2 />
 
                                             <div className="sm:col-span-2 border-t border-slate-100 pt-4 mt-2">
                                                 <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">Program Kesejahteraan</p>
                                             </div>
-                                            <FieldSelect label="Penerima KPS/PKH" name="penerima_kps_pkh" options={{ '0': 'Tidak', '1': 'Ya' }} />
-                                            <FieldText label="No KPS/PKH" name="no_kps_pkh" placeholder="Nomor kartu/program" />
-                                            <FieldSelect label="Layak PIP" name="layak_pip" options={{ '0': 'Tidak', '1': 'Ya' }} />
-                                            <FieldText label="Alasan Layak PIP" name="alasan_layak_pip" type="textarea" placeholder="Alasan kelayakan PIP" sm2 />
-                                            <FieldSelect label="Penerima KIP" name="penerima_kip" options={{ '0': 'Tidak', '1': 'Ya' }} />
-                                            <FieldText label="No KIP" name="no_kip" placeholder="Nomor KIP" />
-                                            <FieldText label="Nama Tertera di KIP" name="nama_tertera_di_kip" placeholder="Nama sesuai kartu KIP" sm2 />
+                                            <FieldSelect form={form} update={update} label="Penerima KPS/PKH" name="penerima_kps_pkh" options={{ '0': 'Tidak', '1': 'Ya' }} />
+                                            <FieldText form={form} update={update} label="No KPS/PKH" name="no_kps_pkh" placeholder="Nomor kartu/program" />
+                                            <FieldSelect form={form} update={update} label="Layak PIP" name="layak_pip" options={{ '0': 'Tidak', '1': 'Ya' }} />
+                                            <FieldText form={form} update={update} label="Alasan Layak PIP" name="alasan_layak_pip" type="textarea" placeholder="Alasan kelayakan PIP" sm2 />
+                                            <FieldSelect form={form} update={update} label="Penerima KIP" name="penerima_kip" options={{ '0': 'Tidak', '1': 'Ya' }} />
+                                            <FieldText form={form} update={update} label="No KIP" name="no_kip" placeholder="Nomor KIP" />
+                                            <FieldText form={form} update={update} label="Nama Tertera di KIP" name="nama_tertera_di_kip" placeholder="Nama sesuai kartu KIP" sm2 />
                                         </div>
+                                        <StepErrors errors={stepErrors[4]} />
                                         {stepNav(4, 5)}
                                     </div>
-
+ 
                                     {/* STEP 5: KONFIRMASI */}
                                     <div className="flex flex-col justify-between pr-2" style={{ width: '20%' }}>
                                         <div className="space-y-4 overflow-y-auto max-h-[55vh] pr-2">
@@ -577,6 +598,53 @@ const ModalFormSiswa = ({ isOpen, onClose, onSuccess, siswa, kelas = [], tahunAj
                     </form>
                 </div>
             </div>
+        </div>
+    );
+};
+
+const FieldText = ({ form, update, label, name, type = 'text', placeholder, required, optional, sm2 }) => (
+    <div className={sm2 ? 'sm:col-span-2' : ''}>
+        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">
+            {label} {required && <span className="text-rose-400 normal-case">*</span>}
+            {optional && <span className="text-slate-300 normal-case font-normal">(opsional)</span>}
+        </label>
+        {type === 'textarea' ? (
+            <textarea value={form[name] || ''} onChange={e => update(name, e.target.value)}
+                placeholder={placeholder} rows={3}
+                className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10 outline-none text-sm text-slate-700 resize-none" />
+        ) : (
+            <input type={type} value={form[name] || ''} onChange={e => update(name, e.target.value)}
+                placeholder={placeholder}
+                className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10 outline-none text-sm text-slate-700" />
+        )}
+    </div>
+);
+
+const FieldSelect = ({ form, update, label, name, options, placeholder, required, optional, sm2 }) => (
+    <div className={sm2 ? 'sm:col-span-2' : ''}>
+        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5">
+            {label} {required && <span className="text-rose-400 normal-case">*</span>}
+            {optional && <span className="text-slate-300 normal-case font-normal">(opsional)</span>}
+        </label>
+        <select value={form[name] || ''} onChange={e => update(name, e.target.value)}
+            className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10 outline-none text-sm text-slate-700">
+            {placeholder && <option value="">{placeholder}</option>}
+            {Object.entries(options).map(([val, lbl]) => (
+                <option key={val} value={val}>{lbl}</option>
+            ))}
+        </select>
+    </div>
+);
+
+const StepErrors = ({ errors }) => {
+    if (!errors || errors.length === 0) return null;
+    return (
+        <div className="mt-4 p-3 rounded-2xl bg-rose-50 border border-rose-200">
+            {errors.map((err, i) => (
+                <p key={i} className="text-[11px] font-semibold text-rose-600 flex items-center gap-2">
+                    <AlertTriangle className="w-3.5 h-3.5 shrink-0" /> {err}
+                </p>
+            ))}
         </div>
     );
 };

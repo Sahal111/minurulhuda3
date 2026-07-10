@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Eye, Download, Trash2, Plus, Award, Gem, FolderOpen, Loader2, User } from 'lucide-react';
+import { X, Eye, Download, Trash2, Plus, Upload, Award, Gem, FolderOpen, Loader2, User } from 'lucide-react';
 import { siswaAPI } from '../../api/operator';
 
 const TABS = [

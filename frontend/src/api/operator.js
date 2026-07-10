@@ -11,7 +11,7 @@ export const siswaAPI = {
     store: (data) => api.post('/operator/data-siswa', data, {
         headers: { 'Content-Type': 'multipart/form-data' }
     }),
-    update: (id, data) => api.put(`/operator/data-siswa/${id}`, data, {
+    update: (id, data) => api.post(`/operator/data-siswa/${id}`, data, {
         headers: { 'Content-Type': 'multipart/form-data' }
     }),
     destroy: (id) => api.delete(`/operator/data-siswa/${id}`),

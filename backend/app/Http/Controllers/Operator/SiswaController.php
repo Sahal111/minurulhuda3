@@ -864,18 +864,22 @@ class SiswaController extends Controller
             ->paginate(10);
 
         return response()->json([
-            'data' => $siswa->map(fn($s) => [
-                'id' => $s->id,
-                'nama' => $s->nama,
-                'foto' => $s->foto,
-                'nis' => $s->nis,
-                'nisn' => $s->nisn,
-                'kelas' => $s->kelas?->full_name ? 'Kelas ' . $s->kelas->full_name : 'Belum ada',
-                'deleted_at' => $s->deleted_at->format('d M Y, H:i'),
-            ]),
-            'total' => $siswa->total(),
-            'current_page' => $siswa->currentPage(),
-            'last_page' => $siswa->lastPage(),
+            'siswa' => [
+                'data' => $siswa->map(fn($s) => [
+                    'id' => $s->id,
+                    'nama' => $s->nama,
+                    'foto' => $s->foto,
+                    'nis' => $s->nis,
+                    'nisn' => $s->nisn,
+                    'kelas' => $s->kelas?->full_name ? 'Kelas ' . $s->kelas->full_name : 'Belum ada',
+                    'deleted_at' => $s->deleted_at->format('d M Y, H:i'),
+                ]),
+                'total' => $siswa->total(),
+                'current_page' => $siswa->currentPage(),
+                'last_page' => $siswa->lastPage(),
+                'from' => $siswa->firstItem(),
+                'to' => $siswa->lastItem(),
+            ]
         ]);
     }
 
@@ -1070,8 +1074,10 @@ class SiswaController extends Controller
             [$excelPath, $fotoMap, $tmpDir] = $this->extractZip($file);
 
             if (!$excelPath) {
-                return redirect()->back()
-                    ->with('error', 'File ZIP tidak valid: tidak ditemukan file Excel (.xlsx/.xls/.csv) di dalamnya. Pastikan struktur ZIP sudah benar.');
+                return response()->json([
+                    'success' => false,
+                    'message' => 'File ZIP tidak valid: tidak ditemukan file Excel (.xlsx/.xls/.csv) di dalamnya. Pastikan struktur ZIP sudah benar.'
+                ], 422);
             }
 
             $import = new \App\Imports\SiswaImport($fotoMap);
@@ -1103,7 +1109,10 @@ class SiswaController extends Controller
         $msg .= '.';
 
         $sessionKey = ($stats['inserted'] > 0 || $stats['updated'] > 0) ? 'success' : 'warning';
-        return redirect()->back()->with($sessionKey, $msg);
+        return response()->json([
+            'success' => $sessionKey === 'success',
+            'message' => $msg
+        ]);
     }
 
     // ─────────────────────────────────────────
