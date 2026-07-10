@@ -27,3 +27,4 @@ venv/
 .venv/
 __pycache__/
 *.pyc
+PROMPT_TEMPLATES.md
