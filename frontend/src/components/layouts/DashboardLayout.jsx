@@ -81,7 +81,7 @@ const DashboardLayout = () => {
                 />
             )}
             {user?.role === 'admin-ppdb' && (
-                <AdminPPDBSidebar
+                <AdminPpdbSidebar
                     sidebarOpen={sidebarOpen}
                     setSidebarOpen={setSidebarOpen}
                     sidebarCollapsed={sidebarCollapsed}
