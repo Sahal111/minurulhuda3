@@ -2,8 +2,10 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "build": "vite build",
-        "dev": "vite"
+        "dev": "concurrently -n \"frontend,backend\" -c \"blue,green\" \"npm run dev --prefix frontend\" \"cd backend && php artisan serve\"",
+        "frontend": "npm run dev --prefix frontend",
+        "backend": "cd backend && php artisan serve",
+        "build": "npm run build --prefix frontend"
     },
     "devDependencies": {
         "@tailwindcss/forms": "^0.5.2",
