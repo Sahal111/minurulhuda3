@@ -368,7 +368,7 @@ class SiswaController extends Controller
             'npsn_asal' => 'nullable|string|max:20',
             'no_surat_mutasi' => 'required_if:jenis_pendaftaran,pindahan|nullable|string|max:100',
             'alasan_mutasi' => 'required_if:jenis_pendaftaran,pindahan|nullable|string',
-            'tanggal_masuk' => 'required|date',
+            'tanggal_masuk' => 'required|date|before_or_equal:today',
             'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             // Dapodik: Identitas lanjutan & data tambahan
             'kewarganegaraan' => 'nullable|in:WNI,WNA',
@@ -645,7 +645,8 @@ class SiswaController extends Controller
             'riwayat_penyakit' => 'nullable|string',
             'kebutuhan_khusus' => 'nullable|string|max:100',
             'asal_sekolah' => 'nullable|string|max:255',
-            'tanggal_masuk' => 'required|date',
+            'npsn_asal' => 'nullable|string|max:20',
+            'tanggal_masuk' => 'required|date|before_or_equal:today',
             'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             // Dapodik: Identitas lanjutan & data tambahan
             'kewarganegaraan' => 'nullable|in:WNI,WNA',
@@ -744,7 +745,9 @@ class SiswaController extends Controller
             'riwayat_penyakit' => $request->riwayat_penyakit,
             'kebutuhan_khusus' => $request->kebutuhan_khusus,
             'tahun_ajaran_id' => $request->tahun_ajaran_id,
-            'asal_sekolah' => $request->asal_sekolah,
+            'asal_sekolah' => $request->npsn_asal
+                ? ($request->asal_sekolah . ' (NPSN: ' . $request->npsn_asal . ')')
+                : $request->asal_sekolah,
             'tanggal_masuk' => $request->tanggal_masuk,
             // Dapodik: Alamat & Domisili
             'alamat_siswa' => $request->alamat_siswa,
@@ -1296,7 +1299,7 @@ class SiswaController extends Controller
             'kelas_id' => 'required|exists:kelas,id',
             'tahun_ajaran_id' => 'required|exists:tahun_ajarans,id',
             'semester' => 'required|in:Ganjil,Genap',
-            'tanggal_masuk' => 'required|date',
+            'tanggal_masuk' => 'required|date|before_or_equal:today',
         ]);
 
         $siswa = Siswa::findOrFail($id);

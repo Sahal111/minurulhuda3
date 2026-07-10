@@ -48,7 +48,9 @@ const ModalFormSiswa = ({ isOpen, onClose, onSuccess, siswa, kelas = [], tahunAj
                 tempat_lahir: siswa.tempat_lahir || '', tanggal_lahir: siswa.tanggal_lahir || '',
                 jenis_kelamin: siswa.jenis_kelamin || 'L', agama: siswa.agama || 'Islam',
                 kewarganegaraan: siswa.kewarganegaraan || 'WNI', no_registrasi_akta_kelahiran: siswa.no_registrasi_akta_kelahiran || '',
-                asal_sekolah: siswa.asal_sekolah || '', npsn_asal: siswa.npsn_asal || '', no_surat_mutasi: siswa.no_surat_mutasi || '',
+                // Parse npsn_asal dari asal_sekolah yang tersimpan: "SDN 01 (NPSN: 12345678)"
+asal_sekolah: siswa.asal_sekolah?.replace(/\s*\(NPSN:.*?\)\s*$/, '').trim() || '',
+npsn_asal: siswa.asal_sekolah?.match(/\(NPSN:\s*(\w+)\)/)?.[1] || '',no_surat_mutasi: siswa.no_surat_mutasi || '',
                 alasan_mutasi: siswa.alasan_mutasi || '',
                 nama_ayah: siswa.nama_ayah || o?.nama_ayah || '',
                 pekerjaan_ayah: siswa.pekerjaan_ayah || o?.pekerjaan_ayah || '',
@@ -93,7 +95,7 @@ const ModalFormSiswa = ({ isOpen, onClose, onSuccess, siswa, kelas = [], tahunAj
                 tahun_ajaran_id: siswa.tahun_ajaran_id || '',
                 status: siswa.status || 'aktif', nik: siswa.nik || '', no_kk: siswa.no_kk || '',
                 tanggal_masuk: siswa.tanggal_masuk || '',
-                nama_kepala_keluarga: siswa.nama_kepala_keluarga || o?.nama_kepala_keluarga || '',
+                nama_kepala_keluarga: siswa.nama_kepala_keluarga || '',
                 pembiaya_sekolah: siswa.pembiaya_sekolah || '', imunisasi: siswa.imunisasi || '',
                 golongan_darah: siswa.golongan_darah || '', tinggi_badan: siswa.tinggi_badan || '',
                 berat_badan: siswa.berat_badan || '', lingkar_kepala: siswa.lingkar_kepala || '',
@@ -261,9 +263,8 @@ const ModalFormSiswa = ({ isOpen, onClose, onSuccess, siswa, kelas = [], tahunAj
             if (fotoFile) fd.append('foto', fotoFile);
 
             let res;
-            if (isEdit) {
-                fd.append('_method', 'PUT');
-                res = await siswaAPI.update(siswa.id, fd);
+if (isEdit) {
+    res = await siswaAPI.update(siswa.id, fd);
             } else {
                 res = await siswaAPI.store(fd);
             }
