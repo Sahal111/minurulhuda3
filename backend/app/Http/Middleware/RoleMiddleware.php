@@ -4,21 +4,21 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class RoleMiddleware
 {
-    public function handle(Request $request, Closure $next, $role)
+    public function handle(Request $request, Closure $next, ...$roles)
     {
         if (!auth()->check()) {
-            return redirect('/login');
+            return response()->json(['message' => 'Unauthenticated.'], 401);
         }
 
-        if (!auth()->user()->hasRole($role)) {
-            abort(403, 'Akses ditolak.');
+        foreach ($roles as $role) {
+            if (auth()->user()->hasRole($role)) {
+                return $next($request);
+            }
         }
 
-        return $next($request);
+        return response()->json(['message' => 'Akses ditolak.'], 403);
     }
-
 }

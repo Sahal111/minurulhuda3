@@ -17,10 +17,8 @@ import ProgramPage from '../pages/public/ProgramPage';
 import GalleryPage from '../pages/public/GalleryPage';
 import PPDBPage from '../pages/public/PPDBPage';
 
-// Dashboard Pages
-import DashboardPage from '../pages/operator/DashboardPage'; // Assuming DashboardPage was moved to operator/ or is just DashboardPage
-
 // Operator Pages
+import OperatorDashboardPage from '../pages/operator/DashboardPage';
 import OperatorSiswaPage from '../pages/operator/SiswaPage';
 import OperatorGuruPage from '../pages/operator/GuruPage';
 import OperatorKelasPage from '../pages/operator/KelasPage';
@@ -39,6 +37,32 @@ import OperatorBackupPage from '../pages/operator/BackupPage';
 import OperatorSettingPage from '../pages/operator/SettingPage';
 import OperatorAuditLogPage from '../pages/operator/AuditLogPage';
 import OperatorIntegrasiSistemPage from '../pages/operator/IntegrasiSistemPage';
+
+// Guru Pages
+import GuruDashboardPage from '../pages/guru/DashboardPage';
+import GuruJadwalPage from '../pages/guru/JadwalPage';
+import GuruAbsensiPage from '../pages/guru/AbsensiPage';
+import GuruNilaiPage from '../pages/guru/NilaiPage';
+import GuruRaporPage from '../pages/guru/RaporPage';
+import GuruSiswaPage from '../pages/guru/SiswaPage';
+import GuruSettingPage from '../pages/guru/SettingPage';
+
+// Kepsek Pages
+import KepsekDashboardPage from '../pages/kepsek/DashboardPage';
+import KepsekGuruPage from '../pages/kepsek/GuruPage';
+import KepsekSiswaPage from '../pages/kepsek/SiswaPage';
+import KepsekLaporanAkademikPage from '../pages/kepsek/LaporanAkademikPage';
+import KepsekLaporanKinerjaPage from '../pages/kepsek/LaporanKinerjaPage';
+import KepsekMonitoringPage from '../pages/kepsek/MonitoringPage';
+import KepsekSettingPage from '../pages/kepsek/SettingPage';
+
+// Ortu Pages
+import OrtuDashboardPage from '../pages/ortu/DashboardPage';
+import OrtuAnakPage from '../pages/ortu/AnakPage';
+import OrtuNilaiPage from '../pages/ortu/NilaiPage';
+import OrtuAbsensiPage from '../pages/ortu/AbsensiPage';
+import OrtuPembayaranPage from '../pages/ortu/PembayaranPage';
+import OrtuSettingPage from '../pages/ortu/SettingPage';
 
 // Protected Route Component
 const ProtectedRoute = ({ children, allowedRoles }) => {
@@ -122,7 +146,8 @@ export const router = createBrowserRouter([
             </ProtectedRoute>
         ),
         children: [
-            { path: 'dashboard', element: <DashboardPage /> },
+            { index: true, element: <Navigate to="dashboard" replace /> },
+            { path: 'dashboard', element: <OperatorDashboardPage /> },
             { path: 'siswa', element: <OperatorSiswaPage /> },
             { path: 'guru', element: <OperatorGuruPage /> },
             { path: 'kelas', element: <OperatorKelasPage /> },
@@ -141,6 +166,65 @@ export const router = createBrowserRouter([
             { path: 'setting', element: <OperatorSettingPage /> },
             { path: 'audit-log', element: <OperatorAuditLogPage /> },
             { path: 'integrasi', element: <OperatorIntegrasiSistemPage /> },
+        ]
+    },
+
+    // ============ GURU ROUTES ============
+    {
+        path: '/guru',
+        element: (
+            <ProtectedRoute allowedRoles={['guru']}>
+                <DashboardLayout />
+            </ProtectedRoute>
+        ),
+        children: [
+            { index: true, element: <Navigate to="dashboard" replace /> },
+            { path: 'dashboard', element: <GuruDashboardPage /> },
+            { path: 'jadwal', element: <GuruJadwalPage /> },
+            { path: 'absensi', element: <GuruAbsensiPage /> },
+            { path: 'nilai', element: <GuruNilaiPage /> },
+            { path: 'rapor', element: <GuruRaporPage /> },
+            { path: 'siswa', element: <GuruSiswaPage /> },
+            { path: 'setting', element: <GuruSettingPage /> },
+        ]
+    },
+
+    // ============ KEPSEK ROUTES ============
+    {
+        path: '/kepsek',
+        element: (
+            <ProtectedRoute allowedRoles={['kepsek']}>
+                <DashboardLayout />
+            </ProtectedRoute>
+        ),
+        children: [
+            { index: true, element: <Navigate to="dashboard" replace /> },
+            { path: 'dashboard', element: <KepsekDashboardPage /> },
+            { path: 'guru', element: <KepsekGuruPage /> },
+            { path: 'siswa', element: <KepsekSiswaPage /> },
+            { path: 'laporan-akademik', element: <KepsekLaporanAkademikPage /> },
+            { path: 'laporan-kinerja', element: <KepsekLaporanKinerjaPage /> },
+            { path: 'monitoring', element: <KepsekMonitoringPage /> },
+            { path: 'setting', element: <KepsekSettingPage /> },
+        ]
+    },
+
+    // ============ ORTU ROUTES ============
+    {
+        path: '/ortu',
+        element: (
+            <ProtectedRoute allowedRoles={['ortu']}>
+                <DashboardLayout />
+            </ProtectedRoute>
+        ),
+        children: [
+            { index: true, element: <Navigate to="dashboard" replace /> },
+            { path: 'dashboard', element: <OrtuDashboardPage /> },
+            { path: 'anak', element: <OrtuAnakPage /> },
+            { path: 'nilai', element: <OrtuNilaiPage /> },
+            { path: 'absensi', element: <OrtuAbsensiPage /> },
+            { path: 'pembayaran', element: <OrtuPembayaranPage /> },
+            { path: 'setting', element: <OrtuSettingPage /> },
         ]
     },
 

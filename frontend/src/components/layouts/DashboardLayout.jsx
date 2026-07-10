@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import OperatorSidebar from './OperatorSidebar';
+import GuruSidebar from './GuruSidebar';
+import KepsekSidebar from './KepsekSidebar';
+import OrtuSidebar from './OrtuSidebar';
 import { useAuth } from '../../hooks/useAuth';
 import { Menu, LogOut, Moon, Sun, ChevronRight } from 'lucide-react';
 
@@ -13,12 +16,35 @@ const DashboardLayout = () => {
     return (
         <div className={`min-h-screen flex flex-col bg-slate-50 text-slate-800 transition-colors duration-300 ${isDarkMode ? 'dark bg-slate-950 text-slate-100' : ''}`}>
             
-            {/* Sidebar Component */}
-            <OperatorSidebar 
-                sidebarOpen={sidebarOpen} 
-                setSidebarOpen={setSidebarOpen} 
-                sidebarCollapsed={sidebarCollapsed} 
-            />
+            {/* Sidebar Component - Role Based */}
+            {user?.role === 'operator' && (
+                <OperatorSidebar 
+                    sidebarOpen={sidebarOpen} 
+                    setSidebarOpen={setSidebarOpen} 
+                    sidebarCollapsed={sidebarCollapsed} 
+                />
+            )}
+            {user?.role === 'guru' && (
+                <GuruSidebar 
+                    sidebarOpen={sidebarOpen} 
+                    setSidebarOpen={setSidebarOpen} 
+                    sidebarCollapsed={sidebarCollapsed} 
+                />
+            )}
+            {user?.role === 'kepsek' && (
+                <KepsekSidebar 
+                    sidebarOpen={sidebarOpen} 
+                    setSidebarOpen={setSidebarOpen} 
+                    sidebarCollapsed={sidebarCollapsed} 
+                />
+            )}
+            {user?.role === 'ortu' && (
+                <OrtuSidebar 
+                    sidebarOpen={sidebarOpen} 
+                    setSidebarOpen={setSidebarOpen} 
+                    sidebarCollapsed={sidebarCollapsed} 
+                />
+            )}
 
             {/* Main Content Area */}
             <div className={`flex-1 flex flex-col min-w-0 transition-all duration-300 ease-in-out ${sidebarCollapsed ? 'lg:pl-20' : 'lg:pl-72'}`}>
