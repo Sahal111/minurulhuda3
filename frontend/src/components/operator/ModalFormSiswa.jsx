@@ -9,13 +9,17 @@ const INIT_FORM = {
     jenis_kelamin: 'L', agama: 'Islam', kewarganegaraan: 'WNI', no_registrasi_akta_kelahiran: '',
     asal_sekolah: '', npsn_asal: '', no_surat_mutasi: '', alasan_mutasi: '',
     nama_ayah: '', pekerjaan_ayah: '', nik_ayah: '', tahun_lahir_ayah: '', pendidikan_ayah: '', penghasilan_ayah: '', kebutuhan_khusus_ayah: '',
+    status_ayah: '', kewarganegaraan_ayah: '', tempat_lahir_ayah: '', no_hp_ayah: '',
     nama_ibu: '', pekerjaan_ibu: '', nik_ibu: '', tahun_lahir_ibu: '', pendidikan_ibu: '', penghasilan_ibu: '', kebutuhan_khusus_ibu: '',
+    status_ibu: '', kewarganegaraan_ibu: '', tempat_lahir_ibu: '', no_hp_ibu: '',
     nama_wali: '', pekerjaan_wali: '', nik_wali: '', tahun_lahir_wali: '', penghasilan_wali: '', no_hp_wali: '', pendidikan_wali: '', alamat_wali: '',
+    status_wali: '', kewarganegaraan_wali: '', tempat_lahir_wali: '',
     no_hp_ortu: '', alamat: '',
     alamat_siswa: '', rt: '', rw: '', kelurahan: '', kecamatan: '', kode_pos: '', lintang: '', bujur: '',
     anak_ke: '', jumlah_saudara: '', jarak_tempat_tinggal: '', waktu_tempuh: '', moda_transportasi: '',
     hobi: '', cita_cita: '', no_telp_siswa: '', hp_siswa: '', email_siswa: '',
-    kelas_id: '', tahun_ajaran_id: '', status: 'aktif', nik: '', no_kk: '', tanggal_masuk: '',
+    kelas_id: '', kelas_pararel: '', no_absen: '', tahun_ajaran_id: '', status: 'aktif', nik: '', no_kk: '', tanggal_masuk: '',
+    nama_kepala_keluarga: '', pembiaya_sekolah: '', imunisasi: '',
     golongan_darah: '', tinggi_badan: '', berat_badan: '', lingkar_kepala: '',
     kebutuhan_khusus: '', riwayat_penyakit: '', catatan_kesehatan: '',
     penerima_kps_pkh: '0', no_kps_pkh: '', layak_pip: '0', alasan_layak_pip: '',
@@ -37,6 +41,7 @@ const ModalFormSiswa = ({ isOpen, onClose, onSuccess, siswa, kelas = [], tahunAj
     useEffect(() => {
         if (!isOpen) return;
         if (siswa) {
+            const o = siswa.orang_tua || {};
             setForm({
                 jenis_pendaftaran: siswa.jenis_pendaftaran || 'baru',
                 nisn: siswa.nisn || '', nis: siswa.nis || '', nama: siswa.nama || '',
@@ -45,26 +50,36 @@ const ModalFormSiswa = ({ isOpen, onClose, onSuccess, siswa, kelas = [], tahunAj
                 kewarganegaraan: siswa.kewarganegaraan || 'WNI', no_registrasi_akta_kelahiran: siswa.no_registrasi_akta_kelahiran || '',
                 asal_sekolah: siswa.asal_sekolah || '', npsn_asal: siswa.npsn_asal || '', no_surat_mutasi: siswa.no_surat_mutasi || '',
                 alasan_mutasi: siswa.alasan_mutasi || '',
-                nama_ayah: siswa.nama_ayah || siswa.orang_tua?.nama_ayah || '',
-                pekerjaan_ayah: siswa.pekerjaan_ayah || siswa.orang_tua?.pekerjaan_ayah || '',
-                nik_ayah: siswa.nik_ayah || siswa.orang_tua?.nik_ayah || '',
-                tahun_lahir_ayah: siswa.tahun_lahir_ayah || siswa.orang_tua?.tahun_lahir_ayah || '',
-                pendidikan_ayah: siswa.pendidikan_ayah || siswa.orang_tua?.pendidikan_ayah || '',
-                penghasilan_ayah: siswa.penghasilan_ayah || siswa.orang_tua?.penghasilan_ayah || '',
-                kebutuhan_khusus_ayah: siswa.kebutuhan_khusus_ayah || siswa.orang_tua?.kebutuhan_khusus_ayah || '',
-                nama_ibu: siswa.nama_ibu || siswa.orang_tua?.nama_ibu || '',
-                pekerjaan_ibu: siswa.pekerjaan_ibu || siswa.orang_tua?.pekerjaan_ibu || '',
-                nik_ibu: siswa.nik_ibu || siswa.orang_tua?.nik_ibu || '',
-                tahun_lahir_ibu: siswa.tahun_lahir_ibu || siswa.orang_tua?.tahun_lahir_ibu || '',
-                pendidikan_ibu: siswa.pendidikan_ibu || siswa.orang_tua?.pendidikan_ibu || '',
-                penghasilan_ibu: siswa.penghasilan_ibu || siswa.orang_tua?.penghasilan_ibu || '',
-                kebutuhan_khusus_ibu: siswa.kebutuhan_khusus_ibu || siswa.orang_tua?.kebutuhan_khusus_ibu || '',
-                no_hp_ortu: siswa.no_hp_ortu || siswa.orang_tua?.no_hp || '',
-                alamat: siswa.alamat || siswa.orang_tua?.alamat || '',
+                nama_ayah: siswa.nama_ayah || o?.nama_ayah || '',
+                pekerjaan_ayah: siswa.pekerjaan_ayah || o?.pekerjaan_ayah || '',
+                nik_ayah: siswa.nik_ayah || o?.nik_ayah || '',
+                tahun_lahir_ayah: siswa.tahun_lahir_ayah || o?.tahun_lahir_ayah || '',
+                pendidikan_ayah: siswa.pendidikan_ayah || o?.pendidikan_ayah || '',
+                penghasilan_ayah: siswa.penghasilan_ayah || o?.penghasilan_ayah || '',
+                kebutuhan_khusus_ayah: siswa.kebutuhan_khusus_ayah || o?.kebutuhan_khusus_ayah || '',
+                status_ayah: siswa.status_ayah || o?.status_ayah || '',
+                kewarganegaraan_ayah: siswa.kewarganegaraan_ayah || o?.kewarganegaraan_ayah || '',
+                tempat_lahir_ayah: siswa.tempat_lahir_ayah || o?.tempat_lahir_ayah || '',
+                no_hp_ayah: siswa.no_hp_ayah || o?.no_hp_ayah || '',
+                nama_ibu: siswa.nama_ibu || o?.nama_ibu || '',
+                pekerjaan_ibu: siswa.pekerjaan_ibu || o?.pekerjaan_ibu || '',
+                nik_ibu: siswa.nik_ibu || o?.nik_ibu || '',
+                tahun_lahir_ibu: siswa.tahun_lahir_ibu || o?.tahun_lahir_ibu || '',
+                pendidikan_ibu: siswa.pendidikan_ibu || o?.pendidikan_ibu || '',
+                penghasilan_ibu: siswa.penghasilan_ibu || o?.penghasilan_ibu || '',
+                kebutuhan_khusus_ibu: siswa.kebutuhan_khusus_ibu || o?.kebutuhan_khusus_ibu || '',
+                status_ibu: siswa.status_ibu || o?.status_ibu || '',
+                kewarganegaraan_ibu: siswa.kewarganegaraan_ibu || o?.kewarganegaraan_ibu || '',
+                tempat_lahir_ibu: siswa.tempat_lahir_ibu || o?.tempat_lahir_ibu || '',
+                no_hp_ibu: siswa.no_hp_ibu || o?.no_hp_ibu || '',
+                no_hp_ortu: siswa.no_hp_ortu || o?.no_hp || '',
+                alamat: siswa.alamat || o?.alamat || '',
                 nama_wali: siswa.nama_wali || '', pekerjaan_wali: siswa.pekerjaan_wali || '',
                 nik_wali: siswa.nik_wali || '', tahun_lahir_wali: siswa.tahun_lahir_wali || '',
                 penghasilan_wali: siswa.penghasilan_wali || '', no_hp_wali: siswa.no_hp_wali || '',
                 pendidikan_wali: siswa.pendidikan_wali || '', alamat_wali: siswa.alamat_wali || '',
+                status_wali: siswa.status_wali || '', kewarganegaraan_wali: siswa.kewarganegaraan_wali || '',
+                tempat_lahir_wali: siswa.tempat_lahir_wali || '',
                 alamat_siswa: siswa.alamat_siswa || '', rt: siswa.rt || '', rw: siswa.rw || '',
                 kelurahan: siswa.kelurahan || '', kecamatan: siswa.kecamatan || '',
                 kode_pos: siswa.kode_pos || '', lintang: siswa.lintang || '', bujur: siswa.bujur || '',
@@ -74,9 +89,12 @@ const ModalFormSiswa = ({ isOpen, onClose, onSuccess, siswa, kelas = [], tahunAj
                 hobi: siswa.hobi || '', cita_cita: siswa.cita_cita || '',
                 no_telp_siswa: siswa.no_telp_siswa || '', hp_siswa: siswa.hp_siswa || '',
                 email_siswa: siswa.email_siswa || '',
-                kelas_id: siswa.kelas_id || '', tahun_ajaran_id: siswa.tahun_ajaran_id || '',
+                kelas_id: siswa.kelas_id || '', kelas_pararel: siswa.kelas_pararel || '', no_absen: siswa.no_absen || '',
+                tahun_ajaran_id: siswa.tahun_ajaran_id || '',
                 status: siswa.status || 'aktif', nik: siswa.nik || '', no_kk: siswa.no_kk || '',
                 tanggal_masuk: siswa.tanggal_masuk || '',
+                nama_kepala_keluarga: siswa.nama_kepala_keluarga || o?.nama_kepala_keluarga || '',
+                pembiaya_sekolah: siswa.pembiaya_sekolah || '', imunisasi: siswa.imunisasi || '',
                 golongan_darah: siswa.golongan_darah || '', tinggi_badan: siswa.tinggi_badan || '',
                 berat_badan: siswa.berat_badan || '', lingkar_kepala: siswa.lingkar_kepala || '',
                 kebutuhan_khusus: siswa.kebutuhan_khusus || '', riwayat_penyakit: siswa.riwayat_penyakit || '',
@@ -113,11 +131,39 @@ const ModalFormSiswa = ({ isOpen, onClose, onSuccess, siswa, kelas = [], tahunAj
         const f = form;
         const errs = [];
 
+        const isDigit = v => /^\d+$/.test(v);
+        const isFutureDate = d => d && new Date(d) > new Date(new Date().toDateString());
+        const isNotValidDate = d => d && isNaN(new Date(d).getTime());
+
         if (s === 1) {
             if (!f.nama?.trim()) errs.push('Nama lengkap wajib diisi');
             if (!f.tempat_lahir?.trim()) errs.push('Tempat lahir wajib diisi');
-            if (!f.tanggal_lahir) errs.push('Tanggal lahir wajib diisi');
+            if (!f.tanggal_lahir) {
+                errs.push('Tanggal lahir wajib diisi');
+            } else {
+                if (isNotValidDate(f.tanggal_lahir)) errs.push('Format tanggal lahir tidak valid');
+                if (isFutureDate(f.tanggal_lahir)) errs.push('Tanggal lahir tidak boleh di masa depan');
+            }
             if (!f.nis?.trim()) errs.push('NIS wajib diisi');
+            if (f.jenis_kelamin !== 'L' && f.jenis_kelamin !== 'P') errs.push('Jenis kelamin tidak valid');
+            if (!f.nisn?.trim() && !f.no_registrasi_akta_kelahiran?.trim()) {
+                errs.push('NISN atau No Registrasi Akta Kelahiran wajib diisi');
+            }
+            if (f.nisn?.trim()) {
+                if (!isDigit(f.nisn)) errs.push('NISN harus berupa angka');
+                else if (f.nisn.length !== 10) errs.push('NISN harus 10 digit');
+            }
+            if (f.no_registrasi_akta_kelahiran?.trim() && !/^[\w\/-]+$/.test(f.no_registrasi_akta_kelahiran)) {
+                errs.push('No Registrasi Akta Kelahiran tidak valid');
+            }
+            if (f.nik?.trim()) {
+                if (!isDigit(f.nik)) errs.push('NIK harus berupa angka');
+                else if (f.nik.length !== 16) errs.push('NIK harus 16 digit');
+            }
+            if (f.no_kk?.trim()) {
+                if (!isDigit(f.no_kk)) errs.push('No KK harus berupa angka');
+                else if (f.no_kk.length !== 16) errs.push('No KK harus 16 digit');
+            }
             if (f.jenis_pendaftaran === 'pindahan') {
                 if (!f.asal_sekolah?.trim()) errs.push('Asal sekolah wajib diisi');
                 if (!f.no_surat_mutasi?.trim()) errs.push('No surat mutasi wajib diisi');
@@ -125,15 +171,61 @@ const ModalFormSiswa = ({ isOpen, onClose, onSuccess, siswa, kelas = [], tahunAj
             }
         } else if (s === 2) {
             if (!f.nama_ayah?.trim()) errs.push('Nama ayah wajib diisi');
+            if (f.nik_ayah?.trim()) {
+                if (!isDigit(f.nik_ayah)) errs.push('NIK ayah harus berupa angka');
+                else if (f.nik_ayah.length !== 16) errs.push('NIK ayah harus 16 digit');
+            }
+            if (f.no_hp_ayah?.trim() && !isDigit(f.no_hp_ayah)) errs.push('No HP ayah harus berupa angka');
+            if (f.nik_ibu?.trim()) {
+                if (!isDigit(f.nik_ibu)) errs.push('NIK ibu harus berupa angka');
+                else if (f.nik_ibu.length !== 16) errs.push('NIK ibu harus 16 digit');
+            }
+            if (f.no_hp_ibu?.trim() && !isDigit(f.no_hp_ibu)) errs.push('No HP ibu harus berupa angka');
+            if (f.nik_wali?.trim()) {
+                if (!isDigit(f.nik_wali)) errs.push('NIK wali harus berupa angka');
+                else if (f.nik_wali.length !== 16) errs.push('NIK wali harus 16 digit');
+            }
+            if (f.no_hp_wali?.trim() && !isDigit(f.no_hp_wali)) errs.push('No HP wali harus berupa angka');
             if (!f.no_hp_ortu?.trim()) errs.push('No HP orang tua wajib diisi');
+            else if (!isDigit(f.no_hp_ortu)) errs.push('No HP orang tua harus berupa angka');
             if (!f.alamat?.trim()) errs.push('Alamat orang tua wajib diisi');
         } else if (s === 3) {
             if (!f.alamat_siswa?.trim()) errs.push('Alamat siswa wajib diisi');
             if (!f.kelurahan?.trim()) errs.push('Kelurahan wajib diisi');
             if (!f.kecamatan?.trim()) errs.push('Kecamatan wajib diisi');
+            if (f.rt?.trim() && !isDigit(f.rt)) errs.push('RT harus berupa angka');
+            if (f.rw?.trim() && !isDigit(f.rw)) errs.push('RW harus berupa angka');
+            if (f.kode_pos?.trim() && !isDigit(f.kode_pos)) errs.push('Kode pos harus berupa angka');
+            if (f.anak_ke?.trim() && !isDigit(f.anak_ke)) errs.push('Anak ke harus berupa angka');
+            if (f.jumlah_saudara?.trim() && !isDigit(f.jumlah_saudara)) errs.push('Jumlah saudara harus berupa angka');
+            if (f.tinggi_badan?.trim()) {
+                const t = parseFloat(f.tinggi_badan);
+                if (isNaN(t)) errs.push('Tinggi badan harus berupa angka');
+                else if (t < 20 || t > 250) errs.push('Tinggi badan tidak masuk akal (20-250 cm)');
+            }
+            if (f.berat_badan?.trim()) {
+                const b = parseFloat(f.berat_badan);
+                if (isNaN(b)) errs.push('Berat badan harus berupa angka');
+                else if (b < 2 || b > 300) errs.push('Berat badan tidak masuk akal (2-300 kg)');
+            }
+            if (f.lingkar_kepala?.trim()) {
+                const lk = parseFloat(f.lingkar_kepala);
+                if (isNaN(lk)) errs.push('Lingkar kepala harus berupa angka');
+                else if (lk < 20 || lk > 80) errs.push('Lingkar kepala tidak masuk akal (20-80 cm)');
+            }
+            if (f.no_telp_siswa?.trim() && !isDigit(f.no_telp_siswa)) errs.push('No telepon siswa harus berupa angka');
+            if (f.hp_siswa?.trim() && !isDigit(f.hp_siswa)) errs.push('No HP siswa harus berupa angka');
+            if (f.email_siswa?.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email_siswa)) {
+                errs.push('Format email siswa tidak valid');
+            }
         } else if (s === 4) {
             if (!f.tahun_ajaran_id) errs.push('Tahun ajaran wajib dipilih');
-            if (!f.tanggal_masuk) errs.push('Tanggal masuk wajib diisi');
+            if (!f.tanggal_masuk) {
+                errs.push('Tanggal masuk wajib diisi');
+            } else {
+                if (isNotValidDate(f.tanggal_masuk)) errs.push('Format tanggal masuk tidak valid');
+                if (isFutureDate(f.tanggal_masuk)) errs.push('Tanggal masuk tidak boleh di masa depan');
+            }
         }
 
         setStepErrors(prev => ({ ...prev, [s]: errs }));
@@ -332,6 +424,9 @@ const ModalFormSiswa = ({ isOpen, onClose, onSuccess, siswa, kelas = [], tahunAj
                                             <FieldSelect form={form} update={update} label="Kewarganegaraan" name="kewarganegaraan" optional
                                                 options={{ WNI: 'WNI', WNA: 'WNA' }} />
                                             <FieldText form={form} update={update} label="No Registrasi Akta Kelahiran" name="no_registrasi_akta_kelahiran" placeholder="Nomor seri/registrasi" sm2 optional />
+                                            <FieldText form={form} update={update} label="No Absen" name="no_absen" placeholder="Nomor urut absen kelas" optional />
+                                            <FieldSelect form={form} update={update} label="Yang Membiayai Sekolah" name="pembiaya_sekolah" optional
+                                                options={{ 'Orang Tua': 'Orang Tua', 'Wali': 'Wali', 'Pemerintah': 'Pemerintah', 'Swasta': 'Swasta', 'Lainnya': 'Lainnya' }} />
                                         </div>
                                         <StepErrors errors={stepErrors[1]} />
                                         {stepNav(1, 5)}
@@ -360,6 +455,12 @@ const ModalFormSiswa = ({ isOpen, onClose, onSuccess, siswa, kelas = [], tahunAj
                                                     'Tidak Berpenghasilan': 'Tidak Berpenghasilan',
                                                 }} />
                                             <FieldText form={form} update={update} label="Kebutuhan Khusus Ayah" name="kebutuhan_khusus_ayah" placeholder="Kosongkan jika tidak ada" />
+                                            <FieldSelect form={form} update={update} label="Status Ayah" name="status_ayah" optional
+                                                options={{ 'Hidup': 'Hidup', 'Meninggal': 'Meninggal', 'Cerai Hidup': 'Cerai Hidup', 'Cerai Mati': 'Cerai Mati' }} />
+                                            <FieldSelect form={form} update={update} label="Kewarganegaraan Ayah" name="kewarganegaraan_ayah" optional
+                                                options={{ WNI: 'WNI', WNA: 'WNA' }} />
+                                            <FieldText form={form} update={update} label="Tempat Lahir Ayah" name="tempat_lahir_ayah" placeholder="Kota lahir ayah" optional />
+                                            <FieldText form={form} update={update} label="No HP Ayah" name="no_hp_ayah" type="tel" placeholder="08xxxxxxxxxx" optional />
 
                                             <div className="sm:col-span-2 border-t border-slate-100 pt-4 mt-2">
                                                 <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">Data Ibu <span className="normal-case font-normal">(opsional)</span></p>
@@ -381,6 +482,12 @@ const ModalFormSiswa = ({ isOpen, onClose, onSuccess, siswa, kelas = [], tahunAj
                                                     'Tidak Berpenghasilan': 'Tidak Berpenghasilan',
                                                 }} />
                                             <FieldText form={form} update={update} label="Kebutuhan Khusus Ibu" name="kebutuhan_khusus_ibu" placeholder="Kosongkan jika tidak ada" />
+                                            <FieldSelect form={form} update={update} label="Status Ibu" name="status_ibu" optional
+                                                options={{ 'Hidup': 'Hidup', 'Meninggal': 'Meninggal', 'Cerai Hidup': 'Cerai Hidup', 'Cerai Mati': 'Cerai Mati' }} />
+                                            <FieldSelect form={form} update={update} label="Kewarganegaraan Ibu" name="kewarganegaraan_ibu" optional
+                                                options={{ WNI: 'WNI', WNA: 'WNA' }} />
+                                            <FieldText form={form} update={update} label="Tempat Lahir Ibu" name="tempat_lahir_ibu" placeholder="Kota lahir ibu" optional />
+                                            <FieldText form={form} update={update} label="No HP Ibu" name="no_hp_ibu" type="tel" placeholder="08xxxxxxxxxx" optional />
 
                                             <div className="sm:col-span-2 border-t border-slate-100 pt-4 mt-2">
                                                 <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">Kontak & Alamat</p>
@@ -413,6 +520,11 @@ const ModalFormSiswa = ({ isOpen, onClose, onSuccess, siswa, kelas = [], tahunAj
                                                     <FieldSelect form={form} update={update} label="Pendidikan Wali" name="pendidikan_wali"
                                                         options={{ 'Tidak Sekolah': 'Tidak Sekolah', 'SD / Sederajat': 'SD / Sederajat', 'SMP / Sederajat': 'SMP / Sederajat', 'SMA / Sederajat': 'SMA / Sederajat', D1: 'D1', D2: 'D2', D3: 'D3', 'D4 / S1': 'D4 / S1', S2: 'S2', S3: 'S3' }} />
                                                     <FieldText form={form} update={update} label="Alamat Wali" name="alamat_wali" type="textarea" placeholder="Alamat domisili wali" sm2 />
+                                                    <FieldSelect form={form} update={update} label="Status Wali" name="status_wali" optional
+                                                        options={{ 'Hidup': 'Hidup', 'Meninggal': 'Meninggal', 'Cerai Hidup': 'Cerai Hidup', 'Cerai Mati': 'Cerai Mati' }} />
+                                                    <FieldSelect form={form} update={update} label="Kewarganegaraan Wali" name="kewarganegaraan_wali" optional
+                                                        options={{ WNI: 'WNI', WNA: 'WNA' }} />
+                                                    <FieldText form={form} update={update} label="Tempat Lahir Wali" name="tempat_lahir_wali" placeholder="Kota lahir wali" optional />
                                                 </div>
                                             </div>
                                         </div>
@@ -440,6 +552,7 @@ const ModalFormSiswa = ({ isOpen, onClose, onSuccess, siswa, kelas = [], tahunAj
                                             </div>
                                             <FieldText form={form} update={update} label="Anak Ke-" name="anak_ke" type="number" placeholder="Contoh: 2" />
                                             <FieldText form={form} update={update} label="Jumlah Saudara Kandung" name="jumlah_saudara" type="number" placeholder="Contoh: 3" />
+                                            <FieldText form={form} update={update} label="Nama Kepala Keluarga" name="nama_kepala_keluarga" placeholder="Nama kepala keluarga" sm2 optional />
 
                                             <div className="sm:col-span-2 border-t border-slate-100 pt-4 mt-2">
                                                 <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">Data Geografis ke Sekolah</p>
@@ -461,6 +574,8 @@ const ModalFormSiswa = ({ isOpen, onClose, onSuccess, siswa, kelas = [], tahunAj
                                             <FieldText form={form} update={update} label="No Telp Siswa" name="no_telp_siswa" type="tel" placeholder="Telepon rumah/pribadi" />
                                             <FieldText form={form} update={update} label="HP Siswa" name="hp_siswa" type="tel" placeholder="08xxxxxxxxxx" />
                                             <FieldText form={form} update={update} label="Email Siswa" name="email_siswa" type="email" placeholder="nama@email.com" sm2 />
+                                            <FieldSelect form={form} update={update} label="Imunisasi (Terakhir)" name="imunisasi" optional
+                                                options={{ 'Lengkap': 'Lengkap', 'Tidak Lengkap': 'Tidak Lengkap', 'Belum': 'Belum', 'Tidak Diketahui': 'Tidak Diketahui' }} />
                                         </div>
                                         <StepErrors errors={stepErrors[3]} />
                                         {stepNav(3, 5)}
@@ -471,6 +586,7 @@ const ModalFormSiswa = ({ isOpen, onClose, onSuccess, siswa, kelas = [], tahunAj
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 overflow-y-auto max-h-[55vh] pr-2">
                                             <FieldSelect form={form} update={update} label="Kelas" name="kelas_id" sm2 placeholder="-- Belum Ditentukan (Opsional) --"
                                                 options={kelas.reduce((acc, k) => ({ ...acc, [k.id]: `Kelas ${k.full_name || k.nama}` }), {})} />
+                                            <FieldText form={form} update={update} label="Kelas Paralel" name="kelas_pararel" placeholder="Contoh: A, B, C..." optional />
                                             <FieldSelect form={form} update={update} label="Tahun Ajaran *" name="tahun_ajaran_id" required placeholder="-- Pilih Tahun Ajaran --"
                                                 options={tahunAjarans.reduce((acc, ta) => ({ ...acc, [ta.id]: `${ta.tahun}${ta.is_active ? ' (Aktif)' : ''}` }), {})} />
                                             <FieldSelect form={form} update={update} label="Status Siswa *" name="status" required placeholder="Pilih"

@@ -113,6 +113,12 @@ class Siswa extends Model
         'jarak_tempat_tinggal',
         'waktu_tempuh',
         'moda_transportasi',
+        // Excel fields
+        'kelas_pararel',
+        'no_absen',
+        'nama_kepala_keluarga',
+        'pembiaya_sekolah',
+        'imunisasi',
     ];
 
     protected $casts = [

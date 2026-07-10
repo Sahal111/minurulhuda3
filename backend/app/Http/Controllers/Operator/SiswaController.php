@@ -87,6 +87,10 @@ class SiswaController extends Controller
             $s->pendidikan_ayah = $ayah?->pendidikan_ayah;
             $s->pekerjaan_ayah = $ayah?->pekerjaan_ayah;
             $s->penghasilan_ayah = $ayah?->penghasilan_ayah;
+            $s->status_ayah = $ayah?->status_ayah;
+            $s->kewarganegaraan_ayah = $ayah?->kewarganegaraan_ayah;
+            $s->tempat_lahir_ayah = $ayah?->tempat_lahir_ayah;
+            $s->no_hp_ayah = $ayah?->no_hp_ayah;
 
             // Data Ibu
             $s->nama_ibu = $ibu?->nama_ibu;
@@ -95,6 +99,10 @@ class SiswaController extends Controller
             $s->pendidikan_ibu = $ibu?->pendidikan_ibu;
             $s->pekerjaan_ibu = $ibu?->pekerjaan_ibu;
             $s->penghasilan_ibu = $ibu?->penghasilan_ibu;
+            $s->status_ibu = $ibu?->status_ibu;
+            $s->kewarganegaraan_ibu = $ibu?->kewarganegaraan_ibu;
+            $s->tempat_lahir_ibu = $ibu?->tempat_lahir_ibu;
+            $s->no_hp_ibu = $ibu?->no_hp_ibu;
 
             // Data Wali
             $s->nama_wali = $wali?->nama_wali;
@@ -105,6 +113,9 @@ class SiswaController extends Controller
             $s->no_hp_wali = $wali?->no_hp_wali;
             $s->alamat_wali = $wali?->alamat_wali;
             $s->penghasilan_wali = $wali?->penghasilan_wali;
+            $s->status_wali = $wali?->status_wali;
+            $s->kewarganegaraan_wali = $wali?->kewarganegaraan_wali;
+            $s->tempat_lahir_wali = $wali?->tempat_lahir_wali;
 
             // Data kontak orang tua (prioritas: ayah > ibu > wali)
             $s->no_hp_ortu = $ayah?->no_hp ?? $ibu?->no_hp ?? $wali?->no_hp_wali;
@@ -241,12 +252,20 @@ class SiswaController extends Controller
         $siswa->pendidikan_ayah = $ayah?->pendidikan_ayah;
         $siswa->pekerjaan_ayah = $ayah?->pekerjaan_ayah;
         $siswa->penghasilan_ayah = $ayah?->penghasilan_ayah;
+        $siswa->status_ayah = $ayah?->status_ayah;
+        $siswa->kewarganegaraan_ayah = $ayah?->kewarganegaraan_ayah;
+        $siswa->tempat_lahir_ayah = $ayah?->tempat_lahir_ayah;
+        $siswa->no_hp_ayah = $ayah?->no_hp_ayah;
         $siswa->nama_ibu = $ibu?->nama_ibu;
         $siswa->nik_ibu = $ibu?->nik_ibu;
         $siswa->tahun_lahir_ibu = $ibu?->tahun_lahir_ibu;
         $siswa->pendidikan_ibu = $ibu?->pendidikan_ibu;
         $siswa->pekerjaan_ibu = $ibu?->pekerjaan_ibu;
         $siswa->penghasilan_ibu = $ibu?->penghasilan_ibu;
+        $siswa->status_ibu = $ibu?->status_ibu;
+        $siswa->kewarganegaraan_ibu = $ibu?->kewarganegaraan_ibu;
+        $siswa->tempat_lahir_ibu = $ibu?->tempat_lahir_ibu;
+        $siswa->no_hp_ibu = $ibu?->no_hp_ibu;
         $siswa->nama_wali = $wali?->nama_wali;
         $siswa->nik_wali = $wali?->nik_wali;
         $siswa->tahun_lahir_wali = $wali?->tahun_lahir_wali;
@@ -255,6 +274,9 @@ class SiswaController extends Controller
         $siswa->no_hp_wali = $wali?->no_hp_wali;
         $siswa->alamat_wali = $wali?->alamat_wali;
         $siswa->penghasilan_wali = $wali?->penghasilan_wali;
+        $siswa->status_wali = $wali?->status_wali;
+        $siswa->kewarganegaraan_wali = $wali?->kewarganegaraan_wali;
+        $siswa->tempat_lahir_wali = $wali?->tempat_lahir_wali;
         $siswa->no_hp_ortu = $ayah?->no_hp ?? $ibu?->no_hp ?? $wali?->no_hp_wali;
         $siswa->alamat = $ayah?->alamat ?? $ibu?->alamat ?? $wali?->alamat_wali;
 
@@ -383,6 +405,23 @@ class SiswaController extends Controller
             'jarak_tempat_tinggal' => 'nullable|numeric|min:0|max:999',
             'waktu_tempuh' => 'nullable|integer|min:0|max:999',
             'moda_transportasi' => 'nullable|string|max:50',
+            // Excel fields
+            'kelas_pararel' => 'nullable|string|max:10',
+            'no_absen' => 'nullable|string|max:10',
+            'nama_kepala_keluarga' => 'nullable|string|max:255',
+            'pembiaya_sekolah' => 'nullable|string|max:100',
+            'imunisasi' => 'nullable|string|max:100',
+            'status_ayah' => 'nullable|string|max:50',
+            'kewarganegaraan_ayah' => 'nullable|string|max:10',
+            'tempat_lahir_ayah' => 'nullable|string|max:100',
+            'no_hp_ayah' => 'nullable|string|max:20',
+            'status_ibu' => 'nullable|string|max:50',
+            'kewarganegaraan_ibu' => 'nullable|string|max:10',
+            'tempat_lahir_ibu' => 'nullable|string|max:100',
+            'no_hp_ibu' => 'nullable|string|max:20',
+            'status_wali' => 'nullable|string|max:50',
+            'kewarganegaraan_wali' => 'nullable|string|max:10',
+            'tempat_lahir_wali' => 'nullable|string|max:100',
             // data orang tua
             'nama_ayah' => 'nullable|string|max:255',
             'nik_ayah' => 'nullable|digits:16',
@@ -472,6 +511,11 @@ class SiswaController extends Controller
                     'jarak_tempat_tinggal' => $request->jarak_tempat_tinggal,
                     'waktu_tempuh' => $request->waktu_tempuh,
                     'moda_transportasi' => $request->moda_transportasi,
+                    'kelas_pararel' => $request->kelas_pararel,
+                    'no_absen' => $request->no_absen,
+                    'nama_kepala_keluarga' => $request->nama_kepala_keluarga,
+                    'pembiaya_sekolah' => $request->pembiaya_sekolah,
+                    'imunisasi' => $request->imunisasi,
                 ]);
 
                 $siswa->dataTambahan()->create($this->dataTambahanPayload($request));
@@ -638,6 +682,23 @@ class SiswaController extends Controller
             'jarak_tempat_tinggal' => 'nullable|numeric|min:0|max:999',
             'waktu_tempuh' => 'nullable|integer|min:0|max:999',
             'moda_transportasi' => 'nullable|string|max:50',
+            // Excel fields
+            'kelas_pararel' => 'nullable|string|max:10',
+            'no_absen' => 'nullable|string|max:10',
+            'nama_kepala_keluarga' => 'nullable|string|max:255',
+            'pembiaya_sekolah' => 'nullable|string|max:100',
+            'imunisasi' => 'nullable|string|max:100',
+            'status_ayah' => 'nullable|string|max:50',
+            'kewarganegaraan_ayah' => 'nullable|string|max:10',
+            'tempat_lahir_ayah' => 'nullable|string|max:100',
+            'no_hp_ayah' => 'nullable|string|max:20',
+            'status_ibu' => 'nullable|string|max:50',
+            'kewarganegaraan_ibu' => 'nullable|string|max:10',
+            'tempat_lahir_ibu' => 'nullable|string|max:100',
+            'no_hp_ibu' => 'nullable|string|max:20',
+            'status_wali' => 'nullable|string|max:50',
+            'kewarganegaraan_wali' => 'nullable|string|max:10',
+            'tempat_lahir_wali' => 'nullable|string|max:100',
             // Orang Tua Dapodik
             'nama_ayah' => 'nullable|string|max:255',
             'nik_ayah' => 'nullable|string|max:16',
@@ -699,6 +760,11 @@ class SiswaController extends Controller
             'jarak_tempat_tinggal' => $request->jarak_tempat_tinggal,
             'waktu_tempuh' => $request->waktu_tempuh,
             'moda_transportasi' => $request->moda_transportasi,
+            'kelas_pararel' => $request->kelas_pararel,
+            'no_absen' => $request->no_absen,
+            'nama_kepala_keluarga' => $request->nama_kepala_keluarga,
+            'pembiaya_sekolah' => $request->pembiaya_sekolah,
+            'imunisasi' => $request->imunisasi,
         ];
 
         $oldFoto = $siswa->foto; // Simpan path foto lama SEBELUM transaksi
@@ -1662,7 +1728,11 @@ TXT;
                 'pendidikan_ayah' => $request->pendidikan_ayah,
                 'pekerjaan_ayah' => $request->pekerjaan_ayah,
                 'penghasilan_ayah' => $request->penghasilan_ayah,
-                'no_hp' => $request->no_hp_ortu ?: '-', // Fallback ke '-' jika kosong
+                'status_ayah' => $request->status_ayah,
+                'kewarganegaraan_ayah' => $request->kewarganegaraan_ayah,
+                'tempat_lahir_ayah' => $request->tempat_lahir_ayah,
+                'no_hp_ayah' => $request->no_hp_ayah,
+                'no_hp' => $request->no_hp_ayah ?: ($request->no_hp_ortu ?: '-'),
                 'alamat' => $request->alamat,
                 // Field ibu & wali dikosongkan
                 'nama_ibu' => null,
@@ -1692,7 +1762,11 @@ TXT;
                 'pendidikan_ibu' => $request->pendidikan_ibu,
                 'pekerjaan_ibu' => $request->pekerjaan_ibu,
                 'penghasilan_ibu' => $request->penghasilan_ibu,
-                'no_hp' => $request->no_hp_ortu ?: '-', // Fallback ke '-' jika kosong
+                'status_ibu' => $request->status_ibu,
+                'kewarganegaraan_ibu' => $request->kewarganegaraan_ibu,
+                'tempat_lahir_ibu' => $request->tempat_lahir_ibu,
+                'no_hp_ibu' => $request->no_hp_ibu,
+                'no_hp' => $request->no_hp_ibu ?: ($request->no_hp_ortu ?: '-'),
                 'alamat' => $request->alamat,
                 // Field ayah & wali dikosongkan
                 'nama_ayah' => null,
@@ -1722,6 +1796,9 @@ TXT;
                 'pekerjaan_wali' => $request->pekerjaan_wali,
                 'pendidikan_wali' => $request->pendidikan_wali,
                 'penghasilan_wali' => $request->penghasilan_wali,
+                'status_wali' => $request->status_wali,
+                'kewarganegaraan_wali' => $request->kewarganegaraan_wali,
+                'tempat_lahir_wali' => $request->tempat_lahir_wali,
                 'no_hp_wali' => $request->no_hp_wali,
                 'alamat_wali' => $request->alamat_wali,
                 // Field ayah & ibu dikosongkan
@@ -1787,7 +1864,11 @@ TXT;
                     'pendidikan_ayah' => $request->pendidikan_ayah,
                     'pekerjaan_ayah' => $request->pekerjaan_ayah,
                     'penghasilan_ayah' => $request->penghasilan_ayah,
-                    'no_hp' => $request->no_hp_ortu ?: '-',
+                    'status_ayah' => $request->status_ayah,
+                    'kewarganegaraan_ayah' => $request->kewarganegaraan_ayah,
+                    'tempat_lahir_ayah' => $request->tempat_lahir_ayah,
+                    'no_hp_ayah' => $request->no_hp_ayah,
+                    'no_hp' => $request->no_hp_ayah ?: ($request->no_hp_ortu ?: '-'),
                     'alamat' => $request->alamat,
                 ];
                 if ($ayah) {
@@ -1811,7 +1892,11 @@ TXT;
                     'pendidikan_ibu' => $request->pendidikan_ibu,
                     'pekerjaan_ibu' => $request->pekerjaan_ibu,
                     'penghasilan_ibu' => $request->penghasilan_ibu,
-                    'no_hp' => $request->no_hp_ortu ?: '-',
+                    'status_ibu' => $request->status_ibu,
+                    'kewarganegaraan_ibu' => $request->kewarganegaraan_ibu,
+                    'tempat_lahir_ibu' => $request->tempat_lahir_ibu,
+                    'no_hp_ibu' => $request->no_hp_ibu,
+                    'no_hp' => $request->no_hp_ibu ?: ($request->no_hp_ortu ?: '-'),
                     'alamat' => $request->alamat,
                 ];
                 if ($ibu) {
@@ -1835,6 +1920,9 @@ TXT;
                     'pekerjaan_wali' => $request->pekerjaan_wali,
                     'pendidikan_wali' => $request->pendidikan_wali,
                     'penghasilan_wali' => $request->penghasilan_wali,
+                    'status_wali' => $request->status_wali,
+                    'kewarganegaraan_wali' => $request->kewarganegaraan_wali,
+                    'tempat_lahir_wali' => $request->tempat_lahir_wali,
                     'no_hp_wali' => $request->no_hp_wali,
                     'alamat_wali' => $request->alamat_wali,
                     'no_hp' => $request->no_hp_wali ?: '-',

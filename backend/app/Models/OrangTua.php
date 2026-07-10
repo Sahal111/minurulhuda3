@@ -32,6 +32,10 @@ class OrangTua extends Model
         'penghasilan_ayah',
         'penghasilan_ibu',
         'penghasilan_wali',
+        // Excel fields
+        'status_ayah', 'kewarganegaraan_ayah', 'tempat_lahir_ayah', 'no_hp_ayah',
+        'status_ibu', 'kewarganegaraan_ibu', 'tempat_lahir_ibu', 'no_hp_ibu',
+        'status_wali', 'kewarganegaraan_wali', 'tempat_lahir_wali',
     ];
 
     public function user()
