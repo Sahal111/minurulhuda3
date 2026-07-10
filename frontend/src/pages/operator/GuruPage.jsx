@@ -75,7 +75,7 @@ const GuruPage = () => {
         <div className="p-6 border-b border-slate-50 flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
           <div>
             <h2 className="text-lg font-bold text-slate-800">Data Guru</h2>
-            <p className="text-xs text-slate-400 mt-0.5">{filtered.length} guru ditemukan</p>
+            <p className="text-xs text-slate-400 mt-0.5">{dataGuru.length} guru ditemukan</p>
           </div>
           <div className="flex gap-3 w-full sm:w-auto">
             <input
