@@ -7,6 +7,12 @@ import {
     ArrowRightCircle, Filter,
 } from 'lucide-react';
 import { siswaAPI } from '../../api/operator';
+import ModalFormSiswa from '../../components/operator/ModalFormSiswa';
+import ModalMutasiSiswa from '../../components/operator/ModalMutasiSiswa';
+import ModalReactivateSiswa from '../../components/operator/ModalReactivateSiswa';
+import ModalKartuSiswa from '../../components/operator/ModalKartuSiswa';
+import ModalImportSiswa from '../../components/operator/ModalImportSiswa';
+import ModalTrashSiswa from '../../components/operator/ModalTrashSiswa';
 
 // ─── KONSTANTA ────────────────────────────────────────────────────────────────
 const STATUS_MAP = {
@@ -75,6 +81,15 @@ const OperatorSiswaPage = () => {
     const [filterStatus, setFilterStatus]     = useState('all');
     const [filterJenisMasuk, setFilterJenisMasuk] = useState('all');
     const [currentPage, setCurrentPage]       = useState(1);
+
+    // Modals
+    const [showFormModal, setShowFormModal] = useState(false);
+    const [editSiswa, setEditSiswa]         = useState(null);
+    const [mutasiSiswa, setMutasiSiswa]     = useState(null);
+    const [reactivateSiswa, setReactivateSiswa] = useState(null);
+    const [kartuSiswa, setKartuSiswa]       = useState(null);
+    const [showImport, setShowImport]       = useState(false);
+    const [showTrash, setShowTrash]         = useState(false);
 
     // UI state
     const [loading, setLoading]       = useState(true);
@@ -193,13 +208,15 @@ const OperatorSiswaPage = () => {
 
                 <div className="flex items-center gap-2 flex-wrap">
                     {/* Import */}
-                    <button className="group px-5 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:border-blue-500/50 transition-all shadow-sm">
+                    <button onClick={() => setShowImport(true)}
+                        className="group px-5 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:border-blue-500/50 transition-all shadow-sm">
                         <Upload className="w-4 h-4 text-slate-400 group-hover:text-blue-500 transition-colors" />
                         <span className="text-slate-600 dark:text-slate-400">Import</span>
                     </button>
 
                     {/* Recycle Bin */}
-                    <button className="group relative px-5 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:border-rose-500/50 transition-all shadow-sm">
+                    <button onClick={() => setShowTrash(true)}
+                        className="group relative px-5 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:border-rose-500/50 transition-all shadow-sm">
                         <Trash2 className="w-4 h-4 text-slate-400 group-hover:text-rose-500 transition-colors" />
                         <span className="text-slate-600 dark:text-slate-400">Recycle Bin</span>
                     </button>
@@ -267,7 +284,10 @@ const OperatorSiswaPage = () => {
                     </div>
 
                     {/* Tambah Siswa */}
-                    <button className="px-8 py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-emerald-600/20 hover:-translate-y-0.5 active:scale-95 transition-all flex items-center gap-3">
+                    <button
+                        onClick={() => { setEditSiswa(null); setShowFormModal(true); }}
+                        className="px-8 py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-emerald-600/20 hover:-translate-y-0.5 active:scale-95 transition-all flex items-center gap-3"
+                    >
                         <Plus className="w-4 h-4" />
                         Tambah Siswa
                     </button>
@@ -461,6 +481,7 @@ const OperatorSiswaPage = () => {
 
                                                     {/* Lihat Kartu Identitas */}
                                                     <button
+                                                        onClick={() => setKartuSiswa(s)}
                                                         className="p-2 hover:bg-blue-50 dark:hover:bg-blue-500/10 text-slate-400 hover:text-blue-500 rounded-lg transition-colors"
                                                         title="Kartu Identitas"
                                                     >
@@ -470,6 +491,7 @@ const OperatorSiswaPage = () => {
                                                     {/* Mutasi — hanya jika aktif */}
                                                     {s.status === 'aktif' && (
                                                         <button
+                                                            onClick={() => setMutasiSiswa(s)}
                                                             className="p-2 hover:bg-amber-50 dark:hover:bg-amber-500/10 text-slate-400 hover:text-amber-500 rounded-lg transition-colors"
                                                             title="Mutasi / Kelulusan"
                                                         >
@@ -480,6 +502,7 @@ const OperatorSiswaPage = () => {
                                                     {/* Aktifkan Kembali — hanya jika non-aktif/pindah/lulus */}
                                                     {['pindah', 'lulus', 'nonaktif'].includes(s.status) && (
                                                         <button
+                                                            onClick={() => setReactivateSiswa(s)}
                                                             className="p-2 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 text-slate-400 hover:text-emerald-500 rounded-lg transition-colors"
                                                             title="Aktifkan Kembali"
                                                         >
@@ -489,6 +512,7 @@ const OperatorSiswaPage = () => {
 
                                                     {/* Edit */}
                                                     <button
+                                                        onClick={() => { setEditSiswa(s); setShowFormModal(true); }}
                                                         className="p-2 hover:bg-amber-50 dark:hover:bg-amber-500/10 text-slate-400 hover:text-amber-500 rounded-lg transition-colors"
                                                         title="Edit Data"
                                                     >
@@ -580,6 +604,52 @@ const OperatorSiswaPage = () => {
             {toast && (
                 <Toast msg={toast.msg} color={toast.color} onDone={() => setToast(null)} />
             )}
+
+            {/* ── MODALS ── */}
+            <ModalFormSiswa
+                isOpen={showFormModal}
+                onClose={() => { setShowFormModal(false); setEditSiswa(null); }}
+                onSuccess={(msg) => { showToast(msg); fetchData(currentPage); }}
+                siswa={editSiswa}
+                kelas={kelas}
+                tahunAjarans={tahunAjarans}
+            />
+
+            <ModalMutasiSiswa
+                isOpen={!!mutasiSiswa}
+                onClose={() => setMutasiSiswa(null)}
+                onSuccess={(msg) => { showToast(msg); fetchData(currentPage); }}
+                siswa={mutasiSiswa}
+            />
+
+            <ModalReactivateSiswa
+                isOpen={!!reactivateSiswa}
+                onClose={() => setReactivateSiswa(null)}
+                onSuccess={(msg) => { showToast(msg); fetchData(currentPage); }}
+                siswa={reactivateSiswa}
+                kelas={kelas}
+                tahunAjarans={tahunAjarans}
+            />
+
+            <ModalKartuSiswa
+                isOpen={!!kartuSiswa}
+                onClose={() => setKartuSiswa(null)}
+                siswa={kartuSiswa}
+                onSuccess={(msg) => showToast(msg)}
+            />
+
+            <ModalImportSiswa
+                isOpen={showImport}
+                onClose={() => setShowImport(false)}
+                onSuccess={(msg) => { showToast(msg); fetchData(currentPage); }}
+            />
+
+            <ModalTrashSiswa
+                isOpen={showTrash}
+                onClose={() => setShowTrash(false)}
+                onSuccess={(msg) => { showToast(msg); fetchData(currentPage); }}
+                kelas={kelas}
+            />
         </div>
     );
 };
