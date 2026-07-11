@@ -229,6 +229,50 @@ class SiswaTemplateExport implements FromArray, WithHeadings, WithStyles, Should
                 '111231770001',             // NSM ASAL
                 '20100001',                 // NPSN ASAL
                 'SDN 1 Jakarta',            // NAMA MADRASAH ASAL
+
+                // ── DATA TAMBAHAN LENGKAP ────────────────────────────
+                // Kesehatan & Fisik
+                'A',                        // GOLONGAN DARAH
+                '120',                      // TINGGI BADAN (CM)
+                '25',                       // BERAT BADAN (KG)
+                '50',                       // LINGKAR KEPALA (CM)
+                'Tidak Ada',                // RIWAYAT PENYAKIT
+                
+                // Kebutuhan Khusus
+                'Tidak Ada',                // KEBUTUHAN KHUSUS SISWA
+                'Tidak Ada',                // KEBUTUHAN KHUSUS AYAH
+                'Tidak Ada',                // KEBUTUHAN KHUSUS IBU
+                'Sehat',                    // CATATAN KESEHATAN
+                
+                // Status & Waktu
+                'aktif',                    // STATUS SISWA
+                '2024-07-01',               // TANGGAL MASUK
+                '2024/2025',                // TAHUN AJARAN MASUK
+                
+                // Lokasi & Transportasi
+                '-6.200000',                // LINTANG
+                '106.816666',               // BUJUR
+                '2.5',                      // JARAK TEMPAT TINGGAL (KM)
+                '15',                       // WAKTU TEMPUH (MENIT)
+                'Jalan Kaki',               // MODA TRANSPORTASI
+                
+                // Kontak Lengkap
+                '021234567',                // NO TELP SISWA (RUMAH)
+                'budi@email.com',           // EMAIL SISWA
+                
+                // Program Kesejahteraan Lengkap
+                'Tidak',                    // PENERIMA KPS/PKH
+                '',                         // NO KPS PKH
+                'Tidak',                    // LAYAK PIP
+                '',                         // ALASAN LAYAK PIP
+                'Budi Santoso',             // NAMA TERTERA DI KIP
+                
+                // Data Mutasi
+                'baru',                     // JENIS PENDAFTARAN
+                '',                         // NO SURAT MUTASI
+                '',                         // ALASAN MUTASI
+
+                '',                         // NO REGISTRASI AKTA KELAHIRAN
             ],
         ];
     }
@@ -340,6 +384,51 @@ class SiswaTemplateExport implements FromArray, WithHeadings, WithStyles, Should
             'NSM ASAL',
             'NPSN ASAL',
             'NAMA MADRASAH ASAL',
+
+            // ── DATA TAMBAHAN LENGKAP (Kolom 90-116) ─────────────
+            // Kesehatan & Fisik
+            'GOLONGAN DARAH',
+            'TINGGI BADAN (CM)',
+            'BERAT BADAN (KG)',
+            'LINGKAR KEPALA (CM)',
+            'RIWAYAT PENYAKIT',
+            
+            // Kebutuhan Khusus
+            'KEBUTUHAN KHUSUS SISWA',
+            'KEBUTUHAN KHUSUS AYAH',
+            'KEBUTUHAN KHUSUS IBU',
+            'CATATAN KESEHATAN',
+            
+            // Status & Waktu
+            'STATUS SISWA',
+            'TANGGAL MASUK',
+            'TAHUN AJARAN MASUK',
+            
+            // Lokasi & Transportasi
+            'LINTANG',
+            'BUJUR',
+            'JARAK TEMPAT TINGGAL (KM)',
+            'WAKTU TEMPUH (MENIT)',
+            'MODA TRANSPORTASI',
+            
+            // Kontak Lengkap
+            'NO TELP SISWA (RUMAH)',
+            'EMAIL SISWA',
+            
+            // Program Kesejahteraan Lengkap
+            'PENERIMA KPS/PKH',
+            'NO KPS PKH',
+            'LAYAK PIP',
+            'ALASAN LAYAK PIP',
+            'NAMA TERTERA DI KIP',
+            
+            // Data Mutasi
+            'JENIS PENDAFTARAN',
+            'NO SURAT MUTASI',
+            'ALASAN MUTASI',
+
+            // Data Tambahan Lain
+            'NO REGISTRASI AKTA KELAHIRAN',
         ];
     }
 

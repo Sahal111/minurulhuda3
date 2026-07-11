@@ -189,11 +189,17 @@ class SiswaImport implements
             'tempat_lahir' => trim($row['tempat_lahir'] ?? '') ?: null,
             'tanggal_lahir' => $this->parseDate($row['tanggal_lahir'] ?? null),
             'agama' => trim($row['agama'] ?? '') ?: null,
-            'kebutuhan_khusus' => null,  // kolom tidak ada di template EMIS ini
-            'status' => 'aktif',
+            'golongan_darah' => trim($row['golongan_darah'] ?? '') ?: null,
+            'kebutuhan_khusus' => trim($row['kebutuhan_khusus_siswa'] ?? '') ?: null,
+            'riwayat_penyakit' => trim($row['riwayat_penyakit'] ?? '') ?: null,
+            'status' => trim($row['status_siswa'] ?? 'aktif') ?: 'aktif',
             'kelas_id' => $kelasId,
             'asal_sekolah' => trim($row['asal_sekolah'] ?? '') ?: null,
-            'tanggal_masuk' => null,
+            'tanggal_masuk' => $this->parseDate($row['tanggal_masuk'] ?? null),
+            'tahun_ajaran_id' => $this->resolveTahunAjaran($row['tahun_ajaran_masuk'] ?? null),
+            'jenis_pendaftaran' => trim($row['jenis_pendaftaran'] ?? '') ?: null,
+            'no_surat_mutasi' => trim($row['no_surat_mutasi'] ?? '') ?: null,
+            'alasan_mutasi' => trim($row['alasan_mutasi'] ?? '') ?: null,
             // Domisili siswa
             'alamat_siswa' => trim($row['alamat_siswa'] ?? '') ?: null,
             'kelas_pararel' => $kelasPararel ?: null,
@@ -204,11 +210,9 @@ class SiswaImport implements
             'kode_pos' => trim($row['kode_pos_ayah'] ?? '') ?: null,
             'anak_ke' => $this->parseUnsignedInt($row['anak_ke'] ?? null),
             'jumlah_saudara' => $this->parseUnsignedInt($row['jumlah_saudara'] ?? null),
-            'jarak_tempat_tinggal' => null,
-            'waktu_tempuh' => null,
-            'moda_transportasi' => null,
-            // BUG FIX: field ini masuk ke tabel siswas, bukan data_tambahan_siswas
-            // dan nama kolom DB adalah 'pembiaya_sekolah' (bukan 'yang_membiayai_sekolah')
+            'jarak_tempat_tinggal' => trim($row['jarak_tempat_tinggal_km'] ?? '') ?: null,
+            'waktu_tempuh' => trim($row['waktu_tempuh_menit'] ?? '') ?: null,
+            'moda_transportasi' => trim($row['moda_transportasi'] ?? '') ?: null,
             'no_absen' => $this->parseUnsignedInt($row['no_absen'] ?? null),
             'nama_kepala_keluarga' => trim($row['nama_kepala_keluarga'] ?? '') ?: null,
             'pembiaya_sekolah' => trim($row['yang_membiayai_sekolah'] ?? '') ?: null,
@@ -218,28 +222,35 @@ class SiswaImport implements
         // ── Data tambahan ──────────────────────────────────────────────────
         $dataTambahan = [
             'kewarganegaraan' => $this->parseKewarganegaraan($row['kewarga_negaraan'] ?? null),
-            'no_registrasi_akta_kelahiran' => null,
-            'lintang' => null,
-            'bujur' => null,
-            'kebutuhan_khusus_ayah' => null,
-            'kebutuhan_khusus_ibu' => null,
+            'no_registrasi_akta_kelahiran' => trim($row['no_registrasi_akta_kelahiran'] ?? '') ?: null,
+            'lintang' => trim($row['lintang'] ?? '') ?: null,
+            'bujur' => trim($row['bujur'] ?? '') ?: null,
+            'kebutuhan_khusus_ayah' => trim($row['kebutuhan_khusus_ayah'] ?? '') ?: null,
+            'kebutuhan_khusus_ibu' => trim($row['kebutuhan_khusus_ibu'] ?? '') ?: null,
             'hobi' => trim($row['hobi'] ?? '') ?: null,
             'cita_cita' => trim($row['cita_cita'] ?? '') ?: null,
-            'no_telp_siswa' => null,
+            'no_telp_siswa' => trim($row['no_telp_siswa_rumah'] ?? '') ?: null,
             'hp_siswa' => trim($row['no_hp_siswa'] ?? '') ?: null,
-            'email_siswa' => null,
-            'lingkar_kepala' => null,
+            'email_siswa' => trim($row['email_siswa'] ?? '') ?: null,
+            'lingkar_kepala' => $this->parseDecimal($row['lingkar_kepala_cm'] ?? null),
         ];
 
         // ── Program kesejahteraan ──────────────────────────────────────────
         $programKesejahteraan = [
-            'penerima_kps_pkh' => false,
-            'no_kps_pkh' => null,
-            'layak_pip' => false,
-            'alasan_layak_pip' => null,
+            'penerima_kps_pkh' => $this->parseBool($row['penerima_kps_pkh'] ?? false),
+            'no_kps_pkh' => trim($row['no_kps_pkh'] ?? '') ?: null,
+            'layak_pip' => $this->parseBool($row['layak_pip'] ?? false),
+            'alasan_layak_pip' => trim($row['alasan_layak_pip'] ?? '') ?: null,
             'penerima_kip' => !empty(trim($row['nomor_kip'] ?? '')),
             'no_kip' => trim($row['nomor_kip'] ?? '') ?: null,
-            'nama_tertera_di_kip' => null,
+            'nama_tertera_di_kip' => trim($row['nama_tertera_di_kip'] ?? '') ?: null,
+        ];
+
+        // ── Data perkembangan (tinggi, berat, catatan kesehatan) ──────────
+        $dataPerkembangan = [
+            'tinggi_badan' => $this->parseUnsignedInt($row['tinggi_badan_cm'] ?? null),
+            'berat_badan' => $this->parseUnsignedInt($row['berat_badan_kg'] ?? null),
+            'catatan_kesehatan' => trim($row['catatan_kesehatan'] ?? '') ?: null,
         ];
 
         // ── Data ayah ──────────────────────────────────────────────────────
@@ -337,12 +348,17 @@ class SiswaImport implements
         // ── Upsert dalam satu transaksi ────────────────────────────────────
         $existing = Siswa::where('nis', $nis)->first();
 
-        \Illuminate\Support\Facades\DB::transaction(function () use ($existing, $data, $dataAyah, $dataIbu, $dataWali, $dataTambahan, $programKesejahteraan, $nisn, $nis, $nama) {
+        \Illuminate\Support\Facades\DB::transaction(function () use ($existing, $data, $dataAyah, $dataIbu, $dataWali, $dataTambahan, $programKesejahteraan, $dataPerkembangan, $nisn, $nis, $nama) {
             if ($existing) {
                 // UPDATE
                 $existing->update($data);
                 $existing->dataTambahan()->updateOrCreate(['siswa_id' => $existing->id], $dataTambahan);
                 $existing->programKesejahteraan()->updateOrCreate(['siswa_id' => $existing->id], $programKesejahteraan);
+
+                // Create perkembangan jika ada data tinggi/berat/catatan kesehatan
+                if ($dataPerkembangan['tinggi_badan'] || $dataPerkembangan['berat_badan'] || $dataPerkembangan['catatan_kesehatan']) {
+                    $existing->perkembangans()->create($dataPerkembangan);
+                }
 
                 if (!empty($this->fotoMap)) {
                     $fotoPath = $this->resolveFoto($nisn, $nis, $nama, false);
@@ -388,6 +404,10 @@ class SiswaImport implements
             $siswa = Siswa::create($data);
             $siswa->dataTambahan()->create($dataTambahan);
             $siswa->programKesejahteraan()->create($programKesejahteraan);
+
+            if ($dataPerkembangan['tinggi_badan'] || $dataPerkembangan['berat_badan'] || $dataPerkembangan['catatan_kesehatan']) {
+                $siswa->perkembangans()->create($dataPerkembangan);
+            }
 
             if ($dataAyah['nama_ayah']) {
                 // BUG FIX: gunakan NIK sebagai unique key jika tersedia, bukan nama (bisa duplikat)
@@ -471,11 +491,40 @@ class SiswaImport implements
         return $id;
     }
 
+    // ── Helper: resolve tahun ajaran ─────────────────────────────────────────
+
+    private array $tahunAjaranCache = [];
+
+    private function resolveTahunAjaran(?string $raw): ?int
+    {
+        $raw = trim($raw ?? '');
+        if (!$raw) return null;
+        if (isset($this->tahunAjaranCache[$raw]))
+            return $this->tahunAjaranCache[$raw];
+
+        $ta = \App\Models\TahunAjaran::where('tahun', $raw)->first();
+        $id = $ta?->id;
+        $this->tahunAjaranCache[$raw] = $id;
+        return $id;
+    }
+
     // ── Helper: parse ──────────────────────────────────────────────────────
 
     private function parseJK(string $raw): string
     {
-        return strtoupper(substr(trim($raw), 0, 1)) === 'L' ? 'L' : 'P';
+        $normalized = strtoupper(trim($raw));
+        
+        if ($normalized === '') {
+            throw new \Exception("Jenis kelamin tidak boleh kosong. Baris akan di-skip.");
+        }
+        
+        $firstChar = substr($normalized, 0, 1);
+        
+        if (!in_array($firstChar, ['L', 'P'], true)) {
+            throw new \Exception("Jenis kelamin harus 'L' atau 'P', ditemukan: '{$raw}'. Baris akan di-skip.");
+        }
+        
+        return $firstChar;
     }
 
     private function parseUnsignedInt(mixed $value): ?int
