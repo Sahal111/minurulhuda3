@@ -206,6 +206,12 @@ class SiswaImport implements
             'jarak_tempat_tinggal' => null,
             'waktu_tempuh' => null,
             'moda_transportasi' => null,
+            // BUG FIX: field ini masuk ke tabel siswas, bukan data_tambahan_siswas
+            // dan nama kolom DB adalah 'pembiaya_sekolah' (bukan 'yang_membiayai_sekolah')
+            'no_absen' => $this->parseUnsignedInt($row['no_absen'] ?? null),
+            'nama_kepala_keluarga' => trim($row['nama_kepala_keluarga'] ?? '') ?: null,
+            'pembiaya_sekolah' => trim($row['yang_membiayai_sekolah'] ?? '') ?: null,
+            'imunisasi' => trim($row['imunisasi'] ?? '') ?: null,
         ];
 
         // ── Data tambahan ──────────────────────────────────────────────────
@@ -222,11 +228,6 @@ class SiswaImport implements
             'hp_siswa' => trim($row['no_hp_siswa'] ?? '') ?: null,
             'email_siswa' => null,
             'lingkar_kepala' => null,
-            // Kolom tambahan dari EMIS
-            'no_absen' => $this->parseUnsignedInt($row['no_absen'] ?? null),
-            'yang_membiayai_sekolah' => trim($row['yang_membiayai_sekolah'] ?? '') ?: null,
-            'imunisasi' => trim($row['imunisasi'] ?? '') ?: null,
-            'nama_kepala_keluarga' => trim($row['nama_kepala_keluarga'] ?? '') ?: null,
         ];
 
         // ── Program kesejahteraan ──────────────────────────────────────────
@@ -342,15 +343,25 @@ class SiswaImport implements
                 }
 
                 if ($dataAyah['nama_ayah']) {
-                    $ayah = OrangTua::firstOrCreate(['nama_ayah' => $dataAyah['nama_ayah']], $dataAyah);
+                    // BUG FIX: gunakan NIK sebagai unique key jika tersedia, bukan nama (bisa duplikat)
+                    $ayahKey = $dataAyah['nik_ayah']
+                        ? ['nik_ayah' => $dataAyah['nik_ayah']]
+                        : ['nama_ayah' => $dataAyah['nama_ayah'], 'nama_ibu' => null, 'nama_wali' => null];
+                    $ayah = OrangTua::firstOrCreate($ayahKey, $dataAyah);
                     $existing->orangTuas()->syncWithoutDetaching([$ayah->id => ['hubungan_keluarga' => 'Ayah']]);
                 }
                 if ($dataIbu['nama_ibu']) {
-                    $ibu = OrangTua::firstOrCreate(['nama_ibu' => $dataIbu['nama_ibu']], $dataIbu);
+                    $ibuKey = $dataIbu['nik_ibu']
+                        ? ['nik_ibu' => $dataIbu['nik_ibu']]
+                        : ['nama_ibu' => $dataIbu['nama_ibu'], 'nama_ayah' => null, 'nama_wali' => null];
+                    $ibu = OrangTua::firstOrCreate($ibuKey, $dataIbu);
                     $existing->orangTuas()->syncWithoutDetaching([$ibu->id => ['hubungan_keluarga' => 'Ibu']]);
                 }
                 if ($dataWali['nama_wali']) {
-                    $wali = OrangTua::firstOrCreate(['nama_wali' => $dataWali['nama_wali']], $dataWali);
+                    $waliKey = $dataWali['nik_wali']
+                        ? ['nik_wali' => $dataWali['nik_wali']]
+                        : ['nama_wali' => $dataWali['nama_wali'], 'nama_ayah' => null, 'nama_ibu' => null];
+                    $wali = OrangTua::firstOrCreate($waliKey, $dataWali);
                     $existing->orangTuas()->syncWithoutDetaching([$wali->id => ['hubungan_keluarga' => 'Wali']]);
                 }
 
@@ -367,15 +378,25 @@ class SiswaImport implements
             $siswa->programKesejahteraan()->create($programKesejahteraan);
 
             if ($dataAyah['nama_ayah']) {
-                $ayah = OrangTua::firstOrCreate(['nama_ayah' => $dataAyah['nama_ayah']], $dataAyah);
+                // BUG FIX: gunakan NIK sebagai unique key jika tersedia, bukan nama (bisa duplikat)
+                $ayahKey = $dataAyah['nik_ayah']
+                    ? ['nik_ayah' => $dataAyah['nik_ayah']]
+                    : ['nama_ayah' => $dataAyah['nama_ayah'], 'nama_ibu' => null, 'nama_wali' => null];
+                $ayah = OrangTua::firstOrCreate($ayahKey, $dataAyah);
                 $siswa->orangTuas()->attach($ayah->id, ['hubungan_keluarga' => 'Ayah']);
             }
             if ($dataIbu['nama_ibu']) {
-                $ibu = OrangTua::firstOrCreate(['nama_ibu' => $dataIbu['nama_ibu']], $dataIbu);
+                $ibuKey = $dataIbu['nik_ibu']
+                    ? ['nik_ibu' => $dataIbu['nik_ibu']]
+                    : ['nama_ibu' => $dataIbu['nama_ibu'], 'nama_ayah' => null, 'nama_wali' => null];
+                $ibu = OrangTua::firstOrCreate($ibuKey, $dataIbu);
                 $siswa->orangTuas()->attach($ibu->id, ['hubungan_keluarga' => 'Ibu']);
             }
             if ($dataWali['nama_wali']) {
-                $wali = OrangTua::firstOrCreate(['nama_wali' => $dataWali['nama_wali']], $dataWali);
+                $waliKey = $dataWali['nik_wali']
+                    ? ['nik_wali' => $dataWali['nik_wali']]
+                    : ['nama_wali' => $dataWali['nama_wali'], 'nama_ayah' => null, 'nama_ibu' => null];
+                $wali = OrangTua::firstOrCreate($waliKey, $dataWali);
                 $siswa->orangTuas()->attach($wali->id, ['hubungan_keluarga' => 'Wali']);
             }
 

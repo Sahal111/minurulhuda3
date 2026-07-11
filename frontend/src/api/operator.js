@@ -24,6 +24,12 @@ export const siswaAPI = {
     trash: (params = {}) => api.get('/operator/data-siswa/trash', { params }),
     restore: (id) => api.post(`/operator/data-siswa/${id}/restore`),
     forceDelete: (id) => api.delete(`/operator/data-siswa/${id}/force`),
+    import: (data) => api.post('/operator/data-siswa/import', data, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+    }),
+    exportTemplate: () => api.get('/operator/data-siswa/template', {
+        responseType: 'blob'
+    }),
     mutasi: (id, data) => api.put(`/operator/data-siswa/${id}/mutasi`, data),
     reactivate: (id, data) => api.put(`/operator/data-siswa/${id}/reactivate`, data),
     riwayatKelas: (id) => api.get(`/operator/data-siswa/${id}/riwayat-kelas`),

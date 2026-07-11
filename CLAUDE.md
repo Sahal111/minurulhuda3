@@ -44,6 +44,8 @@
 - [x] Recycle Bin untuk Semester (Operator) — backend: controller + routes; frontend: API, ModalTrashSemester, SemesterPage
 - [x] Perbaikan logika aktif Tahun Ajaran dan Semester (Operator) — semester hanya bisa aktif di TA yang sedang aktif
 - [x] Fix bug dropdown Tahun Ajaran tidak muncul di Step 4 form tambah/edit siswa (Operator) — mismatch key `tahun_ajarans` → `tahunAjarans` di `SiswaPage.jsx:112`
+- [x] Tambah/Edit Siswa (Operator) — form multi-step 5 tahap: Identitas, Orang Tua, Periodik, Akademik, Konfirmasi; upload foto; data Dapodik lengkap
+- [x] Detail Data Siswa (Operator) — modal gabungan 7 tab: Identitas, Ortu, Periodik, Akademik+Riwayat, Prestasi, Beasiswa, Berkas; panel kiri kartu identitas; CRUD prestasi/beasiswa/berkas; menggabungkan fitur Kartu Identitas + Detail
 
 ### Komponen yang SUDAH STABIL — jangan diubah kecuali ada bug:
 - `frontend/src/context/AuthContext.jsx` — auth context, jangan direfactor
@@ -59,7 +61,8 @@
 
 > Update section ini dengan fitur yang sedang dikerjakan sekarang
 
-- [ ] *(isi dengan fitur yang sedang aktif dikerjakan)*
+- [ ] Import Siswa (Operator) — perbaikan: ganti raw `fetch` → `siswaAPI.import` pakai axios instance (auth token, CSRF, credentials)
+- [ ] Download Template Excel — perbaikan: ganti `<a href>` langsung (tanpa token) → download via axios blob (Bearer token otomatis)
 
 ---
 

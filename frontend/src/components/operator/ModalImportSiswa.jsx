@@ -1,15 +1,35 @@
 import React, { useState, useRef } from 'react';
 import { X, Upload, Download, FileSpreadsheet, Archive, CheckCircle, Info } from 'lucide-react';
+import { siswaAPI } from '../../api/operator';
 
 const ModalImportSiswa = ({ isOpen, onClose, onSuccess }) => {
     const [mode, setMode] = useState('excel');
     const [fileName, setFileName] = useState('');
     const [submitting, setSubmitting] = useState(false);
+    const [downloading, setDownloading] = useState(false);
     const fileRef = useRef(null);
 
     if (!isOpen) return null;
 
-    const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:8000/api').replace('/api', '');
+    const handleDownloadTemplate = async () => {
+        setDownloading(true);
+        try {
+            const res = await siswaAPI.exportTemplate();
+            const blob = new Blob([res.data], { type: res.headers['content-type'] || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'Template_Import_Siswa.xlsx';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        } catch (err) {
+            alert(err.response?.data?.message || 'Gagal mengunduh template');
+        } finally {
+            setDownloading(false);
+        }
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -19,17 +39,11 @@ const ModalImportSiswa = ({ isOpen, onClose, onSuccess }) => {
         try {
             const fd = new FormData();
             fd.append('file_import', file);
-            const res = await fetch(`${apiBase}/operator/data-siswa/import`, {
-                method: 'POST',
-                headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '', 'Accept': 'application/json' },
-                body: fd,
-            });
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.message || 'Gagal import');
-            onSuccess?.(data.message || 'Data siswa berhasil diimport');
+            const res = await siswaAPI.import(fd);
+            onSuccess?.(res.data.message || 'Data siswa berhasil diimport');
             onClose();
         } catch (err) {
-            alert(err.message || 'Gagal import data');
+            alert(err.response?.data?.message || err.message || 'Gagal import data');
         } finally {
             setSubmitting(false);
         }
@@ -69,10 +83,15 @@ const ModalImportSiswa = ({ isOpen, onClose, onSuccess }) => {
                                 <div className="text-xs text-blue-700 flex-1">
                                     <p className="font-bold mb-1">Import data siswa tanpa foto.</p>
                                     <p>Foto akan ditampilkan sebagai avatar otomatis dari inisial nama.</p>
-                                    <a href={`${apiBase}/operator/data-siswa/template`}
-                                        className="inline-flex items-center gap-1 font-black text-blue-600 hover:underline mt-2">
-                                        <Download className="w-3 h-3" /> Download Template Excel
-                                    </a>
+                                    <button type="button" onClick={handleDownloadTemplate} disabled={downloading}
+                                        className="inline-flex items-center gap-1 font-black text-blue-600 hover:underline mt-2 disabled:opacity-50">
+                                        {downloading ? (
+                                            <span className="w-3 h-3 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                                        ) : (
+                                            <Download className="w-3 h-3" />
+                                        )}
+                                        {downloading ? 'Mengunduh...' : 'Download Template Excel'}
+                                    </button>
                                 </div>
                             </div>
                         )}

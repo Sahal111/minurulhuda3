@@ -10,9 +10,9 @@ import { siswaAPI } from '../../api/operator';
 import ModalFormSiswa from '../../components/operator/ModalFormSiswa';
 import ModalMutasiSiswa from '../../components/operator/ModalMutasiSiswa';
 import ModalReactivateSiswa from '../../components/operator/ModalReactivateSiswa';
-import ModalKartuSiswa from '../../components/operator/ModalKartuSiswa';
 import ModalImportSiswa from '../../components/operator/ModalImportSiswa';
 import ModalTrashSiswa from '../../components/operator/ModalTrashSiswa';
+import ModalDetailSiswa from '../../components/operator/ModalDetailSiswa';
 
 // ─── KONSTANTA ────────────────────────────────────────────────────────────────
 const STATUS_MAP = {
@@ -631,7 +631,7 @@ const OperatorSiswaPage = () => {
                 tahunAjarans={tahunAjarans}
             />
 
-            <ModalKartuSiswa
+            <ModalDetailSiswa
                 isOpen={!!kartuSiswa}
                 onClose={() => setKartuSiswa(null)}
                 siswa={kartuSiswa}
