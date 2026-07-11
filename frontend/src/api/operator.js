@@ -108,6 +108,9 @@ export const semesterAPI = {
     store: (data) => api.post('/operator/semester', data),
     update: (id, data) => api.put(`/operator/semester/${id}`, data),
     destroy: (id) => api.delete(`/operator/semester/${id}`),
+    trash: (params) => api.get('/operator/semester/trash', { params }),
+    restore: (id) => api.post(`/operator/semester/${id}/restore`),
+    forceDelete: (id) => api.delete(`/operator/semester/${id}/force`),
     setActive: (id) => api.patch(`/operator/semester/${id}/aktif`),
 };
 

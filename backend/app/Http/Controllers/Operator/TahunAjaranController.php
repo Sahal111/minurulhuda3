@@ -41,13 +41,17 @@ class TahunAjaranController extends Controller
             'is_active' => 'boolean',
         ]);
 
+        $tahunAjaran = TahunAjaran::create($validated);
+
         if ($validated['is_active'] ?? false) {
-            TahunAjaran::where('is_active', true)->update(['is_active' => false]);
+            TahunAjaran::where('is_active', true)
+                ->where('id', '!=', $tahunAjaran->id)
+                ->update(['is_active' => false]);
 
-            Semester::where('is_active', true)->update(['is_active' => false]);
+            Semester::where('is_active', true)
+                ->where('tahun_ajaran_id', '!=', $tahunAjaran->id)
+                ->update(['is_active' => false]);
         }
-
-        TahunAjaran::create($validated);
 
         return response()->json(['message' => 'Tahun ajaran berhasil ditambahkan']);
     }
@@ -65,6 +69,12 @@ class TahunAjaranController extends Controller
             TahunAjaran::where('is_active', true)->update(['is_active' => false]);
 
             Semester::where('tahun_ajaran_id', '!=', $id)
+                ->where('is_active', true)
+                ->update(['is_active' => false]);
+        }
+
+        if (! ($validated['is_active'] ?? true) && $tahunAjaran->is_active) {
+            Semester::where('tahun_ajaran_id', $id)
                 ->where('is_active', true)
                 ->update(['is_active' => false]);
         }

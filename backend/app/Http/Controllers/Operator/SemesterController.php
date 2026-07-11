@@ -41,13 +41,18 @@ class SemesterController extends Controller
             'is_active'       => 'boolean',
         ]);
 
-        // Jika diset aktif, nonaktifkan semua semester lain dan sinkronkan tahun ajaran
         if ($validated['is_active'] ?? false) {
-            Semester::where('is_active', true)->update(['is_active' => false]);
-            
-            // Sinkronisasi: Aktifkan Tahun Ajaran ini, nonaktifkan yg lain
-            TahunAjaran::where('is_active', true)->update(['is_active' => false]);
-            TahunAjaran::where('id', $validated['tahun_ajaran_id'])->update(['is_active' => true]);
+            $activeTa = TahunAjaran::where('is_active', true)->first();
+
+            if (! $activeTa || $activeTa->id !== (int) $validated['tahun_ajaran_id']) {
+                return response()->json([
+                    'message' => 'Semester hanya bisa diaktifkan pada Tahun Ajaran yang sedang aktif.',
+                ], 422);
+            }
+
+            Semester::where('tahun_ajaran_id', $validated['tahun_ajaran_id'])
+                ->where('is_active', true)
+                ->update(['is_active' => false]);
         }
 
         Semester::create($validated);
@@ -68,11 +73,18 @@ class SemesterController extends Controller
         $semester = Semester::findOrFail($id);
 
         if (($validated['is_active'] ?? false) && !$semester->is_active) {
-            Semester::where('is_active', true)->update(['is_active' => false]);
-            
-            // Sinkronisasi: Aktifkan Tahun Ajaran ini, nonaktifkan yg lain
-            TahunAjaran::where('is_active', true)->update(['is_active' => false]);
-            TahunAjaran::where('id', $validated['tahun_ajaran_id'])->update(['is_active' => true]);
+            $activeTa = TahunAjaran::where('is_active', true)->first();
+
+            if (! $activeTa || $activeTa->id !== (int) $validated['tahun_ajaran_id']) {
+                return response()->json([
+                    'message' => 'Semester hanya bisa diaktifkan pada Tahun Ajaran yang sedang aktif.',
+                ], 422);
+            }
+
+            Semester::where('tahun_ajaran_id', $validated['tahun_ajaran_id'])
+                ->where('id', '!=', $semester->id)
+                ->where('is_active', true)
+                ->update(['is_active' => false]);
         }
 
         $semester->update($validated);
@@ -85,22 +97,78 @@ class SemesterController extends Controller
         $semester = Semester::findOrFail($id);
         $semester->delete();
 
-        return response()->json(['message' => 'Semester berhasil dihapus.']);
+        return response()->json(['message' => 'Semester berhasil dipindahkan ke Recycle Bin.']);
+    }
+
+    // ─── Recycle Bin ─────────────────────────────────────────────────────
+
+    public function trash(Request $request)
+    {
+        $semesters = Semester::onlyTrashed()
+            ->with('tahunAjaran')
+            ->orderBy('deleted_at', 'desc')
+            ->paginate(10);
+
+        return response()->json([
+            'semesters' => [
+                'data' => $semesters->map(function ($s) {
+                    return [
+                        'id'           => $s->id,
+                        'nama'         => $s->nama,
+                        'tahun_ajaran' => $s->tahunAjaran->tahun ?? '-',
+                        'is_active'    => $s->is_active,
+                        'deleted_at'   => $s->deleted_at->format('d M Y, H:i'),
+                    ];
+                }),
+                'total'        => $semesters->total(),
+                'current_page' => $semesters->currentPage(),
+                'last_page'    => $semesters->lastPage(),
+                'from'         => $semesters->firstItem(),
+                'to'           => $semesters->lastItem(),
+            ],
+        ]);
+    }
+
+    public function restore($id)
+    {
+        $semester = Semester::onlyTrashed()->findOrFail($id);
+        $semester->restore();
+
+        return response()->json([
+            'success' => true,
+            'message' => "Semester {$semester->nama} berhasil dipulihkan.",
+        ]);
+    }
+
+    public function forceDelete($id)
+    {
+        $semester = Semester::onlyTrashed()->findOrFail($id);
+        $nama = $semester->nama;
+        $semester->forceDelete();
+
+        return response()->json([
+            'success' => true,
+            'message' => "Semester {$nama} dihapus permanen.",
+        ]);
     }
 
     public function setActive($id)
     {
-        Semester::where('is_active', true)->update(['is_active' => false]);
-
         $semester = Semester::findOrFail($id);
+
+        $activeTa = TahunAjaran::where('is_active', true)->first();
+        if (! $activeTa || $activeTa->id !== $semester->tahun_ajaran_id) {
+            return response()->json([
+                'message' => 'Semester hanya bisa diaktifkan pada Tahun Ajaran yang sedang aktif.',
+            ], 422);
+        }
+
+        Semester::where('tahun_ajaran_id', $semester->tahun_ajaran_id)
+            ->where('is_active', true)
+            ->update(['is_active' => false]);
+
         $semester->is_active = true;
         $semester->save();
-
-        // Sinkronisasi: Aktifkan Tahun Ajaran dari semester ini, nonaktifkan yg lain
-        TahunAjaran::where('is_active', true)->update(['is_active' => false]);
-        if ($semester->tahun_ajaran_id) {
-            TahunAjaran::where('id', $semester->tahun_ajaran_id)->update(['is_active' => true]);
-        }
 
         return response()->json(['message' => 'Semester berhasil diaktifkan.']);
     }

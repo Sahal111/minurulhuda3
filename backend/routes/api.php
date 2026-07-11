@@ -146,10 +146,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/penempatan-siswa/update', [KelasController::class, 'updatePenempatan']);
 
         // Semester & Tahun Ajaran
+        Route::get('/semester/trash', [SemesterController::class, 'trash']);
         Route::get('/semester', [SemesterController::class, 'index']);
         Route::post('/semester', [SemesterController::class, 'store']);
         Route::put('/semester/{id}', [SemesterController::class, 'update']);
         Route::delete('/semester/{id}', [SemesterController::class, 'destroy']);
+        Route::post('/semester/{id}/restore', [SemesterController::class, 'restore']);
+        Route::delete('/semester/{id}/force', [SemesterController::class, 'forceDelete']);
         Route::patch('/semester/{id}/aktif', [SemesterController::class, 'setActive']);
 
         Route::get('/tahun-ajaran', [TahunAjaranController::class, 'index']);

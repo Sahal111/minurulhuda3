@@ -109,7 +109,7 @@ const OperatorSiswaPage = () => {
             if (filterJenisMasuk !== 'all')     params.jenis_masuk  = filterJenisMasuk;
 
             const res = await siswaAPI.getAll(params);
-            const { siswa, stats: s, kelas: k, tahun_ajarans: ta } = res.data;
+            const { siswa, stats: s, kelas: k, tahunAjarans: ta } = res.data;
 
             setDataSiswa(siswa?.data || []);
             setPagination({

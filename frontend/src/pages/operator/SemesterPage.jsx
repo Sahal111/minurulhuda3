@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { semesterAPI } from '../../api/operator';
+import ModalTrashSemester from '../../components/operator/ModalTrashSemester';
 
 const SemesterPage = () => {
   const [dataSemester, setDataSemester] = useState([]);
@@ -10,6 +11,8 @@ const SemesterPage = () => {
 
   const [showModal, setShowModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showTrash, setShowTrash] = useState(false);
+  const [toast, setToast] = useState(null);
   const [selectedSemester, setSelectedSemester] = useState(null);
   const [form, setForm] = useState({ nama: 'Ganjil', tahun_ajaran_id: '', is_active: false });
 
@@ -31,6 +34,11 @@ const SemesterPage = () => {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  const showToast = (msg) => {
+    setToast(msg);
+    setTimeout(() => setToast(null), 3000);
+  };
 
   const openAdd = () => {
     setSelectedSemester(null);
@@ -87,6 +95,7 @@ const SemesterPage = () => {
       await semesterAPI.destroy(selectedSemester.id);
       setShowDeleteModal(false);
       setSelectedSemester(null);
+      showToast('Semester berhasil dipindahkan ke Recycle Bin');
       fetchData();
     } catch (err) {
       setError(err.response?.data?.message || err.message);
@@ -111,18 +120,31 @@ const SemesterPage = () => {
 
   return (
     <div className="p-4 lg:p-8 space-y-6">
+      {toast && (
+        <div className="fixed top-4 right-4 z-[100] px-5 py-3 bg-emerald-600 text-white rounded-2xl shadow-2xl text-sm font-bold animate-up">
+          {toast}
+        </div>
+      )}
       <div className="bg-white rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden">
         <div className="p-6 border-b border-slate-50 flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
           <div>
             <h2 className="text-lg font-bold text-slate-800">Manajemen Semester</h2>
             <p className="text-xs text-slate-400 mt-0.5">Atur semester aktif untuk proses akademik</p>
           </div>
-          <button
-            onClick={openAdd}
-            className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-5 py-2.5 rounded-xl text-sm transition-all shadow-sm shadow-emerald-500/30 whitespace-nowrap"
-          >
-            + Tambah Semester
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setShowTrash(true)}
+              className="flex items-center gap-2 bg-white hover:bg-rose-50 text-slate-600 hover:text-rose-600 border border-slate-200 hover:border-rose-300 font-bold px-4 py-2.5 rounded-xl text-sm transition-all whitespace-nowrap"
+            >
+              Recycle Bin
+            </button>
+            <button
+              onClick={openAdd}
+              className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-5 py-2.5 rounded-xl text-sm transition-all shadow-sm shadow-emerald-500/30 whitespace-nowrap"
+            >
+              + Tambah Semester
+            </button>
+          </div>
         </div>
 
         <div className="overflow-x-auto">
@@ -248,12 +270,19 @@ const SemesterPage = () => {
         </div>
       )}
 
+      {/* Modal Recycle Bin */}
+      <ModalTrashSemester
+        isOpen={showTrash}
+        onClose={() => setShowTrash(false)}
+        onSuccess={(msg) => { showToast(msg); fetchData(); }}
+      />
+
       {showDeleteModal && selectedSemester && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
           <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-sm p-8 text-center">
             <div className="w-16 h-16 bg-rose-100 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">🗑️</div>
             <h3 className="text-lg font-bold text-slate-800 mb-2">Hapus Semester?</h3>
-            <p className="text-sm text-slate-500 mb-6">Semester <strong>{selectedSemester.nama} ({selectedSemester.tahun_ajaran})</strong> akan dihapus permanen.</p>
+            <p className="text-sm text-slate-500 mb-6">Semester <strong>{selectedSemester.nama} ({selectedSemester.tahun_ajaran})</strong> akan dipindahkan ke Recycle Bin.</p>
             <div className="flex gap-3">
               <button onClick={() => setShowDeleteModal(false)} className="flex-1 py-3 text-sm font-bold text-slate-600 bg-slate-100 rounded-xl">Batal</button>
               <button 

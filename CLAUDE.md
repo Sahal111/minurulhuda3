@@ -41,12 +41,15 @@
 
 > Update section ini setiap kali fitur selesai dikerjakan
 
-- [ ] *(belum ada yang ditandai selesai — update saat fitur selesai)*
+- [x] Recycle Bin untuk Semester (Operator) — backend: controller + routes; frontend: API, ModalTrashSemester, SemesterPage
+- [x] Perbaikan logika aktif Tahun Ajaran dan Semester (Operator) — semester hanya bisa aktif di TA yang sedang aktif
+- [x] Fix bug dropdown Tahun Ajaran tidak muncul di Step 4 form tambah/edit siswa (Operator) — mismatch key `tahun_ajarans` → `tahunAjarans` di `SiswaPage.jsx:112`
 
 ### Komponen yang SUDAH STABIL — jangan diubah kecuali ada bug:
 - `frontend/src/context/AuthContext.jsx` — auth context, jangan direfactor
 - `frontend/src/hooks/useAuth.js` — custom hook auth
 - `frontend/src/api/axios.js` — axios instance & interceptors
+- `frontend/src/components/operator/ModalTrashSemester.jsx` — recycle bin semester, baru
 - `frontend/dist/` — build output, JANGAN diedit manual
 - `backend/ai_tools/venv/` — virtual environment Python, JANGAN disentuh
 
