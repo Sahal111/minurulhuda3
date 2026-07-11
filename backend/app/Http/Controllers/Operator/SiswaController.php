@@ -1442,7 +1442,7 @@ TXT;
             'jenis' => 'nullable|string|max:100',
             'tahun_mulai' => 'nullable|string|max:4',
             'tahun_selesai' => 'nullable|string|max:4',
-            'nominal' => 'nullable|integer',
+            'nominal' => 'nullable|numeric',
             'keterangan' => 'nullable|string',
         ]);
 
@@ -1457,6 +1457,30 @@ TXT;
         ]);
 
         return response()->json(['success' => true, 'message' => 'Data beasiswa berhasil ditambahkan.'], 201);
+    }
+
+    public function beasiswaUpdate(Request $request, $siswaId, $beasiswaId)
+    {
+        $request->validate([
+            'nama' => 'required|string|max:255',
+            'jenis' => 'nullable|string|max:100',
+            'tahun_mulai' => 'nullable|string|max:4',
+            'tahun_selesai' => 'nullable|string|max:4',
+            'nominal' => 'nullable|numeric',
+            'keterangan' => 'nullable|string',
+        ]);
+
+        $beasiswa = \App\Models\Beasiswa::where('siswa_id', $siswaId)->findOrFail($beasiswaId);
+        $beasiswa->update([
+            'nama' => $request->nama,
+            'jenis' => $request->jenis,
+            'tahun_mulai' => $request->tahun_mulai,
+            'tahun_selesai' => $request->tahun_selesai,
+            'nominal' => $request->nominal,
+            'keterangan' => $request->keterangan,
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'Data beasiswa berhasil diperbarui.']);
     }
 
     public function beasiswaDestroy($siswaId, $beasiswaId)

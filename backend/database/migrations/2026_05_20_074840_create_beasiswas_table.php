@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('jenis')->nullable();
             $table->string('tahun_mulai', 4)->nullable();
             $table->string('tahun_selesai', 4)->nullable();
-            $table->integer('nominal')->nullable();
+            $table->bigInteger('nominal')->nullable();
             $table->text('keterangan')->nullable();
             $table->timestamps();
             $table->softDeletes();

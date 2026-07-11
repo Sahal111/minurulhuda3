@@ -89,6 +89,7 @@ Route::middleware('auth:sanctum')->group(function () {
         // Beasiswa siswa
         Route::get('/data-siswa/{siswaId}/beasiswa', [SiswaController::class, 'beasiswaIndex']);
         Route::post('/data-siswa/{siswaId}/beasiswa', [SiswaController::class, 'beasiswaStore']);
+        Route::post('/data-siswa/{siswaId}/beasiswa/{beasiswaId}', [SiswaController::class, 'beasiswaUpdate']);
         Route::delete('/data-siswa/{siswaId}/beasiswa/{beasiswaId}', [SiswaController::class, 'beasiswaDestroy']);
 
         // Data Guru
