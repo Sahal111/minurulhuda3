@@ -16,6 +16,113 @@ use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\SkipsFailures;
 
+/**
+ * Import siswa dari template yang kolomnya sesuai DATA_SISWA.xlsx (EMIS MI Nurul Huda 3).
+ *
+ * Mapping heading (WithHeadingRow otomatis lowercase + snake_case spasi→underscore):
+ *
+ * Excel Header              → key di $row[]
+ * ─────────────────────────────────────────────────────────────────────────
+ * NO                        → no
+ * NAMA LENGKAP              → nama_lengkap
+ * NISN                      → nisn
+ * NIS LOKAL                 → nis_lokal
+ * KEWARGA NEGARAAN          → kewarga_negaraan
+ * NIK SISWA                 → nik_siswa
+ * TEMPAT LAHIR              → tempat_lahir
+ * TANGGAL LAHIR             → tanggal_lahir
+ * JENIS KELAMIN             → jenis_kelamin
+ * KELAS                     → kelas
+ * KELAS PARAREL             → kelas_pararel
+ * NO ABSEN                  → no_absen
+ * JUMLAH SAUDARA            → jumlah_saudara
+ * ANAK KE                   → anak_ke
+ * CITA-CITA                 → cita_cita  (tanda - diganti _ oleh Laravel Excel)
+ * AGAMA                     → agama
+ * NO. HP SISWA              → no_hp_siswa
+ * ALAMAT SISWA              → alamat_siswa
+ * HOBI                      → hobi
+ * YANG MEMBIAYAI SEKOLAH    → yang_membiayai_sekolah
+ * Asal Sekolah              → asal_sekolah
+ * IMUNISASI                 → imunisasi
+ * NOMOR KIP                 → nomor_kip
+ * NOMOR KK                  → nomor_kk
+ * NAMA KEPALA KELUARGA      → nama_kepala_keluarga
+ *
+ * NAMA AYAH                 → nama_ayah
+ * STATUS                    → status        (ayah – kolom ke-27)
+ * KEWARGANEGARAAN           → kewarganegaraan (ayah – kolom ke-28)
+ * NIK AYAH                  → nik_ayah
+ * TEMPAT LAHIR (AYAH)       → tempat_lahir_ayah
+ * TANGGAL LAHIR (AYAH)      → tanggal_lahir_ayah
+ * PENDIDIKAN TERAKHIR (AYAH)→ pendidikan_terakhir_ayah
+ * PEKERJAAN UTAMA (AYAH)    → pekerjaan_utama_ayah
+ * PENGHASILAN PERBULAN (AYAH)→ penghasilan_perbulan_ayah
+ * NO. HP AYAH               → no_hp_ayah
+ *
+ * NAMA IBU                  → nama_ibu
+ * STATUS                    → status_2      (ibu – kolom ke-37, duplikat heading)
+ * KEWARGANEGARAAN           → kewarganegaraan_2
+ * NIK IBU                   → nik_ibu
+ * TEMPAT LAHIR (IBU)        → tempat_lahir_ibu
+ * TANGGAL LAHIR (IBU)       → tanggal_lahir_ibu
+ * PENDIDIKAN TERAKHIR (IBU) → pendidikan_terakhir_ibu
+ * PEKERJAAN UTAMA (IBU)     → pekerjaan_utama_ibu
+ * PENGHASILAN PERBULAN (IBU)→ penghasilan_perbulan_ibu
+ * NO. HP IBU                → no_hp_ibu
+ *
+ * NAMA WALI                 → nama_wali
+ * STATUS                    → status_3
+ * KEWARGA NEGARAAN          → kewarga_negaraan_2
+ * NIK (WALI)                → nik_wali
+ * TEMPAT LAHIR (WALI)       → tempat_lahir_wali
+ * TANGGAL LAHIR (WALI)      → tanggal_lahir_wali
+ * PENDIDIKAN TERAKHIR (WALI)→ pendidikan_terakhir_wali
+ * PEKERJAAN UTAMA (WALI)    → pekerjaan_utama_wali
+ * PENGHASILAN PERBULAN (WALI)→penghasilan_perbulan_wali
+ * NO. HP WALI               → no_hp_wali
+ *
+ * AYAH KANDUNG              → ayah_kandung
+ * STATUS KEPEMILIKAN        → status_kepemilikan
+ * PROVINSI                  → provinsi
+ * KAB                       → kab
+ * KEC                       → kec
+ * KELURAHAN / DESA          → kelurahan_desa
+ * RT                        → rt
+ * RW                        → rw
+ * ALAMAT                    → alamat
+ * KODE POS                  → kode_pos
+ *
+ * IBU KANDUNG               → ibu_kandung
+ * STATUS KEPEMILIKAN        → status_kepemilikan_2
+ * PROVINSI                  → provinsi_2
+ * KAB                       → kab_2
+ * KEC                       → kec_2
+ * KELURAHAN / DESA          → kelurahan_desa_2
+ * RT                        → rt_2
+ * RW                        → rw_2
+ * ALAMAT                    → alamat_2
+ * KODE POS                  → kode_pos_2
+ *
+ * WALI (alamat)             → wali
+ * STATUS KEPEMILIKAN        → status_kepemilikan_3
+ * PROVINSI                  → provinsi_3
+ * KAB                       → kab_3
+ * KEC                       → kec_3
+ * KELURAHAN / DESA          → kelurahan_desa_3
+ * RT                        → rt_3
+ * RW                        → rw_3
+ * ALAMAT                    → alamat_3
+ * KODE POS                  → kode_pos_3
+ *
+ * URUT                      → urut
+ * NSM ASAL                  → nsm_asal
+ * NPSN ASAL                 → npsn_asal
+ * NAMA MADRASAH ASAL        → nama_madrasah_asal
+ *
+ * CATATAN: Heading duplikat (STATUS, KEWARGANEGARAAN, dst.) secara otomatis
+ * di-suffix _2, _3, … oleh Maatwebsite\Excel WithHeadingRow.
+ */
 class SiswaImport implements
     ToModel,
     WithHeadingRow,
@@ -26,14 +133,14 @@ class SiswaImport implements
 {
     use SkipsErrors, SkipsFailures;
 
-    private array $fotoMap;   // [stem_lowercase => fullpath]
+    private array $fotoMap;      // [stem_lowercase => fullpath]
     private array $kelasCache = [];
     private array $stats = [
-        'inserted'     => 0,
-        'updated'      => 0,
-        'skipped'      => 0,
+        'inserted' => 0,
+        'updated' => 0,
+        'skipped' => 0,
         'foto_matched' => 0,
-        'foto_avatar'  => 0,
+        'foto_avatar' => 0,
     ];
 
     public function __construct(array $fotoMap = [])
@@ -44,136 +151,186 @@ class SiswaImport implements
     public function model(array $row): ?Siswa
     {
         // Skip baris yang benar-benar kosong
-        $allEmpty = collect($row)->filter(fn($v) => !is_null($v) && trim((string)$v) !== '')->isEmpty();
-        if ($allEmpty) return null;
+        $allEmpty = collect($row)->filter(fn($v) => !is_null($v) && trim((string) $v) !== '')->isEmpty();
+        if ($allEmpty)
+            return null;
 
-        $nis  = trim($row['nis'] ?? '');
+        // ── Identitas utama ────────────────────────────────────────────────
+        $nis = trim($row['nis_lokal'] ?? '');
         $nisn = trim($row['nisn'] ?? '');
-        $nama = trim($row['nama_lengkap'] ?? ($row['nama'] ?? ''));
+        $nama = trim($row['nama_lengkap'] ?? '');
 
         if (!$nis) {
             $this->stats['skipped']++;
             return null;
         }
 
-        // Resolve kelas & tingkat
+        // ── Resolve kelas ──────────────────────────────────────────────────
         $kelasRaw = trim($row['kelas'] ?? '');
-        $kelasId  = $this->resolveKelas($kelasRaw);
-        $tingkat  = 1;
+        $kelasPararel = trim($row['kelas_pararel'] ?? '');
+        // Gabungkan "1" + "A" → "1 A" supaya resolveKelas bisa parse
+        $kelasGabung = $kelasPararel ? "{$kelasRaw} {$kelasPararel}" : $kelasRaw;
+        $kelasId = $this->resolveKelas($kelasGabung);
+        $tingkat = 1;
         if ($kelasId) {
-            $kelas   = Kelas::find($kelasId);
+            $kelas = Kelas::find($kelasId);
             $tingkat = $kelas?->tingkat ?? 1;
         }
 
+        // ── Data siswa ─────────────────────────────────────────────────────
         $data = [
-            'nisn'             => $nisn ?: null,
-            'nis'              => $nis,
-            'nama'             => $nama,
-            'tingkat'          => $tingkat,
-            'nik'              => trim($row['nik'] ?? '') ?: null,
-            'no_kk'            => trim($row['no_kk'] ?? '') ?: null,
-            'jenis_kelamin'    => $this->parseJK($row['jenis_kelamin_l_p'] ?? ($row['jenis_kelamin'] ?? '')),
-            'tempat_lahir'     => trim($row['tempat_lahir'] ?? '') ?: null,
-            'tanggal_lahir'    => $this->parseDate($row['tanggal_lahir'] ?? ($row['tanggal_lahir_yyyy_mm_dd'] ?? null)),
-            'agama'            => trim($row['agama'] ?? '') ?: null,
-            'golongan_darah'   => $this->parseGolonganDarah($row['golongan_darah'] ?? ''),
-            'kebutuhan_khusus' => trim($row['kebutuhan_khusus'] ?? '') ?: null,
-            'status'           => strtolower(trim($row['status_siswa'] ?? 'aktif')),
-            'kelas_id'         => $kelasId,
-            'asal_sekolah'     => trim($row['asal_sekolah'] ?? '') ?: null,
-            'tanggal_masuk'    => $this->parseDate($row['tanggal_masuk'] ?? ($row['tanggal_masuk_yyyy_mm_dd'] ?? null)),
-            // Dapodik: Domisili & Periodik
-            'alamat_siswa'           => trim($row['alamat_siswa'] ?? '') ?: null,
-            'rt'                     => trim($row['rt'] ?? '') ?: null,
-            'rw'                     => trim($row['rw'] ?? '') ?: null,
-            'kelurahan'              => trim($row['kelurahan'] ?? '') ?: null,
-            'kecamatan'              => trim($row['kecamatan'] ?? '') ?: null,
-            'kode_pos'               => trim($row['kode_pos'] ?? '') ?: null,
-            'anak_ke'                => $this->parseUnsignedInt($row['anak_ke'] ?? null),
-            'jumlah_saudara'         => $this->parseUnsignedInt($row['jumlah_saudara'] ?? null),
-            'jarak_tempat_tinggal'   => isset($row['jarak_tempat_tinggal']) ? (float)$row['jarak_tempat_tinggal'] : null,
-            'waktu_tempuh'           => $this->parseUnsignedInt($row['waktu_tempuh'] ?? null),
-            'moda_transportasi'      => $this->parseString($row['moda_transportasi'] ?? ''),
+            'nisn' => $nisn ?: null,
+            'nis' => $nis,
+            'nama' => $nama,
+            'tingkat' => $tingkat,
+            'nik' => trim($row['nik_siswa'] ?? '') ?: null,
+            'no_kk' => trim($row['nomor_kk'] ?? '') ?: null,
+            'jenis_kelamin' => $this->parseJK($row['jenis_kelamin'] ?? ''),
+            'tempat_lahir' => trim($row['tempat_lahir'] ?? '') ?: null,
+            'tanggal_lahir' => $this->parseDate($row['tanggal_lahir'] ?? null),
+            'agama' => trim($row['agama'] ?? '') ?: null,
+            'kebutuhan_khusus' => null,  // kolom tidak ada di template EMIS ini
+            'status' => 'aktif',
+            'kelas_id' => $kelasId,
+            'asal_sekolah' => trim($row['asal_sekolah'] ?? '') ?: null,
+            'tanggal_masuk' => null,
+            // Domisili siswa
+            'alamat_siswa' => trim($row['alamat_siswa'] ?? '') ?: null,
+            'rt' => trim($row['rt'] ?? '') ?: null,
+            'rw' => trim($row['rw'] ?? '') ?: null,
+            'kelurahan' => trim($row['kelurahan_desa'] ?? '') ?: null,
+            'kecamatan' => trim($row['kec'] ?? '') ?: null,
+            'kode_pos' => trim($row['kode_pos'] ?? '') ?: null,
+            'anak_ke' => $this->parseUnsignedInt($row['anak_ke'] ?? null),
+            'jumlah_saudara' => $this->parseUnsignedInt($row['jumlah_saudara'] ?? null),
+            'jarak_tempat_tinggal' => null,
+            'waktu_tempuh' => null,
+            'moda_transportasi' => null,
         ];
 
-        $tinggi_badan = $this->parseUnsignedInt($row['tinggi_badan_cm'] ?? ($row['tinggi_badan'] ?? null));
-        $berat_badan  = $this->parseUnsignedInt($row['berat_badan_kg']  ?? ($row['berat_badan']  ?? null));
+        // ── Data tambahan ──────────────────────────────────────────────────
         $dataTambahan = [
-            'kewarganegaraan' => $this->parseKewarganegaraan($row['kewarganegaraan'] ?? null),
-            'no_registrasi_akta_kelahiran' => trim($row['no_registrasi_akta_kelahiran'] ?? '') ?: null,
-            'lintang' => $this->parseDecimal($row['lintang'] ?? null),
-            'bujur' => $this->parseDecimal($row['bujur'] ?? null),
-            'kebutuhan_khusus_ayah' => trim($row['kebutuhan_khusus_ayah'] ?? '') ?: null,
-            'kebutuhan_khusus_ibu' => trim($row['kebutuhan_khusus_ibu'] ?? '') ?: null,
+            'kewarganegaraan' => $this->parseKewarganegaraan($row['kewarga_negaraan'] ?? null),
+            'no_registrasi_akta_kelahiran' => null,
+            'lintang' => null,
+            'bujur' => null,
+            'kebutuhan_khusus_ayah' => null,
+            'kebutuhan_khusus_ibu' => null,
             'hobi' => trim($row['hobi'] ?? '') ?: null,
             'cita_cita' => trim($row['cita_cita'] ?? '') ?: null,
-            'no_telp_siswa' => trim($row['no_telp_siswa'] ?? '') ?: null,
-            'hp_siswa' => trim($row['hp_siswa'] ?? '') ?: null,
-            'email_siswa' => trim($row['email_siswa'] ?? '') ?: null,
-            'lingkar_kepala' => $this->parseDecimal($row['lingkar_kepala_cm'] ?? ($row['lingkar_kepala'] ?? null)),
+            'no_telp_siswa' => null,
+            'hp_siswa' => trim($row['no_hp_siswa'] ?? '') ?: null,
+            'email_siswa' => null,
+            'lingkar_kepala' => null,
+            // Kolom tambahan dari EMIS
+            'no_absen' => $this->parseUnsignedInt($row['no_absen'] ?? null),
+            'yang_membiayai_sekolah' => trim($row['yang_membiayai_sekolah'] ?? '') ?: null,
+            'imunisasi' => trim($row['imunisasi'] ?? '') ?: null,
+            'nama_kepala_keluarga' => trim($row['nama_kepala_keluarga'] ?? '') ?: null,
         ];
+
+        // ── Program kesejahteraan ──────────────────────────────────────────
         $programKesejahteraan = [
-            'penerima_kps_pkh' => $this->parseBool($row['penerima_kps_pkh'] ?? null),
-            'no_kps_pkh' => trim($row['no_kps_pkh'] ?? '') ?: null,
-            'layak_pip' => $this->parseBool($row['layak_pip'] ?? null),
-            'alasan_layak_pip' => trim($row['alasan_layak_pip'] ?? '') ?: null,
-            'penerima_kip' => $this->parseBool($row['penerima_kip'] ?? null),
-            'no_kip' => trim($row['no_kip'] ?? '') ?: null,
-            'nama_tertera_di_kip' => trim($row['nama_tertera_di_kip'] ?? '') ?: null,
+            'penerima_kps_pkh' => false,
+            'no_kps_pkh' => null,
+            'layak_pip' => false,
+            'alasan_layak_pip' => null,
+            'penerima_kip' => !empty(trim($row['nomor_kip'] ?? '')),
+            'no_kip' => trim($row['nomor_kip'] ?? '') ?: null,
+            'nama_tertera_di_kip' => null,
         ];
 
+        // ── Data ayah ──────────────────────────────────────────────────────
         $dataAyah = [
-            'nama_ayah'        => trim($row['nama_ayah']      ?? '') ?: null,
-            'nik_ayah'         => trim($row['nik_ayah'] ?? '') ?: null,
-            'tahun_lahir_ayah' => $this->parseUnsignedInt($row['tahun_lahir_ayah'] ?? null),
-            'pendidikan_ayah'  => $this->parseString($row['pendidikan_ayah'] ?? ''),
-            'pekerjaan_ayah'   => trim($row['pekerjaan_ayah'] ?? '') ?: null,
-            'penghasilan_ayah' => $this->parseString($row['penghasilan_ayah'] ?? ''),
-            'no_hp'            => trim($row['no_hp_ortu']     ?? '') ?: null,
-            'alamat'           => trim($row['alamat']         ?? '') ?: null,
-            'nama_ibu'         => null, 'nik_ibu' => null, 'tahun_lahir_ibu' => null, 'pendidikan_ibu' => null, 'pekerjaan_ibu' => null, 'penghasilan_ibu' => null,
-            'nama_wali'        => null, 'nik_wali' => null, 'tahun_lahir_wali' => null, 'pendidikan_wali' => null, 'pekerjaan_wali' => null, 'penghasilan_wali' => null, 'no_hp_wali' => null, 'alamat_wali' => null,
-        ];
-
-        $dataIbu = [
-            'nama_ibu'         => trim($row['nama_ibu']       ?? '') ?: null,
-            'nik_ibu'          => trim($row['nik_ibu'] ?? '') ?: null,
-            'tahun_lahir_ibu'  => $this->parseUnsignedInt($row['tahun_lahir_ibu'] ?? null),
-            'pendidikan_ibu'   => $this->parseString($row['pendidikan_ibu'] ?? ''),
-            'pekerjaan_ibu'    => trim($row['pekerjaan_ibu']  ?? '') ?: null,
-            'penghasilan_ibu'  => $this->parseString($row['penghasilan_ibu'] ?? ''),
-            'no_hp'            => trim($row['no_hp_ortu']     ?? '') ?: null,
-            'alamat'           => trim($row['alamat']         ?? '') ?: null,
-            'nama_ayah'        => null, 'nik_ayah' => null, 'tahun_lahir_ayah' => null, 'pendidikan_ayah' => null, 'pekerjaan_ayah' => null, 'penghasilan_ayah' => null,
-            'nama_wali'        => null, 'nik_wali' => null, 'tahun_lahir_wali' => null, 'pendidikan_wali' => null, 'pekerjaan_wali' => null, 'penghasilan_wali' => null, 'no_hp_wali' => null, 'alamat_wali' => null,
-        ];
-
-        $dataWali = [
-            'nama_wali'        => trim($row['nama_wali'] ?? '') ?: null,
-            'nik_wali'         => trim($row['nik_wali'] ?? '') ?: null, // Wali doesn't explicitly have NIK in this import sheet usually but defined in DB
+            'nama_ayah' => trim($row['nama_ayah'] ?? '') ?: null,
+            'nik_ayah' => trim($row['nik_ayah'] ?? '') ?: null,
+            'tahun_lahir_ayah' => $this->parseTahun($row['tanggal_lahir_ayah'] ?? null),
+            'pendidikan_ayah' => $this->parseString($row['pendidikan_terakhir_ayah'] ?? ''),
+            'pekerjaan_ayah' => trim($row['pekerjaan_utama_ayah'] ?? '') ?: null,
+            'penghasilan_ayah' => $this->parseString($row['penghasilan_perbulan_ayah'] ?? ''),
+            'no_hp' => trim($row['no_hp_ayah'] ?? '') ?: null,
+            // Alamat diambil dari blok "ALAMAT AYAH KANDUNG"
+            'alamat' => trim($row['alamat'] ?? '') ?: null,
+            'nama_ibu' => null,
+            'nik_ibu' => null,
+            'tahun_lahir_ibu' => null,
+            'pendidikan_ibu' => null,
+            'pekerjaan_ibu' => null,
+            'penghasilan_ibu' => null,
+            'nama_wali' => null,
+            'nik_wali' => null,
             'tahun_lahir_wali' => null,
-            'pekerjaan_wali'   => trim($row['pekerjaan_wali'] ?? '') ?: null,
-            'pendidikan_wali'  => $this->parseString($row['pendidikan_wali'] ?? ''),
-            'penghasilan_wali' => $this->parseString($row['penghasilan_wali'] ?? ''),
-            'no_hp_wali'       => trim($row['no_hp_wali'] ?? '') ?: null,
-            'alamat_wali'      => trim($row['alamat_wali'] ?? '') ?: null,
-            'no_hp'            => trim($row['no_hp_wali'] ?? '') ?: null, // Fallback no_hp
-            'alamat'           => trim($row['alamat_wali'] ?? '') ?: null,
-            'nama_ayah'        => null, 'nik_ayah' => null, 'tahun_lahir_ayah' => null, 'pendidikan_ayah' => null, 'pekerjaan_ayah' => null, 'penghasilan_ayah' => null,
-            'nama_ibu'         => null, 'nik_ibu' => null, 'tahun_lahir_ibu' => null, 'pendidikan_ibu' => null, 'pekerjaan_ibu' => null, 'penghasilan_ibu' => null,
+            'pendidikan_wali' => null,
+            'pekerjaan_wali' => null,
+            'penghasilan_wali' => null,
+            'no_hp_wali' => null,
+            'alamat_wali' => null,
         ];
 
-        // Cek apakah siswa sudah ada berdasarkan NIS
+        // ── Data ibu ───────────────────────────────────────────────────────
+        $dataIbu = [
+            'nama_ibu' => trim($row['nama_ibu'] ?? '') ?: null,
+            'nik_ibu' => trim($row['nik_ibu'] ?? '') ?: null,
+            'tahun_lahir_ibu' => $this->parseTahun($row['tanggal_lahir_ibu'] ?? null),
+            'pendidikan_ibu' => $this->parseString($row['pendidikan_terakhir_ibu'] ?? ''),
+            'pekerjaan_ibu' => trim($row['pekerjaan_utama_ibu'] ?? '') ?: null,
+            'penghasilan_ibu' => $this->parseString($row['penghasilan_perbulan_ibu'] ?? ''),
+            'no_hp' => trim($row['no_hp_ibu'] ?? '') ?: null,
+            // Alamat diambil dari blok "ALAMAT IBU KANDUNG"
+            'alamat' => trim($row['alamat_2'] ?? '') ?: null,
+            'nama_ayah' => null,
+            'nik_ayah' => null,
+            'tahun_lahir_ayah' => null,
+            'pendidikan_ayah' => null,
+            'pekerjaan_ayah' => null,
+            'penghasilan_ayah' => null,
+            'nama_wali' => null,
+            'nik_wali' => null,
+            'tahun_lahir_wali' => null,
+            'pendidikan_wali' => null,
+            'pekerjaan_wali' => null,
+            'penghasilan_wali' => null,
+            'no_hp_wali' => null,
+            'alamat_wali' => null,
+        ];
+
+        // ── Data wali ──────────────────────────────────────────────────────
+        $dataWali = [
+            'nama_wali' => trim($row['nama_wali'] ?? '') ?: null,
+            'nik_wali' => trim($row['nik_wali'] ?? '') ?: null,
+            'tahun_lahir_wali' => $this->parseTahun($row['tanggal_lahir_wali'] ?? null),
+            'pekerjaan_wali' => trim($row['pekerjaan_utama_wali'] ?? '') ?: null,
+            'pendidikan_wali' => $this->parseString($row['pendidikan_terakhir_wali'] ?? ''),
+            'penghasilan_wali' => $this->parseString($row['penghasilan_perbulan_wali'] ?? ''),
+            'no_hp_wali' => trim($row['no_hp_wali'] ?? '') ?: null,
+            'no_hp' => trim($row['no_hp_wali'] ?? '') ?: null,
+            // Alamat diambil dari blok "ALAMAT WALI"
+            'alamat_wali' => trim($row['alamat_3'] ?? '') ?: null,
+            'alamat' => trim($row['alamat_3'] ?? '') ?: null,
+            'nama_ayah' => null,
+            'nik_ayah' => null,
+            'tahun_lahir_ayah' => null,
+            'pendidikan_ayah' => null,
+            'pekerjaan_ayah' => null,
+            'penghasilan_ayah' => null,
+            'nama_ibu' => null,
+            'nik_ibu' => null,
+            'tahun_lahir_ibu' => null,
+            'pendidikan_ibu' => null,
+            'pekerjaan_ibu' => null,
+            'penghasilan_ibu' => null,
+        ];
+
+        // ── Upsert dalam satu transaksi ────────────────────────────────────
         $existing = Siswa::where('nis', $nis)->first();
 
-        \Illuminate\Support\Facades\DB::transaction(function () use ($existing, $data, $dataAyah, $dataIbu, $dataWali, $dataTambahan, $programKesejahteraan, $tinggi_badan, $berat_badan, $nisn, $nis, $nama) {
+        \Illuminate\Support\Facades\DB::transaction(function () use ($existing, $data, $dataAyah, $dataIbu, $dataWali, $dataTambahan, $programKesejahteraan, $nisn, $nis, $nama) {
             if ($existing) {
-                // UPDATE siswa yang sudah ada
+                // UPDATE
                 $existing->update($data);
                 $existing->dataTambahan()->updateOrCreate(['siswa_id' => $existing->id], $dataTambahan);
                 $existing->programKesejahteraan()->updateOrCreate(['siswa_id' => $existing->id], $programKesejahteraan);
 
-                // Update foto jika ZIP berisi foto baru
                 if (!empty($this->fotoMap)) {
                     $fotoPath = $this->resolveFoto($nisn, $nis, $nama, false);
                     if ($fotoPath !== null) {
@@ -184,7 +341,6 @@ class SiswaImport implements
                     }
                 }
 
-                // Update data orang tua via pivot
                 if ($dataAyah['nama_ayah']) {
                     $ayah = OrangTua::firstOrCreate(['nama_ayah' => $dataAyah['nama_ayah']], $dataAyah);
                     $existing->orangTuas()->syncWithoutDetaching([$ayah->id => ['hubungan_keluarga' => 'Ayah']]);
@@ -198,19 +354,11 @@ class SiswaImport implements
                     $existing->orangTuas()->syncWithoutDetaching([$wali->id => ['hubungan_keluarga' => 'Wali']]);
                 }
 
-                // Handle Perkembangan Siswa
-                if ($tinggi_badan || $berat_badan) {
-                    $existing->perkembangans()->updateOrCreate(
-                        ['tahun_ajaran_id' => null, 'semester' => 'Ganjil'], // Placeholder
-                        ['tinggi_badan' => $tinggi_badan, 'berat_badan' => $berat_badan]
-                    );
-                }
-
                 $this->stats['updated']++;
                 return;
             }
 
-            // INSERT siswa baru
+            // INSERT
             $foto = $this->resolveFoto($nisn, $nis, $nama);
             $data['foto'] = $foto;
 
@@ -231,35 +379,28 @@ class SiswaImport implements
                 $siswa->orangTuas()->attach($wali->id, ['hubungan_keluarga' => 'Wali']);
             }
 
-            if ($tinggi_badan || $berat_badan) {
-                $siswa->perkembangans()->create([
-                    'tahun_ajaran_id' => null,
-                    'semester'        => 'Ganjil',
-                    'tinggi_badan'    => $tinggi_badan,
-                    'berat_badan'     => $berat_badan,
-                ]);
-            }
-
             $this->stats['inserted']++;
         });
 
-        return null; // Sudah di-handle manual dalam transaction
+        return null; // sudah di-handle manual dalam transaction
     }
+
+    // ── Helper: resolve foto ───────────────────────────────────────────────
 
     private function resolveFoto(string $nisn, string $nis, string $nama, bool $countAvatar = true): ?string
     {
         if (!empty($this->fotoMap)) {
             $candidates = array_filter([
                 $nisn ? strtolower(trim($nisn)) : null,
-                $nis  ? strtolower(trim($nis))  : null,
+                $nis ? strtolower(trim($nis)) : null,
                 $nama ? strtolower(Str::slug($nama)) : null,
             ]);
 
             foreach ($candidates as $stem) {
                 if (isset($this->fotoMap[$stem])) {
                     $fullPath = $this->fotoMap[$stem];
-                    $ext      = strtolower(pathinfo($fullPath, PATHINFO_EXTENSION));
-                    $dest     = 'foto_siswa/' . Str::uuid() . ".{$ext}";
+                    $ext = strtolower(pathinfo($fullPath, PATHINFO_EXTENSION));
+                    $dest = 'foto_siswa/' . Str::uuid() . ".{$ext}";
                     Storage::disk('public')->put($dest, file_get_contents($fullPath));
                     $this->stats['foto_matched']++;
                     return $dest;
@@ -274,12 +415,17 @@ class SiswaImport implements
         return null;
     }
 
+    // ── Helper: resolve kelas ──────────────────────────────────────────────
+
     private function resolveKelas(string $raw): ?int
     {
         $raw = trim($raw);
-        if (!$raw) return null;
-        if (isset($this->kelasCache[$raw])) return $this->kelasCache[$raw];
+        if (!$raw)
+            return null;
+        if (isset($this->kelasCache[$raw]))
+            return $this->kelasCache[$raw];
 
+        // Format: "1 A", "1-A", "1A"
         preg_match('/(\d+)\s*[-\s]?\s*([A-Za-z]+)/', $raw, $m);
         $id = null;
         if (count($m) >= 3) {
@@ -292,29 +438,49 @@ class SiswaImport implements
         return $id;
     }
 
+    // ── Helper: parse ──────────────────────────────────────────────────────
+
     private function parseJK(string $raw): string
     {
-        $raw = strtoupper(trim($raw));
-        if (in_array(substr($raw, 0, 1), ['L'])) return 'L';
-        return 'P';
-    }
-
-    private function parseGolonganDarah(mixed $value): ?string
-    {
-        $v = strtoupper(trim((string) $value));
-        return in_array($v, ['A', 'B', 'AB', 'O']) ? $v : ($v === 'TIDAK DIKETAHUI' ? 'Tidak Diketahui' : null);
+        return strtoupper(substr(trim($raw), 0, 1)) === 'L' ? 'L' : 'P';
     }
 
     private function parseUnsignedInt(mixed $value): ?int
     {
-        if ($value === null || trim((string) $value) === '') return null;
+        if ($value === null || trim((string) $value) === '')
+            return null;
         $int = (int) filter_var($value, FILTER_SANITIZE_NUMBER_INT);
         return $int > 0 ? $int : null;
     }
 
+    /**
+     * Ambil tahun dari string tanggal (YYYY-MM-DD, DD/MM/YYYY, dll.)
+     * atau langsung nilai 4-digit angka.
+     */
+    private function parseTahun(mixed $value): ?int
+    {
+        if ($value === null || trim((string) $value) === '')
+            return null;
+
+        // Kalau sudah 4-digit angka → langsung tahun
+        $str = trim((string) $value);
+        if (preg_match('/^\d{4}$/', $str)) {
+            return (int) $str;
+        }
+
+        // Coba parse sebagai tanggal lalu ambil tahunnya
+        $date = $this->parseDate($value);
+        if ($date) {
+            return (int) substr($date, 0, 4);
+        }
+
+        return null;
+    }
+
     private function parseDecimal(mixed $value): ?float
     {
-        if ($value === null || trim((string) $value) === '') return null;
+        if ($value === null || trim((string) $value) === '')
+            return null;
         $normalized = str_replace(',', '.', trim((string) $value));
         return is_numeric($normalized) ? (float) $normalized : null;
     }
@@ -333,44 +499,61 @@ class SiswaImport implements
 
     private function parseDate(mixed $value): ?string
     {
-        if (!$value) return null;
+        if (!$value)
+            return null;
+
+        // Serial number Excel
         if (is_numeric($value)) {
             try {
                 return \PhpOffice\PhpSpreadsheet\Shared\Date
                     ::excelToDateTimeObject((float) $value)->format('Y-m-d');
-            } catch (\Throwable) {}
+            } catch (\Throwable) {
+            }
         }
+
         $value = trim((string) $value);
         foreach (['d/m/Y', 'd-m-Y', 'Y-m-d', 'd/m/y', 'd-m-y'] as $fmt) {
             $dt = \DateTime::createFromFormat($fmt, $value);
-            if ($dt && $dt->format($fmt) === $value) return $dt->format('Y-m-d');
+            if ($dt && $dt->format($fmt) === $value) {
+                return $dt->format('Y-m-d');
+            }
         }
+
         return null;
     }
 
     private function parseString(mixed $value): ?string
     {
-        if ($value === null) return null;
+        if ($value === null)
+            return null;
         $str = trim((string) $value);
-        if ($str === '') return null;
-        
-        // Handle "Rp." or "Rp. " variations before capitalization
+        if ($str === '')
+            return null;
+
         $str = str_ireplace(['rp. ', 'rp.'], 'rp ', $str);
-        
-        // Capitalize each word correctly, e.g. "sma / sederajat" -> "SMA / Sederajat", "d4 / s1" -> "D4 / S1"
         $str = ucwords(strtolower($str));
-        
-        // Fix some common acronyms
+
         $str = str_replace(
             ['Sd ', 'Smp ', 'Sma ', 'D1 ', 'D2 ', 'D3 ', 'D4 ', 'S1 ', 'S2 ', 'S3 ', 'Rp '],
             ['SD ', 'SMP ', 'SMA ', 'D1 ', 'D2 ', 'D3 ', 'D4 ', 'S1 ', 'S2 ', 'S3 ', 'Rp '],
             $str . ' '
         );
-        
+
         return trim($str);
     }
 
-    public function rules(): array { return []; }  // validasi ditangani di model()
-    public function chunkSize(): int { return 200; }
-    public function getStats(): array { return $this->stats; }
+    // ── Interface methods ──────────────────────────────────────────────────
+
+    public function rules(): array
+    {
+        return [];
+    }
+    public function chunkSize(): int
+    {
+        return 200;
+    }
+    public function getStats(): array
+    {
+        return $this->stats;
+    }
 }
