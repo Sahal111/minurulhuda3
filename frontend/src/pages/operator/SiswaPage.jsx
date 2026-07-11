@@ -96,6 +96,7 @@ const OperatorSiswaPage = () => {
     const [deletingId, setDeletingId] = useState(null);
     const [toast, setToast]           = useState(null);
     const [openExport, setOpenExport] = useState(false);
+    const [exportingMode, setExportingMode] = useState(null);
     const exportRef                   = useRef(null);
 
     // ── Fetch ────────────────────────────────────────────────────────────────
@@ -171,14 +172,31 @@ const OperatorSiswaPage = () => {
         fetchData(1);
     };
 
-    // Export URL builder
-    const buildExportUrl = (mode) => {
-        const base = (import.meta.env.VITE_API_URL || 'http://localhost:8000/api').replace('/api', '');
-        const params = new URLSearchParams({ mode });
-        if (q)                          params.set('q', q);
-        if (filterKelas !== 'all')      params.set('kelas', filterKelas);
-        if (filterStatus !== 'all')     params.set('status', filterStatus);
-        return `${base}/operator/data-siswa/export?${params.toString()}`;
+    // Export handler
+    const handleExport = async (mode) => {
+        setExportingMode(mode);
+        try {
+            const params = { mode };
+            if (q)                          params.q      = q;
+            if (filterKelas !== 'all')      params.kelas  = filterKelas;
+            if (filterStatus !== 'all')     params.status = filterStatus;
+
+            const res = await siswaAPI.exportData(params);
+            const blob = new Blob([res.data], { type: res.headers['content-type'] });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = mode === 'pdf' ? 'Kartu_Identitas_Siswa.pdf' : 'Data_Siswa.zip';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            setOpenExport(false);
+        } catch (err) {
+            alert(err.response?.data?.message || 'Gagal export data');
+        } finally {
+            setExportingMode(null);
+        }
     };
 
     // ── Render ───────────────────────────────────────────────────────────────
@@ -239,39 +257,47 @@ const OperatorSiswaPage = () => {
                                     <p className="text-[10px] text-slate-400 mt-0.5">Filter aktif akan ikut diterapkan</p>
                                 </div>
 
-                                <a
-                                    href={buildExportUrl('zip')}
-                                    onClick={() => setOpenExport(false)}
-                                    className="flex items-start gap-3 px-4 py-4 hover:bg-emerald-50 dark:hover:bg-emerald-500/5 transition-colors group"
+                                <button
+                                    onClick={() => handleExport('zip')}
+                                    disabled={exportingMode === 'zip'}
+                                    className="w-full flex items-start gap-3 px-4 py-4 hover:bg-emerald-50 dark:hover:bg-emerald-500/5 transition-colors group disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     <div className="w-9 h-9 rounded-xl bg-emerald-100 dark:bg-emerald-500/10 flex items-center justify-center shrink-0">
-                                        <Archive className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                                        {exportingMode === 'zip' ? (
+                                            <Loader2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 animate-spin" />
+                                        ) : (
+                                            <Archive className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                                        )}
                                     </div>
-                                    <div>
+                                    <div className="text-left">
                                         <p className="text-xs font-black text-slate-800 dark:text-white">Export ZIP</p>
                                         <p className="text-[10px] text-slate-400 mt-0.5 leading-relaxed">
                                             File <code className="bg-slate-100 dark:bg-slate-800 px-1 rounded">.zip</code> berisi Excel + folder <code className="bg-slate-100 dark:bg-slate-800 px-1 rounded">foto/</code> per siswa.
                                         </p>
                                     </div>
-                                </a>
+                                </button>
 
                                 <div className="mx-4 border-t border-slate-100 dark:border-slate-800" />
 
-                                <a
-                                    href={buildExportUrl('pdf')}
-                                    onClick={() => setOpenExport(false)}
-                                    className="flex items-start gap-3 px-4 py-4 hover:bg-purple-50 dark:hover:bg-purple-500/5 transition-colors group"
+                                <button
+                                    onClick={() => handleExport('pdf')}
+                                    disabled={exportingMode === 'pdf'}
+                                    className="w-full flex items-start gap-3 px-4 py-4 hover:bg-purple-50 dark:hover:bg-purple-500/5 transition-colors group disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     <div className="w-9 h-9 rounded-xl bg-purple-100 dark:bg-purple-500/10 flex items-center justify-center shrink-0">
-                                        <FileText className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                                        {exportingMode === 'pdf' ? (
+                                            <Loader2 className="w-4 h-4 text-purple-600 dark:text-purple-400 animate-spin" />
+                                        ) : (
+                                            <FileText className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                                        )}
                                     </div>
-                                    <div>
+                                    <div className="text-left">
                                         <p className="text-xs font-black text-slate-800 dark:text-white">Export PDF Kartu Identitas</p>
                                         <p className="text-[10px] text-slate-400 mt-0.5 leading-relaxed">
                                             PDF berisi kartu identitas lengkap semua siswa. 2 kartu per halaman A4.
                                         </p>
                                     </div>
-                                </a>
+                                </button>
 
                                 <div className="px-4 py-3 bg-slate-50/50 dark:bg-slate-800/30 border-t border-slate-100 dark:border-slate-800">
                                     <p className="text-[10px] text-slate-400 flex items-center gap-1.5">

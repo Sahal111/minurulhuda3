@@ -49,13 +49,14 @@ const ModalDetailSiswa = ({ isOpen, onClose, siswa, onSuccess }) => {
     const [editPrestasiId, setEditPrestasiId] = useState(null);
 
     const [beasiswaForm, setBeasiswaForm] = useState({ nama: '', jenis: '', nominal: '', tahun_mulai: '', tahun_selesai: '', keterangan: '' });
+    const [editBeasiswaId, setEditBeasiswaId] = useState(null);
 
     const [berkasJenis, setBerkasJenis] = useState('');
     const [berkasFile, setBerkasFile] = useState(null);
 
     const [submitting, setSubmitting] = useState(false);
 
-    const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:8000/api').replace('/api', '');
+    const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
     useEffect(() => {
         if (isOpen && siswa?.id) {
@@ -165,12 +166,25 @@ const ModalDetailSiswa = ({ isOpen, onClose, siswa, onSuccess }) => {
         setEditPrestasiId(p.id);
     };
 
+    const handleEditBeasiswa = (b) => {
+        setBeasiswaForm({
+            nama: b.nama, jenis: b.jenis || '', nominal: b.nominal || '',
+            tahun_mulai: b.tahun_mulai || '', tahun_selesai: b.tahun_selesai || '', keterangan: b.keterangan || ''
+        });
+        setEditBeasiswaId(b.id);
+    };
+
     const handleSubmitBeasiswa = async (e) => {
         e.preventDefault();
         setSubmitting(true);
         try {
-            await siswaAPI.storeBeasiswa(siswa.id, beasiswaForm);
+            if (editBeasiswaId) {
+                await siswaAPI.updateBeasiswa(siswa.id, editBeasiswaId, beasiswaForm);
+            } else {
+                await siswaAPI.storeBeasiswa(siswa.id, beasiswaForm);
+            }
             setBeasiswaForm({ nama: '', jenis: '', nominal: '', tahun_mulai: '', tahun_selesai: '', keterangan: '' });
+            setEditBeasiswaId(null);
             onSuccess?.('Beasiswa berhasil disimpan');
             loadBeasiswa();
         } catch (err) {
@@ -612,10 +626,16 @@ const ModalDetailSiswa = ({ isOpen, onClose, siswa, onSuccess }) => {
                                     <input value={beasiswaForm.keterangan} onChange={e => setBeasiswaForm({ ...beasiswaForm, keterangan: e.target.value })} placeholder="Keterangan tambahan"
                                         className="w-full px-4 py-3 bg-white border border-emerald-200 rounded-2xl focus:border-emerald-500 outline-none text-sm" />
                                 </div>
-                                <div className="md:col-span-3 flex justify-end">
+                                <div className="md:col-span-3 flex justify-end gap-2">
+                                    {editBeasiswaId && (
+                                        <button type="button" onClick={() => { setEditBeasiswaId(null); setBeasiswaForm({ nama: '', jenis: '', nominal: '', tahun_mulai: '', tahun_selesai: '', keterangan: '' }); }}
+                                            className="px-6 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-2xl text-[11px] font-bold uppercase tracking-widest transition-all">
+                                            Batal Edit
+                                        </button>
+                                    )}
                                     <button type="submit" disabled={submitting}
                                         className="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl text-[11px] font-bold uppercase tracking-widest transition-all flex items-center gap-2 disabled:opacity-50">
-                                        <Plus className="w-4 h-4" /> Tambah Beasiswa
+                                        <Plus className="w-4 h-4" /> {editBeasiswaId ? 'Simpan' : 'Tambah Beasiswa'}
                                     </button>
                                 </div>
                             </form>
@@ -645,6 +665,9 @@ const ModalDetailSiswa = ({ isOpen, onClose, siswa, onSuccess }) => {
                                                 </td>
                                                 <td className="px-5 py-4 text-sm font-bold text-emerald-600">{b.nominal ? `Rp ${Number(b.nominal).toLocaleString('id-ID')}` : '-'}</td>
                                                 <td className="px-5 py-4 text-right">
+                                                    <button onClick={() => { setEditBeasiswaId(b.id); handleEditBeasiswa(b); }} className="p-2 hover:bg-emerald-50 text-slate-400 hover:text-emerald-500 rounded-lg transition-colors" title="Edit">
+                                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                                                    </button>
                                                     <button onClick={() => handleDeleteBeasiswa(b.id)} className="p-2 hover:bg-rose-50 text-slate-400 hover:text-rose-500 rounded-lg transition-colors">
                                                         <Trash2 className="w-4 h-4" />
                                                     </button>
@@ -825,7 +848,7 @@ const ModalDetailSiswa = ({ isOpen, onClose, siswa, onSuccess }) => {
 
                             {/* Tab Content */}
                             <div className="flex-1 overflow-y-auto p-6">
-                                <TabContent />
+                                {TabContent()}
                             </div>
                         </div>
                     </div>

@@ -39,32 +39,63 @@
 
 ## ✅ COMPLETED FEATURES — DO NOT TOUCH
 
-> Update section ini setiap kali fitur selesai dikerjakan
+> Update section ini setiap kali user bilang "done" / "selesai" / "fix".
+> **AI wajib baca section ini dulu sebelum nulis satu baris pun.**
+> File di sini = SUDAH SELESAI = JANGAN DIMODIFIKASI kecuali user minta eksplisit fix bug.
+> **Kalau user belum bilang done = JANGAN dipindahkan ke sini, masih IN PROGRESS.**
 
-- [x] Recycle Bin untuk Semester (Operator) — backend: controller + routes; frontend: API, ModalTrashSemester, SemesterPage
-- [x] Perbaikan logika aktif Tahun Ajaran dan Semester (Operator) — semester hanya bisa aktif di TA yang sedang aktif
-- [x] Fix bug dropdown Tahun Ajaran tidak muncul di Step 4 form tambah/edit siswa (Operator) — mismatch key `tahun_ajarans` → `tahunAjarans` di `SiswaPage.jsx:112`
-- [x] Tambah/Edit Siswa (Operator) — form multi-step 5 tahap: Identitas, Orang Tua, Periodik, Akademik, Konfirmasi; upload foto; data Dapodik lengkap
-- [x] Detail Data Siswa (Operator) — modal gabungan 7 tab: Identitas, Ortu, Periodik, Akademik+Riwayat, Prestasi, Beasiswa, Berkas; panel kiri kartu identitas; CRUD prestasi/beasiswa/berkas; menggabungkan fitur Kartu Identitas + Detail
-- [x] Download Template Excel — perbaikan: ganti `<a href>` langsung (tanpa token) → download via axios blob (Bearer token otomatis)
-- [x] Import Siswa dari Excel (Operator) — perbaikan: ganti raw `fetch` → `siswaAPI.import` pakai axios instance (auth, CSRF, credentials); fix duplicate heading slug di template & mapping import; fix `firstOrCreate` → `updateOrCreate` agar re-import update field Orang Tua
-- [x] Recycle Bin untuk Siswa (Operator) — backend: controller + routes (destroy, trash, restore, forceDelete); pagination 10 per halaman; cascade soft-delete ke riwayat_kelas, nilais, absensis, rapors, catatan_walis, perkembangans
+### Operator
+- [x] Recycle Bin Semester — backend: controller + routes; frontend: API, ModalTrashSemester, SemesterPage
+- [x] Perbaikan logika aktif Tahun Ajaran dan Semester — semester hanya bisa aktif di TA yang sedang aktif
+- [x] Fix bug dropdown Tahun Ajaran tidak muncul di Step 4 form tambah/edit siswa — mismatch key `tahun_ajarans` → `tahunAjarans` di `SiswaPage.jsx:112`
+- [x] Tambah/Edit Siswa — form multi-step 5 tahap: Identitas, Orang Tua, Periodik, Akademik, Konfirmasi; upload foto; data Dapodik lengkap
+- [x] Detail Data Siswa — modal gabungan 7 tab: Identitas, Ortu, Periodik, Akademik+Riwayat, Prestasi, Beasiswa, Berkas; panel kiri kartu identitas; CRUD prestasi/beasiswa/berkas
+- [x] Download Template Excel — ganti `<a href>` langsung (tanpa token) → download via axios blob (Bearer token otomatis)
+- [x] Import Siswa dari Excel — ganti raw `fetch` → `siswaAPI.import` pakai axios instance (auth, CSRF, credentials); fix duplicate heading slug; fix `firstOrCreate` → `updateOrCreate` agar re-import update field Orang Tua
+- [x] Recycle Bin Siswa — backend: controller + routes (destroy, trash, restore, forceDelete); pagination 10/halaman; cascade soft-delete ke riwayat_kelas, nilais, absensis, rapors, catatan_walis, perkembangans
+- [x] Export Data Siswa (ZIP & PDF) — fix bug URL salah `/operator/data-siswa/export` (tanpa `/api` prefix) + token tidak terkirim; ganti `<a href>` → axios blob download via `siswaAPI.exportData`; tambah loading state; files: `operator.js`, `SiswaPage.jsx`
+
+### Guru
+- [ ] *(belum ada)*
+
+### Wali Kelas
+- [ ] *(belum ada)*
+
+### Bendahara
+- [ ] *(belum ada)*
+
+### Kepsek
+- [ ] *(belum ada)*
+
+### Admin PPDB
+- [ ] *(belum ada)*
+
+### Ortu
+- [ ] *(belum ada)*
+
+### Public
+- [ ] *(belum ada)*
 
 ### Komponen yang SUDAH STABIL — jangan diubah kecuali ada bug:
 - `frontend/src/context/AuthContext.jsx` — auth context, jangan direfactor
 - `frontend/src/hooks/useAuth.js` — custom hook auth
 - `frontend/src/api/axios.js` — axios instance & interceptors
-- `frontend/src/components/operator/ModalTrashSemester.jsx` — recycle bin semester, baru
+- `frontend/src/pages/operator/TahunAjaranPage.jsx` — halaman tahun ajaran, CRUD + recycle bin
+- `frontend/src/pages/operator/SemesterPage.jsx` — halaman semester, CRUD + recycle bin
+- `frontend/src/components/operator/ModalTrashSemester.jsx` — recycle bin semester
+- `frontend/src/components/operator/ModalTrashTahunAjaran.jsx` — recycle bin tahun ajaran
 - `frontend/dist/` — build output, JANGAN diedit manual
 - `backend/ai_tools/venv/` — virtual environment Python, JANGAN disentuh
 
 ---
 
-## 🚧 IN PROGRESS
-
-> Update section ini dengan fitur yang sedang dikerjakan sekarang
-
-- [ ] *(default)* — belum ada fitur yang dikerjakan
+## 🚧 IN PROGRESS — Sedang Dikerjakan
+ 
+> Update section ini setiap kali mulai mengerjakan fitur baru.
+> Hanya boleh ada 1 fitur aktif di sini per sesi.
+> **Jangan pindahkan ke COMPLETED sampai user secara eksplisit bilang "done" / "selesai" / "fix".**
+ 
+- [ ] *(kosong — belum ada sesi aktif)*
 
 ---
 
@@ -152,13 +183,50 @@ python run_index.py
 
 ---
 
-## ⚠️ ATURAN UNTUK AI
+## ⚠️ ATURAN AI — WAJIB DIIKUTI
+ 
+### Sebelum Mulai
 
-1. **Fokus pada satu fitur per sesi** — jangan ubah file di luar scope yang diminta
-2. **Cek section COMPLETED dulu** sebelum mengubah apapun
-3. **Jangan refactor** kode yang tidak diminta direfactor
-4. **Jangan ubah** struktur routing (`App.jsx`) tanpa konfirmasi
-5. **Jangan ubah** `AuthContext.jsx` atau `useAuth.js` kecuali diminta eksplisit
-6. **Jangan install** dependency baru tanpa konfirmasi
-7. Kalau ragu apakah boleh ubah sesuatu — **tanya dulu**
-8. **Update section IN PROGRESS dan COMPLETED** setelah setiap fitur selesai
+1. **Baca section COMPLETED dulu** — semua file di sana tidak boleh diubah tanpa izin eksplisit user.
+2. **Tulis fitur ke IN PROGRESS dulu** sebelum mulai mengerjakan apapun.
+3. **Konfirmasi scope** — pastikan sudah paham apa yang diminta sebelum nulis kode.
+
+### Selama Mengerjakan
+
+4. **Satu sesi = satu fitur** — jangan ubah file di luar scope yang sedang dikerjakan.
+5. **Jangan refactor** kode yang tidak diminta direfactor, meskipun kelihatan bisa diperbaiki.
+6. **Jangan ubah** `router/index.jsx`, `AuthContext.jsx`, `useAuth.js`, atau `axios.js` tanpa konfirmasi eksplisit.
+7. **Jangan install** dependency baru tanpa konfirmasi user.
+8. **Kalau ragu apakah boleh ubah sesuatu — tanya dulu, jangan asumsi boleh.**
+
+### Soal Status Fitur
+
+9. **Fitur HANYA boleh dipindahkan ke COMPLETED kalau user sudah bilang secara eksplisit**: "done", "selesai", "udah beres", "fix", atau kata setara lainnya.
+10. **Selama user belum bilang done = fitur masih IN PROGRESS** — meskipun kode sudah ditulis, meskipun kelihatan sudah berjalan.
+11. **Jangan auto-complete** — jangan anggap fitur selesai hanya karena AI sudah selesai menulis kodenya.
+12. **Jangan pindahkan** fitur dari IN PROGRESS ke COMPLETED atas inisiatif sendiri.
+
+### Setelah Selesai (hanya jika user bilang done)
+
+13. Centang `[x]` di IN PROGRESS, lalu pindahkan ke section COMPLETED role yang sesuai.
+14. Kosongkan IN PROGRESS (isi kembali jadi `- [ ] *(kosong)*`).
+15. Hapus item dari list BELUM DIKERJAKAN kalau sudah selesai.
+
+### 🧠 Aturan Eksekusi & Kualitas Kode (Power Rules)
+
+16. **Search Before Write:** Wajib gunakan AI tools (`code_search`, `symbol_search`, dll) untuk memeriksa model, kolom database, atau komponen eksis sebelum menulis kode baru. Dilarang menebak nama variabel/kolom/fungsi!
+17. **Plan Before Code:** Untuk fitur baru/kompleks, berikan rancangan alur (flow & struktur API/State) terlebih dahulu dan tunggu persetujuan user sebelum generate kode.
+18. **Re-use Over Re-create:** Cek komponen atau helper yang sudah ada sebelum membuat baru. Hindari duplikasi kode.
+19. **Mandatory Auth & Role Check:** Setiap endpoint Laravel baru WAJIB dilengkapi middleware/Policy/Gate yang sesuai dengan 8 role yang ada. Jangan pernah membuat endpoint tanpa proteksi role.
+20. **Root Cause Analysis:** Saat fix bug, jelaskan AKAR MASALAH-nya terlebih dahulu sebelum memberikan solusi. Dilarang memberi solusi tambal sulam (band-aid fix).
+21. **Targeted Output:** Saat mengedit file panjang, berikan HANYA bagian kode yang diubah (gunakan komentar `// ... existing code ...`). Jangan mencetak ulang seluruh file jika tidak perlu.
+22. **No Over-Engineering:** Fokus 100% pada requirement. Jangan menambahkan fitur tambahan, styling berlebihan, atau refactor kode lain yang tidak diminta.
+
+### 🛡️ Aturan Keamanan Database & Migrasi (DB Safety First)
+
+23. **DILARANG KERAS `migrate:fresh` / `migrate:reset`:** Jangan pernah menyarankan atau menjalankan perintah migrasi yang destruktif (seperti `php artisan migrate:fresh`, `migrate:refresh`, atau `db:seed` ulang total) tanpa izin eksplisit dari user. Data yang ada di database adalah SUCI dan tidak boleh hilang/ke-reset!
+24. **Dilarang Edit File Migrasi Lama:** Jika perlu mengubah struktur tabel (tambah kolom, ubah tipe data, hapus kolom), **WAJIB buat file migrasi baru** (contoh: `add_status_to_siswas_table`). Jangan pernah mengedit file migrasi yang sudah pernah di-run sebelumnya agar tidak terjadi bentrok skema atau error di environment lain.
+25. **Cek Skema Sebelum Query (Anti-Error SQL):** Sebelum menulis query Eloquent atau Raw SQL, **wajib periksa nama tabel dan kolom yang sebenarnya ada** (gunakan tool `code_search` untuk melihat model/migrasi). Jangan berasumsi! Ini wajib dilakukan untuk mencegah error `SQLSTATE[42S22]: Column not found` atau `Table '...' doesn't exist`.
+26. **Jaga Integritas Relasi (Foreign Key & Cascade):** Database sekolah memiliki relasi yang dalam (Siswa → Kelas → Nilai / Absensi / Keuangan). Saat membuat tabel baru atau fitur hapus, pastikan *Foreign Key constraint* dan logika *Cascade* (atau Soft Deletes) dipikirkan matang-matang agar tidak ada *orphan data* (data yatim/tergantung) atau error *constraint violation* saat menghapus data.
+27. **Aman Saat Seeding & Import:** Saat membuat Seeder atau fitur import data (Excel/CSV), hindari method `create()` biasa yang bisa memicu error *duplicate entry / unique constraint*. Gunakan `updateOrCreate()` atau `firstOrCreate()` dengan parameter *unique key* yang tepat agar data aman jika dijalankan berulang kali.
+28. **Konsistensi Penamaan (Naming Convention):** Wajib ikuti standar Laravel untuk penamaan tabel (snake_case plural: `tahun_ajarans`, `riwayat_kelas`) dan foreign key (`siswa_id`, `wali_kelas_id`). Jangan campur aduk dengan camelCase di tingkat database!
