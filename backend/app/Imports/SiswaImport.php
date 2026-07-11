@@ -250,6 +250,11 @@ class SiswaImport implements
             'pekerjaan_ayah' => trim($row['pekerjaan_utama_ayah'] ?? '') ?: null,
             'penghasilan_ayah' => $this->parseString($row['penghasilan_perbulan_ayah'] ?? ''),
             'no_hp' => trim($row['no_hp_ayah'] ?? '') ?: null,
+            // FIX: field ada di template tapi tidak dimap
+            'status_ayah' => trim($row['status'] ?? '') ?: null,
+            'kewarganegaraan_ayah' => trim($row['kewarganegaraan'] ?? '') ?: null,
+            'tempat_lahir_ayah' => trim($row['tempat_lahir_ayah'] ?? '') ?: null,
+            'no_hp_ayah' => trim($row['no_hp_ayah'] ?? '') ?: null,
             // Alamat diambil dari blok "ALAMAT AYAH KANDUNG"
             'alamat' => trim($row['alamat'] ?? '') ?: null,
             'nama_ibu' => null,
@@ -277,6 +282,12 @@ class SiswaImport implements
             'pekerjaan_ibu' => trim($row['pekerjaan_utama_ibu'] ?? '') ?: null,
             'penghasilan_ibu' => $this->parseString($row['penghasilan_perbulan_ibu'] ?? ''),
             'no_hp' => trim($row['no_hp_ibu'] ?? '') ?: null,
+            // FIX: field ada di template tapi tidak dimap
+            // heading duplikat → suffix _2 otomatis dari WithHeadingRow
+            'status_ibu' => trim($row['status_2'] ?? '') ?: null,
+            'kewarganegaraan_ibu' => trim($row['kewarganegaraan_2'] ?? '') ?: null,
+            'tempat_lahir_ibu' => trim($row['tempat_lahir_ibu'] ?? '') ?: null,
+            'no_hp_ibu' => trim($row['no_hp_ibu'] ?? '') ?: null,
             // Alamat diambil dari blok "ALAMAT IBU KANDUNG"
             'alamat' => trim($row['alamat_2'] ?? '') ?: null,
             'nama_ayah' => null,
@@ -305,6 +316,11 @@ class SiswaImport implements
             'penghasilan_wali' => $this->parseString($row['penghasilan_perbulan_wali'] ?? ''),
             'no_hp_wali' => trim($row['no_hp_wali'] ?? '') ?: null,
             'no_hp' => trim($row['no_hp_wali'] ?? '') ?: null,
+            // FIX: field ada di template tapi tidak dimap
+            // heading duplikat → suffix _3 / kewarga_negaraan_2 (beda ejaan di template)
+            'status_wali' => trim($row['status_3'] ?? '') ?: null,
+            'kewarganegaraan_wali' => trim($row['kewarga_negaraan_2'] ?? '') ?: null,
+            'tempat_lahir_wali' => trim($row['tempat_lahir_wali'] ?? '') ?: null,
             // Alamat diambil dari blok "ALAMAT WALI"
             'alamat_wali' => trim($row['alamat_3'] ?? '') ?: null,
             'alamat' => trim($row['alamat_3'] ?? '') ?: null,
