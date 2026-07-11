@@ -19,109 +19,109 @@ use Maatwebsite\Excel\Concerns\SkipsFailures;
 /**
  * Import siswa dari template yang kolomnya sesuai DATA_SISWA.xlsx (EMIS MI Nurul Huda 3).
  *
- * Mapping heading (WithHeadingRow otomatis lowercase + snake_case spasi→underscore):
+ * Mapping heading (WithHeadingRow lowercase + snake_case via Str::slug).
  *
- * Excel Header              → key di $row[]
+ * Semua heading di template sudah UNIK (tidak ada duplikat), jadi setiap key
+ * langsung bisa diakses tanpa suffix / grouping.
+ *
+ * Excel Header                    → key di $row[]
  * ─────────────────────────────────────────────────────────────────────────
- * NO                        → no
- * NAMA LENGKAP              → nama_lengkap
- * NISN                      → nisn
- * NIS LOKAL                 → nis_lokal
- * KEWARGA NEGARAAN          → kewarga_negaraan
- * NIK SISWA                 → nik_siswa
- * TEMPAT LAHIR              → tempat_lahir
- * TANGGAL LAHIR             → tanggal_lahir
- * JENIS KELAMIN             → jenis_kelamin
- * KELAS                     → kelas
- * KELAS PARAREL             → kelas_pararel
- * NO ABSEN                  → no_absen
- * JUMLAH SAUDARA            → jumlah_saudara
- * ANAK KE                   → anak_ke
- * CITA-CITA                 → cita_cita  (tanda - diganti _ oleh Laravel Excel)
- * AGAMA                     → agama
- * NO. HP SISWA              → no_hp_siswa
- * ALAMAT SISWA              → alamat_siswa
- * HOBI                      → hobi
- * YANG MEMBIAYAI SEKOLAH    → yang_membiayai_sekolah
- * Asal Sekolah              → asal_sekolah
- * IMUNISASI                 → imunisasi
- * NOMOR KIP                 → nomor_kip
- * NOMOR KK                  → nomor_kk
- * NAMA KEPALA KELUARGA      → nama_kepala_keluarga
+ * NO                              → no
+ * NAMA LENGKAP                    → nama_lengkap
+ * NISN                            → nisn
+ * NIS LOKAL                       → nis_lokal
+ * KEWARGA NEGARAAN                → kewarga_negaraan
+ * NIK SISWA                       → nik_siswa
+ * TEMPAT LAHIR                    → tempat_lahir
+ * TANGGAL LAHIR                   → tanggal_lahir
+ * JENIS KELAMIN                   → jenis_kelamin
+ * KELAS                           → kelas
+ * KELAS PARAREL                   → kelas_pararel
+ * NO ABSEN                        → no_absen
+ * JUMLAH SAUDARA                  → jumlah_saudara
+ * ANAK KE                         → anak_ke
+ * CITA-CITA                       → cita_cita
+ * AGAMA                           → agama
+ * NO. HP SISWA                    → no_hp_siswa
+ * ALAMAT SISWA                    → alamat_siswa
+ * HOBI                            → hobi
+ * YANG MEMBIAYAI SEKOLAH          → yang_membiayai_sekolah
+ * Asal Sekolah                    → asal_sekolah
+ * IMUNISASI                       → imunisasi
+ * NOMOR KIP                       → nomor_kip
+ * NOMOR KK                        → nomor_kk
+ * NAMA KEPALA KELUARGA            → nama_kepala_keluarga
  *
- * NAMA AYAH                 → nama_ayah
- * STATUS                    → status        (ayah – kolom ke-27)
- * KEWARGANEGARAAN           → kewarganegaraan (ayah – kolom ke-28)
- * NIK AYAH                  → nik_ayah
- * TEMPAT LAHIR (AYAH)       → tempat_lahir_ayah
- * TANGGAL LAHIR (AYAH)      → tanggal_lahir_ayah
- * PENDIDIKAN TERAKHIR (AYAH)→ pendidikan_terakhir_ayah
- * PEKERJAAN UTAMA (AYAH)    → pekerjaan_utama_ayah
- * PENGHASILAN PERBULAN (AYAH)→ penghasilan_perbulan_ayah
- * NO. HP AYAH               → no_hp_ayah
+ * NAMA AYAH                       → nama_ayah
+ * STATUS AYAH                     → status_ayah
+ * KEWARGANEGARAAN AYAH            → kewarganegaraan_ayah
+ * NIK AYAH                        → nik_ayah
+ * TEMPAT LAHIR (AYAH)             → tempat_lahir_ayah
+ * TANGGAL LAHIR (AYAH)            → tanggal_lahir_ayah
+ * PENDIDIKAN TERAKHIR (AYAH)      → pendidikan_terakhir_ayah
+ * PEKERJAAN UTAMA (AYAH)          → pekerjaan_utama_ayah
+ * PENGHASILAN PERBULAN (AYAH)     → penghasilan_perbulan_ayah
+ * NO. HP AYAH                     → no_hp_ayah
  *
- * NAMA IBU                  → nama_ibu
- * STATUS                    → status_2      (ibu – kolom ke-37, duplikat heading)
- * KEWARGANEGARAAN           → kewarganegaraan_2
- * NIK IBU                   → nik_ibu
- * TEMPAT LAHIR (IBU)        → tempat_lahir_ibu
- * TANGGAL LAHIR (IBU)       → tanggal_lahir_ibu
- * PENDIDIKAN TERAKHIR (IBU) → pendidikan_terakhir_ibu
- * PEKERJAAN UTAMA (IBU)     → pekerjaan_utama_ibu
- * PENGHASILAN PERBULAN (IBU)→ penghasilan_perbulan_ibu
- * NO. HP IBU                → no_hp_ibu
+ * NAMA IBU                        → nama_ibu
+ * STATUS IBU                      → status_ibu
+ * KEWARGANEGARAAN IBU             → kewarganegaraan_ibu
+ * NIK IBU                         → nik_ibu
+ * TEMPAT LAHIR (IBU)              → tempat_lahir_ibu
+ * TANGGAL LAHIR (IBU)             → tanggal_lahir_ibu
+ * PENDIDIKAN TERAKHIR (IBU)       → pendidikan_terakhir_ibu
+ * PEKERJAAN UTAMA (IBU)           → pekerjaan_utama_ibu
+ * PENGHASILAN PERBULAN (IBU)      → penghasilan_perbulan_ibu
+ * NO. HP IBU                      → no_hp_ibu
  *
- * NAMA WALI                 → nama_wali
- * STATUS                    → status_3
- * KEWARGA NEGARAAN          → kewarga_negaraan_2
- * NIK (WALI)                → nik_wali
- * TEMPAT LAHIR (WALI)       → tempat_lahir_wali
- * TANGGAL LAHIR (WALI)      → tanggal_lahir_wali
- * PENDIDIKAN TERAKHIR (WALI)→ pendidikan_terakhir_wali
- * PEKERJAAN UTAMA (WALI)    → pekerjaan_utama_wali
- * PENGHASILAN PERBULAN (WALI)→penghasilan_perbulan_wali
- * NO. HP WALI               → no_hp_wali
+ * NAMA WALI                       → nama_wali
+ * STATUS WALI                     → status_wali
+ * KEWARGANEGARAAN WALI            → kewarganegaraan_wali
+ * NIK (WALI)                      → nik_wali
+ * TEMPAT LAHIR (WALI)             → tempat_lahir_wali
+ * TANGGAL LAHIR (WALI)            → tanggal_lahir_wali
+ * PENDIDIKAN TERAKHIR (WALI)      → pendidikan_terakhir_wali
+ * PEKERJAAN UTAMA (WALI)          → pekerjaan_utama_wali
+ * PENGHASILAN PERBULAN (WALI)     → penghasilan_perbulan_wali
+ * NO. HP WALI                     → no_hp_wali
  *
- * AYAH KANDUNG              → ayah_kandung
- * STATUS KEPEMILIKAN        → status_kepemilikan
- * PROVINSI                  → provinsi
- * KAB                       → kab
- * KEC                       → kec
- * KELURAHAN / DESA          → kelurahan_desa
- * RT                        → rt
- * RW                        → rw
- * ALAMAT                    → alamat
- * KODE POS                  → kode_pos
+ * AYAH KANDUNG                    → ayah_kandung
+ * STATUS KEPEMILIKAN AYAH         → status_kepemilikan_ayah
+ * PROVINSI AYAH                   → provinsi_ayah
+ * KAB AYAH                        → kab_ayah
+ * KEC AYAH                        → kec_ayah
+ * KELURAHAN AYAH                  → kelurahan_ayah
+ * RT AYAH                         → rt_ayah
+ * RW AYAH                         → rw_ayah
+ * ALAMAT AYAH                     → alamat_ayah
+ * KODE POS AYAH                   → kode_pos_ayah
  *
- * IBU KANDUNG               → ibu_kandung
- * STATUS KEPEMILIKAN        → status_kepemilikan_2
- * PROVINSI                  → provinsi_2
- * KAB                       → kab_2
- * KEC                       → kec_2
- * KELURAHAN / DESA          → kelurahan_desa_2
- * RT                        → rt_2
- * RW                        → rw_2
- * ALAMAT                    → alamat_2
- * KODE POS                  → kode_pos_2
+ * IBU KANDUNG                     → ibu_kandung
+ * STATUS KEPEMILIKAN IBU          → status_kepemilikan_ibu
+ * PROVINSI IBU                    → provinsi_ibu
+ * KAB IBU                         → kab_ibu
+ * KEC IBU                         → kec_ibu
+ * KELURAHAN IBU                   → kelurahan_ibu
+ * RT IBU                          → rt_ibu
+ * RW IBU                          → rw_ibu
+ * ALAMAT IBU                      → alamat_ibu
+ * KODE POS IBU                    → kode_pos_ibu
  *
- * WALI (alamat)             → wali
- * STATUS KEPEMILIKAN        → status_kepemilikan_3
- * PROVINSI                  → provinsi_3
- * KAB                       → kab_3
- * KEC                       → kec_3
- * KELURAHAN / DESA          → kelurahan_desa_3
- * RT                        → rt_3
- * RW                        → rw_3
- * ALAMAT                    → alamat_3
- * KODE POS                  → kode_pos_3
+ * WALI (alamat)                   → wali
+ * STATUS KEPEMILIKAN WALI         → status_kepemilikan_wali
+ * PROVINSI WALI                   → provinsi_wali
+ * KAB WALI                        → kab_wali
+ * KEC WALI                        → kec_wali
+ * KELURAHAN WALI                  → kelurahan_wali
+ * RT WALI                         → rt_wali
+ * RW WALI                         → rw_wali
+ * ALAMAT WALI                     → alamat_wali
+ * KODE POS WALI                   → kode_pos_wali
  *
- * URUT                      → urut
- * NSM ASAL                  → nsm_asal
- * NPSN ASAL                 → npsn_asal
- * NAMA MADRASAH ASAL        → nama_madrasah_asal
- *
- * CATATAN: Heading duplikat (STATUS, KEWARGANEGARAAN, dst.) secara otomatis
- * di-suffix _2, _3, … oleh Maatwebsite\Excel WithHeadingRow.
+ * URUT                            → urut
+ * NSM ASAL                        → nsm_asal
+ * NPSN ASAL                       → npsn_asal
+ * NAMA MADRASAH ASAL              → nama_madrasah_asal
  */
 class SiswaImport implements
     ToModel,
@@ -196,11 +196,12 @@ class SiswaImport implements
             'tanggal_masuk' => null,
             // Domisili siswa
             'alamat_siswa' => trim($row['alamat_siswa'] ?? '') ?: null,
-            'rt' => trim($row['rt'] ?? '') ?: null,
-            'rw' => trim($row['rw'] ?? '') ?: null,
-            'kelurahan' => trim($row['kelurahan_desa'] ?? '') ?: null,
-            'kecamatan' => trim($row['kec'] ?? '') ?: null,
-            'kode_pos' => trim($row['kode_pos'] ?? '') ?: null,
+            'kelas_pararel' => $kelasPararel ?: null,
+            'rt' => trim($row['rt_ayah'] ?? '') ?: null,
+            'rw' => trim($row['rw_ayah'] ?? '') ?: null,
+            'kelurahan' => trim($row['kelurahan_ayah'] ?? '') ?: null,
+            'kecamatan' => trim($row['kec_ayah'] ?? '') ?: null,
+            'kode_pos' => trim($row['kode_pos_ayah'] ?? '') ?: null,
             'anak_ke' => $this->parseUnsignedInt($row['anak_ke'] ?? null),
             'jumlah_saudara' => $this->parseUnsignedInt($row['jumlah_saudara'] ?? null),
             'jarak_tempat_tinggal' => null,
@@ -250,13 +251,12 @@ class SiswaImport implements
             'pekerjaan_ayah' => trim($row['pekerjaan_utama_ayah'] ?? '') ?: null,
             'penghasilan_ayah' => $this->parseString($row['penghasilan_perbulan_ayah'] ?? ''),
             'no_hp' => trim($row['no_hp_ayah'] ?? '') ?: null,
-            // FIX: field ada di template tapi tidak dimap
-            'status_ayah' => trim($row['status'] ?? '') ?: null,
-            'kewarganegaraan_ayah' => trim($row['kewarganegaraan'] ?? '') ?: null,
+            'status_ayah' => trim($row['status_ayah'] ?? '') ?: null,
+            'kewarganegaraan_ayah' => trim($row['kewarganegaraan_ayah'] ?? '') ?: null,
             'tempat_lahir_ayah' => trim($row['tempat_lahir_ayah'] ?? '') ?: null,
             'no_hp_ayah' => trim($row['no_hp_ayah'] ?? '') ?: null,
             // Alamat diambil dari blok "ALAMAT AYAH KANDUNG"
-            'alamat' => trim($row['alamat'] ?? '') ?: null,
+            'alamat' => trim($row['alamat_ayah'] ?? '') ?: null,
             'nama_ibu' => null,
             'nik_ibu' => null,
             'tahun_lahir_ibu' => null,
@@ -282,14 +282,12 @@ class SiswaImport implements
             'pekerjaan_ibu' => trim($row['pekerjaan_utama_ibu'] ?? '') ?: null,
             'penghasilan_ibu' => $this->parseString($row['penghasilan_perbulan_ibu'] ?? ''),
             'no_hp' => trim($row['no_hp_ibu'] ?? '') ?: null,
-            // FIX: field ada di template tapi tidak dimap
-            // heading duplikat → suffix _2 otomatis dari WithHeadingRow
-            'status_ibu' => trim($row['status_2'] ?? '') ?: null,
-            'kewarganegaraan_ibu' => trim($row['kewarganegaraan_2'] ?? '') ?: null,
+            'status_ibu' => trim($row['status_ibu'] ?? '') ?: null,
+            'kewarganegaraan_ibu' => trim($row['kewarganegaraan_ibu'] ?? '') ?: null,
             'tempat_lahir_ibu' => trim($row['tempat_lahir_ibu'] ?? '') ?: null,
             'no_hp_ibu' => trim($row['no_hp_ibu'] ?? '') ?: null,
             // Alamat diambil dari blok "ALAMAT IBU KANDUNG"
-            'alamat' => trim($row['alamat_2'] ?? '') ?: null,
+            'alamat' => trim($row['alamat_ibu'] ?? '') ?: null,
             'nama_ayah' => null,
             'nik_ayah' => null,
             'tahun_lahir_ayah' => null,
@@ -316,14 +314,12 @@ class SiswaImport implements
             'penghasilan_wali' => $this->parseString($row['penghasilan_perbulan_wali'] ?? ''),
             'no_hp_wali' => trim($row['no_hp_wali'] ?? '') ?: null,
             'no_hp' => trim($row['no_hp_wali'] ?? '') ?: null,
-            // FIX: field ada di template tapi tidak dimap
-            // heading duplikat → suffix _3 / kewarga_negaraan_2 (beda ejaan di template)
-            'status_wali' => trim($row['status_3'] ?? '') ?: null,
-            'kewarganegaraan_wali' => trim($row['kewarga_negaraan_2'] ?? '') ?: null,
+            'status_wali' => trim($row['status_wali'] ?? '') ?: null,
+            'kewarganegaraan_wali' => trim($row['kewarganegaraan_wali'] ?? '') ?: null,
             'tempat_lahir_wali' => trim($row['tempat_lahir_wali'] ?? '') ?: null,
             // Alamat diambil dari blok "ALAMAT WALI"
-            'alamat_wali' => trim($row['alamat_3'] ?? '') ?: null,
-            'alamat' => trim($row['alamat_3'] ?? '') ?: null,
+            'alamat_wali' => trim($row['alamat_wali'] ?? '') ?: null,
+            'alamat' => trim($row['alamat_wali'] ?? '') ?: null,
             'nama_ayah' => null,
             'nik_ayah' => null,
             'tahun_lahir_ayah' => null,
@@ -363,21 +359,21 @@ class SiswaImport implements
                     $ayahKey = $dataAyah['nik_ayah']
                         ? ['nik_ayah' => $dataAyah['nik_ayah']]
                         : ['nama_ayah' => $dataAyah['nama_ayah'], 'nama_ibu' => null, 'nama_wali' => null];
-                    $ayah = OrangTua::firstOrCreate($ayahKey, $dataAyah);
+                    $ayah = OrangTua::updateOrCreate($ayahKey, $dataAyah);
                     $existing->orangTuas()->syncWithoutDetaching([$ayah->id => ['hubungan_keluarga' => 'Ayah']]);
                 }
                 if ($dataIbu['nama_ibu']) {
                     $ibuKey = $dataIbu['nik_ibu']
                         ? ['nik_ibu' => $dataIbu['nik_ibu']]
                         : ['nama_ibu' => $dataIbu['nama_ibu'], 'nama_ayah' => null, 'nama_wali' => null];
-                    $ibu = OrangTua::firstOrCreate($ibuKey, $dataIbu);
+                    $ibu = OrangTua::updateOrCreate($ibuKey, $dataIbu);
                     $existing->orangTuas()->syncWithoutDetaching([$ibu->id => ['hubungan_keluarga' => 'Ibu']]);
                 }
                 if ($dataWali['nama_wali']) {
                     $waliKey = $dataWali['nik_wali']
                         ? ['nik_wali' => $dataWali['nik_wali']]
                         : ['nama_wali' => $dataWali['nama_wali'], 'nama_ayah' => null, 'nama_ibu' => null];
-                    $wali = OrangTua::firstOrCreate($waliKey, $dataWali);
+                    $wali = OrangTua::updateOrCreate($waliKey, $dataWali);
                     $existing->orangTuas()->syncWithoutDetaching([$wali->id => ['hubungan_keluarga' => 'Wali']]);
                 }
 
@@ -398,21 +394,21 @@ class SiswaImport implements
                 $ayahKey = $dataAyah['nik_ayah']
                     ? ['nik_ayah' => $dataAyah['nik_ayah']]
                     : ['nama_ayah' => $dataAyah['nama_ayah'], 'nama_ibu' => null, 'nama_wali' => null];
-                $ayah = OrangTua::firstOrCreate($ayahKey, $dataAyah);
+                $ayah = OrangTua::updateOrCreate($ayahKey, $dataAyah);
                 $siswa->orangTuas()->attach($ayah->id, ['hubungan_keluarga' => 'Ayah']);
             }
             if ($dataIbu['nama_ibu']) {
                 $ibuKey = $dataIbu['nik_ibu']
                     ? ['nik_ibu' => $dataIbu['nik_ibu']]
                     : ['nama_ibu' => $dataIbu['nama_ibu'], 'nama_ayah' => null, 'nama_wali' => null];
-                $ibu = OrangTua::firstOrCreate($ibuKey, $dataIbu);
+                $ibu = OrangTua::updateOrCreate($ibuKey, $dataIbu);
                 $siswa->orangTuas()->attach($ibu->id, ['hubungan_keluarga' => 'Ibu']);
             }
             if ($dataWali['nama_wali']) {
                 $waliKey = $dataWali['nik_wali']
                     ? ['nik_wali' => $dataWali['nik_wali']]
                     : ['nama_wali' => $dataWali['nama_wali'], 'nama_ayah' => null, 'nama_ibu' => null];
-                $wali = OrangTua::firstOrCreate($waliKey, $dataWali);
+                $wali = OrangTua::updateOrCreate($waliKey, $dataWali);
                 $siswa->orangTuas()->attach($wali->id, ['hubungan_keluarga' => 'Wali']);
             }
 

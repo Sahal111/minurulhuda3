@@ -46,6 +46,9 @@
 - [x] Fix bug dropdown Tahun Ajaran tidak muncul di Step 4 form tambah/edit siswa (Operator) — mismatch key `tahun_ajarans` → `tahunAjarans` di `SiswaPage.jsx:112`
 - [x] Tambah/Edit Siswa (Operator) — form multi-step 5 tahap: Identitas, Orang Tua, Periodik, Akademik, Konfirmasi; upload foto; data Dapodik lengkap
 - [x] Detail Data Siswa (Operator) — modal gabungan 7 tab: Identitas, Ortu, Periodik, Akademik+Riwayat, Prestasi, Beasiswa, Berkas; panel kiri kartu identitas; CRUD prestasi/beasiswa/berkas; menggabungkan fitur Kartu Identitas + Detail
+- [x] Download Template Excel — perbaikan: ganti `<a href>` langsung (tanpa token) → download via axios blob (Bearer token otomatis)
+- [x] Import Siswa dari Excel (Operator) — perbaikan: ganti raw `fetch` → `siswaAPI.import` pakai axios instance (auth, CSRF, credentials); fix duplicate heading slug di template & mapping import; fix `firstOrCreate` → `updateOrCreate` agar re-import update field Orang Tua
+- [x] Recycle Bin untuk Siswa (Operator) — backend: controller + routes (destroy, trash, restore, forceDelete); pagination 10 per halaman; cascade soft-delete ke riwayat_kelas, nilais, absensis, rapors, catatan_walis, perkembangans
 
 ### Komponen yang SUDAH STABIL — jangan diubah kecuali ada bug:
 - `frontend/src/context/AuthContext.jsx` — auth context, jangan direfactor
@@ -61,8 +64,7 @@
 
 > Update section ini dengan fitur yang sedang dikerjakan sekarang
 
-- [ ] Import Siswa (Operator) — perbaikan: ganti raw `fetch` → `siswaAPI.import` pakai axios instance (auth token, CSRF, credentials)
-- [ ] Download Template Excel — perbaikan: ganti `<a href>` langsung (tanpa token) → download via axios blob (Bearer token otomatis)
+- [ ] *(default)* — belum ada fitur yang dikerjakan
 
 ---
 

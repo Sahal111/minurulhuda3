@@ -43,8 +43,8 @@ use PhpOffice\PhpSpreadsheet\Style\Fill;
  *
  * --- AYAH (Col 26–35) ---
  * 26  NAMA AYAH
- * 27  STATUS
- * 28  KEWARGANEGARAAN
+ * 27  STATUS AYAH
+ * 28  KEWARGANEGARAAN AYAH
  * 29  NIK AYAH
  * 30  TEMPAT LAHIR (AYAH)
  * 31  TANGGAL LAHIR (AYAH)
@@ -55,8 +55,8 @@ use PhpOffice\PhpSpreadsheet\Style\Fill;
  *
  * --- IBU (Col 36–45) ---
  * 36  NAMA IBU
- * 37  STATUS
- * 38  KEWARGANEGARAAN
+ * 37  STATUS IBU
+ * 38  KEWARGANEGARAAN IBU
  * 39  NIK IBU
  * 40  TEMPAT LAHIR (IBU)
  * 41  TANGGAL LAHIR (IBU)
@@ -67,8 +67,8 @@ use PhpOffice\PhpSpreadsheet\Style\Fill;
  *
  * --- WALI (Col 46–55) ---
  * 46  NAMA WALI
- * 47  STATUS
- * 48  KEWARGA NEGARAAN
+ * 47  STATUS WALI
+ * 48  KEWARGANEGARAAN WALI
  * 49  NIK (WALI)
  * 50  TEMPAT LAHIR (WALI)
  * 51  TANGGAL LAHIR (WALI)
@@ -79,39 +79,39 @@ use PhpOffice\PhpSpreadsheet\Style\Fill;
  *
  * --- ALAMAT AYAH KANDUNG (Col 56–65) ---
  * 56  AYAH KANDUNG
- * 57  STATUS KEPEMILIKAN
- * 58  PROVINSI
- * 59  KAB
- * 60  KEC
- * 61  KELURAHAN / DESA
- * 62  RT
- * 63  RW
- * 64  ALAMAT
- * 65  KODE POS
+ * 57  STATUS KEPEMILIKAN AYAH
+ * 58  PROVINSI AYAH
+ * 59  KAB AYAH
+ * 60  KEC AYAH
+ * 61  KELURAHAN AYAH
+ * 62  RT AYAH
+ * 63  RW AYAH
+ * 64  ALAMAT AYAH
+ * 65  KODE POS AYAH
  *
  * --- ALAMAT IBU KANDUNG (Col 66–75) ---
  * 66  IBU KANDUNG
- * 67  STATUS KEPEMILIKAN
- * 68  PROVINSI
- * 69  KAB
- * 70  KEC
- * 71  KELURAHAN / DESA
- * 72  RT
- * 73  RW
- * 74  ALAMAT
- * 75  KODE POS
+ * 67  STATUS KEPEMILIKAN IBU
+ * 68  PROVINSI IBU
+ * 69  KAB IBU
+ * 70  KEC IBU
+ * 71  KELURAHAN IBU
+ * 72  RT IBU
+ * 73  RW IBU
+ * 74  ALAMAT IBU
+ * 75  KODE POS IBU
  *
  * --- ALAMAT WALI (Col 76–85) ---
  * 76  WALI
- * 77  STATUS KEPEMILIKAN
- * 78  PROVINSI
- * 79  KAB
- * 80  KEC
- * 81  KELURAHAN / DESA
- * 82  RT
- * 83  RW
- * 84  ALAMAT
- * 85  KODE POS
+ * 77  STATUS KEPEMILIKAN WALI
+ * 78  PROVINSI WALI
+ * 79  KAB WALI
+ * 80  KEC WALI
+ * 81  KELURAHAN WALI
+ * 82  RT WALI
+ * 83  RW WALI
+ * 84  ALAMAT WALI
+ * 85  KODE POS WALI
  *
  * --- ASAL SEKOLAH (Col 86–89) ---
  * 86  URUT
@@ -265,8 +265,8 @@ class SiswaTemplateExport implements FromArray, WithHeadings, WithStyles, Should
 
             // ── AYAH ─────────────────────────────────────────────
             'NAMA AYAH',
-            'STATUS',
-            'KEWARGANEGARAAN',
+            'STATUS AYAH',
+            'KEWARGANEGARAAN AYAH',
             'NIK AYAH',
             'TEMPAT LAHIR (AYAH)',
             'TANGGAL LAHIR (AYAH)',
@@ -277,8 +277,8 @@ class SiswaTemplateExport implements FromArray, WithHeadings, WithStyles, Should
 
             // ── IBU ──────────────────────────────────────────────
             'NAMA IBU',
-            'STATUS',
-            'KEWARGANEGARAAN',
+            'STATUS IBU',
+            'KEWARGANEGARAAN IBU',
             'NIK IBU',
             'TEMPAT LAHIR (IBU)',
             'TANGGAL LAHIR (IBU)',
@@ -289,8 +289,8 @@ class SiswaTemplateExport implements FromArray, WithHeadings, WithStyles, Should
 
             // ── WALI ─────────────────────────────────────────────
             'NAMA WALI',
-            'STATUS',
-            'KEWARGA NEGARAAN',
+            'STATUS WALI',
+            'KEWARGANEGARAAN WALI',
             'NIK (WALI)',
             'TEMPAT LAHIR (WALI)',
             'TANGGAL LAHIR (WALI)',
@@ -301,39 +301,39 @@ class SiswaTemplateExport implements FromArray, WithHeadings, WithStyles, Should
 
             // ── ALAMAT AYAH KANDUNG ───────────────────────────────
             'AYAH KANDUNG',
-            'STATUS KEPEMILIKAN',
-            'PROVINSI',
-            'KAB',
-            'KEC',
-            'KELURAHAN / DESA',
-            'RT',
-            'RW',
-            'ALAMAT',
-            'KODE POS',
+            'STATUS KEPEMILIKAN AYAH',
+            'PROVINSI AYAH',
+            'KAB AYAH',
+            'KEC AYAH',
+            'KELURAHAN AYAH',
+            'RT AYAH',
+            'RW AYAH',
+            'ALAMAT AYAH',
+            'KODE POS AYAH',
 
             // ── ALAMAT IBU KANDUNG ────────────────────────────────
             'IBU KANDUNG',
-            'STATUS KEPEMILIKAN',
-            'PROVINSI',
-            'KAB',
-            'KEC',
-            'KELURAHAN / DESA',
-            'RT',
-            'RW',
-            'ALAMAT',
-            'KODE POS',
+            'STATUS KEPEMILIKAN IBU',
+            'PROVINSI IBU',
+            'KAB IBU',
+            'KEC IBU',
+            'KELURAHAN IBU',
+            'RT IBU',
+            'RW IBU',
+            'ALAMAT IBU',
+            'KODE POS IBU',
 
             // ── ALAMAT WALI ───────────────────────────────────────
             'WALI',
-            'STATUS KEPEMILIKAN',
-            'PROVINSI',
-            'KAB',
-            'KEC',
-            'KELURAHAN / DESA',
-            'RT',
-            'RW',
-            'ALAMAT',
-            'KODE POS',
+            'STATUS KEPEMILIKAN WALI',
+            'PROVINSI WALI',
+            'KAB WALI',
+            'KEC WALI',
+            'KELURAHAN WALI',
+            'RT WALI',
+            'RW WALI',
+            'ALAMAT WALI',
+            'KODE POS WALI',
 
             // ── ASAL SEKOLAH ──────────────────────────────────────
             'URUT',
