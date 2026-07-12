@@ -77,6 +77,7 @@ const OperatorSiswaPage = () => {
 
     // Filter
     const [q, setQ]                   = useState('');
+    const [searchQ, setSearchQ]       = useState('');
     const [filterKelas, setFilterKelas]       = useState('all');
     const [filterStatus, setFilterStatus]     = useState('all');
     const [filterJenisMasuk, setFilterJenisMasuk] = useState('all');
@@ -104,7 +105,7 @@ const OperatorSiswaPage = () => {
         setLoading(true);
         try {
             const params = { page };
-            if (q)                              params.q            = q;
+            if (searchQ)                        params.q            = searchQ;
             if (filterKelas !== 'all')          params.kelas        = filterKelas;
             if (filterStatus !== 'all')         params.status       = filterStatus;
             if (filterJenisMasuk !== 'all')     params.jenis_masuk  = filterJenisMasuk;
@@ -128,7 +129,7 @@ const OperatorSiswaPage = () => {
         } finally {
             setLoading(false);
         }
-    }, [q, filterKelas, filterStatus, filterJenisMasuk]);
+    }, [searchQ, filterKelas, filterStatus, filterJenisMasuk]);
 
     useEffect(() => {
         setCurrentPage(1);
@@ -168,6 +169,7 @@ const OperatorSiswaPage = () => {
 
     const handleSearch = (e) => {
         e.preventDefault();
+        setSearchQ(q);
         setCurrentPage(1);
         fetchData(1);
     };

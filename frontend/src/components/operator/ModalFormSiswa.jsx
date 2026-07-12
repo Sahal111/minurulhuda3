@@ -311,9 +311,8 @@ const ModalFormSiswa = ({ isOpen, onClose, onSuccess, siswa, kelas = [], tahunAj
         try {
             const fd = new FormData();
             Object.entries(form).forEach(([k, v]) => {
-                if (v !== null && v !== undefined) {
-                    const trimmedVal = typeof v === 'string' ? v.trim() : v;
-                    if (trimmedVal !== '') fd.append(k, trimmedVal);
+                if (v != null && v !== '') {
+                    fd.append(k, typeof v === 'string' ? v.trim() : v);
                 }
             });
             if (fotoFile) fd.append('foto', fotoFile);
@@ -471,6 +470,8 @@ if (isEdit) {
 
                                             <FieldText form={form} update={update} label="NISN *" name="nisn" placeholder="Nomor Induk Siswa Nasional" required />
                                             <FieldText form={form} update={update} label="NIS (Lokal) *" name="nis" placeholder="Nomor Induk Sekolah" required />
+                                            <FieldText form={form} update={update} label="NIK *" name="nik" placeholder="16 digit NIK siswa" required />
+                                            <FieldText form={form} update={update} label="No. Kartu Keluarga (KK) *" name="no_kk" placeholder="16 digit No. KK" required />
                                             <FieldText form={form} update={update} label="Nama Lengkap *" name="nama" placeholder="Nama lengkap tanpa singkatan" sm2 required />
                                             <FieldText form={form} update={update} label="Tempat Lahir *" name="tempat_lahir" placeholder="Kota Lahir" required />
                                             <FieldText form={form} update={update} label="Tanggal Lahir *" name="tanggal_lahir" type="date" required />
@@ -484,8 +485,6 @@ if (isEdit) {
                                             <FieldText form={form} update={update} label="No Absen" name="no_absen" placeholder="Nomor urut absen kelas" optional />
                                             <FieldSelect form={form} update={update} label="Yang Membiayai Sekolah" name="pembiaya_sekolah" optional placeholder="-- Pilih Pembiaya (Opsional) --"
                                                 options={{ 'Orang Tua': 'Orang Tua', 'Wali': 'Wali', 'Pemerintah': 'Pemerintah', 'Swasta': 'Swasta', 'Lainnya': 'Lainnya' }} />
-                                            <FieldText form={form} update={update} label="NIK *" name="nik" placeholder="16 digit NIK siswa" required />
-                                            <FieldText form={form} update={update} label="No. Kartu Keluarga (KK) *" name="no_kk" placeholder="16 digit No. KK" required />
                                         </div>
                                         <StepErrors errors={stepErrors[1]} />
                                         {stepNav(1, 5)}

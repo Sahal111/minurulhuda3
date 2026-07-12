@@ -1703,7 +1703,7 @@ TXT;
                 'kewarganegaraan_ayah' => $request->kewarganegaraan_ayah,
                 'tempat_lahir_ayah' => $request->tempat_lahir_ayah,
                 'no_hp_ayah' => $request->no_hp_ayah,
-                'no_hp' => $request->no_hp_ayah ?: ($request->no_hp_ortu ?: '-'),
+                'no_hp' => $request->no_hp_ortu ?: '-',
                 'alamat' => $request->alamat,
                 // Field ibu & wali dikosongkan
                 'nama_ibu' => null,
@@ -1737,7 +1737,7 @@ TXT;
                 'kewarganegaraan_ibu' => $request->kewarganegaraan_ibu,
                 'tempat_lahir_ibu' => $request->tempat_lahir_ibu,
                 'no_hp_ibu' => $request->no_hp_ibu,
-                'no_hp' => $request->no_hp_ibu ?: ($request->no_hp_ortu ?: '-'),
+                'no_hp' => $request->no_hp_ortu ?: '-',
                 'alamat' => $request->alamat,
                 // Field ayah & wali dikosongkan
                 'nama_ayah' => null,
@@ -1839,7 +1839,7 @@ TXT;
                     'kewarganegaraan_ayah' => $request->kewarganegaraan_ayah,
                     'tempat_lahir_ayah' => $request->tempat_lahir_ayah,
                     'no_hp_ayah' => $request->no_hp_ayah,
-                    'no_hp' => $request->no_hp_ayah ?: ($request->no_hp_ortu ?: '-'),
+                    'no_hp' => $request->no_hp_ortu ?: '-',
                     'alamat' => $request->alamat,
                 ];
                 if ($ayah) {
@@ -1867,7 +1867,7 @@ TXT;
                     'kewarganegaraan_ibu' => $request->kewarganegaraan_ibu,
                     'tempat_lahir_ibu' => $request->tempat_lahir_ibu,
                     'no_hp_ibu' => $request->no_hp_ibu,
-                    'no_hp' => $request->no_hp_ibu ?: ($request->no_hp_ortu ?: '-'),
+                    'no_hp' => $request->no_hp_ortu ?: '-',
                     'alamat' => $request->alamat,
                 ];
                 if ($ibu) {

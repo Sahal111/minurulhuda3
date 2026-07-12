@@ -59,6 +59,11 @@
 - [x] Unifikasi Format Export & Import (116 Kolom) — Fix bug: file export (67 kolom) tidak bisa reimport karena format berbeda dengan template (89 kolom EMIS). Solusi: unifikasi kedua file jadi 116 kolom (89 EMIS + 27 tambahan lengkap: kesehatan, fisik, status, transportasi, kontak, kesejahteraan, mutasi). Files: SiswaExport.php, SiswaTemplateExport.php, SiswaImport.php. Export → edit → reimport berhasil (round-trip works).
 - [x] Data Kelas — fix CRUD (form key mismatch, submit & delete ga jalan, dropdown tahun ajaran pake `t.nama` salah → `t.tahun`); tambah detail kelas modal — tampil wali kelas, kapasitas/terisi, daftar siswa (data dari eager loading index, tanpa backend baru)
 - [x] Fix dropdown kelas tidak muncul di form Aktifkan Kembali siswa — `k.full_name || k.nama` keduanya undefined (accessor tidak di-append, field `nama` tidak ada), ganti jadi `k.nama_kelas`
+- [x] Fix handleSubmit FormData filter — guard `v != null && v !== ''` ganti dua guard terpisah; tangani null/undefined/empty string sekaligus. `ModalFormSiswa.jsx`
+- [x] Hapus orphan file `components/operator/siswa/ModalFormSiswa.jsx` — versi lama tab-based tidak dipakai, 0 imports
+- [x] Fix mapping `no_hp_ortu` — kolom `orang_tuas.no_hp` sekarang selalu diisi dari `$request->no_hp_ortu`, bukan dari `no_hp_ayah`/`no_hp_ibu`. `SiswaController.php`
+- [x] Fix UX konsistensi search/filter — pisahkan `searchQ` dari `q`; filter dropdown auto-fetch, search box submit-only. `SiswaPage.jsx`
+- [x] Reorder NIK & No KK ke posisi lebih atas di Step 1 (setelah NISN/NIS). `ModalFormSiswa.jsx`
 
 ### Guru
 - [ ] *(belum ada)*
