@@ -172,6 +172,15 @@ const OperatorSiswaPage = () => {
         fetchData(1);
     };
 
+    // Cetak PDF satu siswa
+    const handleCetakPdf = async (id) => {
+        try {
+            const res = await siswaAPI.exportPdfSatu(id);
+            const blob = new Blob([res.data], { type: 'application/pdf' });
+            window.open(URL.createObjectURL(blob), '_blank');
+        } catch (err) { alert('Gagal cetak kartu PDF'); }
+    };
+
     // Export handler
     const handleExport = async (mode) => {
         setExportingMode(mode);
@@ -434,7 +443,6 @@ const OperatorSiswaPage = () => {
                                         ? { label: 'Laki-laki', cls: 'bg-sky-50 text-sky-600 dark:bg-sky-500/10 dark:text-sky-400' }
                                         : { label: 'Perempuan', cls: 'bg-pink-50 text-pink-600 dark:bg-pink-500/10 dark:text-pink-400' };
                                     const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:8000/api').replace('/api', '');
-                                    const pdfUrl = `${apiBase}/operator/data-siswa/${s.id}/pdf`;
 
                                     return (
                                         <tr key={s.id} className="border-b border-slate-50 dark:border-slate-800/50 last:border-0 hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors">
@@ -495,15 +503,13 @@ const OperatorSiswaPage = () => {
                                             <td className="pl-6 pr-10 py-5 text-right">
                                                 <div className="flex items-center justify-end gap-1">
                                                     {/* Cetak PDF satu siswa */}
-                                                    <a
-                                                        href={pdfUrl}
-                                                        target="_blank"
-                                                        rel="noreferrer"
+                                                    <button
+                                                        onClick={() => handleCetakPdf(s.id)}
                                                         className="p-2 hover:bg-purple-50 dark:hover:bg-purple-500/10 text-slate-400 hover:text-purple-500 rounded-lg transition-colors"
                                                         title="Cetak Kartu PDF"
                                                     >
                                                         <FileText className="w-4 h-4" />
-                                                    </a>
+                                                    </button>
 
                                                     {/* Lihat Kartu Identitas */}
                                                     <button

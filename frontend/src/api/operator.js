@@ -54,6 +54,14 @@ export const siswaAPI = {
     }),
   destroyBerkas: (siswaId, berkasId) =>
     api.delete(`/operator/data-siswa/${siswaId}/berkas/${berkasId}`),
+  viewBerkas: (siswaId, berkasId) =>
+    api.get(`/operator/data-siswa/${siswaId}/berkas/${berkasId}/view`, {
+      responseType: "blob",
+    }),
+  downloadBerkas: (siswaId, berkasId) =>
+    api.get(`/operator/data-siswa/${siswaId}/berkas/${berkasId}/download`, {
+      responseType: "blob",
+    }),
   // Prestasi
   getPrestasi: (siswaId) => api.get(`/operator/data-siswa/${siswaId}/prestasi`),
   storePrestasi: (siswaId, data) =>
@@ -66,6 +74,14 @@ export const siswaAPI = {
     }),
   destroyPrestasi: (siswaId, prestasiId) =>
     api.delete(`/operator/data-siswa/${siswaId}/prestasi/${prestasiId}`),
+  viewPrestasiBukti: (siswaId, prestasiId) =>
+    api.get(`/operator/data-siswa/${siswaId}/prestasi/${prestasiId}/view`, {
+      responseType: "blob",
+    }),
+  downloadPrestasiBukti: (siswaId, prestasiId) =>
+    api.get(`/operator/data-siswa/${siswaId}/prestasi/${prestasiId}/download`, {
+      responseType: "blob",
+    }),
   // Beasiswa
   getBeasiswa: (siswaId) => api.get(`/operator/data-siswa/${siswaId}/beasiswa`),
   storeBeasiswa: (siswaId, data) =>

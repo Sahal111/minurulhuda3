@@ -49,11 +49,14 @@
 - [x] Perbaikan logika aktif Tahun Ajaran dan Semester — semester hanya bisa aktif di TA yang sedang aktif
 - [x] Fix bug dropdown Tahun Ajaran tidak muncul di Step 4 form tambah/edit siswa — mismatch key `tahun_ajarans` → `tahunAjarans` di `SiswaPage.jsx:112`
 - [x] Tambah/Edit Siswa — form multi-step 5 tahap: Identitas, Orang Tua, Periodik, Akademik, Konfirmasi; upload foto; data Dapodik lengkap
-- [x] Detail Data Siswa — modal gabungan 7 tab: Identitas, Ortu, Periodik, Akademik+Riwayat, Prestasi, Beasiswa, Berkas; panel kiri kartu identitas; CRUD prestasi/beasiswa/berkas
+- [x] Detail Data Siswa — modal gabungan 7 tab: Identitas, Ortu, Periodik, Akademik+Riwayat, Prestasi, Beasiswa, Berkas; panel kiri kartu identitas; CRUD prestasi/beasiswa/berkas; fix foto tidak muncul — `apiBase` (with `/api`) dipakai untuk URL storage, ganti pakai `storageBase` tanpa `/api`; fix link lihat bukti/berkas — `<a href>` langsung (tanpa token) kena catch-all web.php, ganti pakai axios blob download (Bearer token otomatis); tambah aksi detail beasiswa — panel baca-saja tanpa backend baru
 - [x] Download Template Excel — ganti `<a href>` langsung (tanpa token) → download via axios blob (Bearer token otomatis)
 - [x] Import Siswa dari Excel — ganti raw `fetch` → `siswaAPI.import` pakai axios instance (auth, CSRF, credentials); fix duplicate heading slug; fix `firstOrCreate` → `updateOrCreate` agar re-import update field Orang Tua
 - [x] Recycle Bin Siswa — backend: controller + routes (destroy, trash, restore, forceDelete); pagination 10/halaman; cascade soft-delete ke riwayat_kelas, nilais, absensis, rapors, catatan_walis, perkembangans
 - [x] Export Data Siswa (ZIP & PDF) — fix bug URL salah `/operator/data-siswa/export` (tanpa `/api` prefix) + token tidak terkirim; ganti `<a href>` → axios blob download via `siswaAPI.exportData`; tambah loading state; files: `operator.js`, `SiswaPage.jsx`
+- [x] Cetak Kartu PDF per Siswa — fix bug URL `pdfUrl` tanpa `/api` prefix (strip dari `apiBase`) + `<a href>` langsung; ganti pakai `handleCetakPdf` via `siswaAPI.exportPdfSatu` axios blob (Bearer token otomatis)
+- [x] Fix Bug parseJK di SiswaImport.php — Silent fail: data jenis kelamin kosong/invalid otomatis default ke 'P' tanpa error. Ganti jadi strict validation dengan throw exception agar row di-skip dan masuk ke failure log (tidak silent corruption)
+- [x] Unifikasi Format Export & Import (116 Kolom) — Fix bug: file export (67 kolom) tidak bisa reimport karena format berbeda dengan template (89 kolom EMIS). Solusi: unifikasi kedua file jadi 116 kolom (89 EMIS + 27 tambahan lengkap: kesehatan, fisik, status, transportasi, kontak, kesejahteraan, mutasi). Files: SiswaExport.php, SiswaTemplateExport.php, SiswaImport.php. Export → edit → reimport berhasil (round-trip works).
 
 ### Guru
 - [ ] *(belum ada)*
@@ -84,6 +87,8 @@
 - `frontend/src/pages/operator/SemesterPage.jsx` — halaman semester, CRUD + recycle bin
 - `frontend/src/components/operator/ModalTrashSemester.jsx` — recycle bin semester
 - `frontend/src/components/operator/ModalTrashTahunAjaran.jsx` — recycle bin tahun ajaran
+- `frontend/src/components/operator/ModalFormSiswa.jsx` — form tambah/edit siswa multi-step 5 tahap (Identitas, Ortu, Periodik, Akademik, Konfirmasi)
+- `frontend/src/components/operator/ModalTrashSiswa.jsx` — recycle bin siswa
 - `frontend/dist/` — build output, JANGAN diedit manual
 - `backend/ai_tools/venv/` — virtual environment Python, JANGAN disentuh
 

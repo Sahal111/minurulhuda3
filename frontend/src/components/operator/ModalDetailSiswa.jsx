@@ -50,6 +50,7 @@ const ModalDetailSiswa = ({ isOpen, onClose, siswa, onSuccess }) => {
 
     const [beasiswaForm, setBeasiswaForm] = useState({ nama: '', jenis: '', nominal: '', tahun_mulai: '', tahun_selesai: '', keterangan: '' });
     const [editBeasiswaId, setEditBeasiswaId] = useState(null);
+    const [detailBeasiswa, setDetailBeasiswa] = useState(null);
 
     const [berkasJenis, setBerkasJenis] = useState('');
     const [berkasFile, setBerkasFile] = useState(null);
@@ -57,6 +58,7 @@ const ModalDetailSiswa = ({ isOpen, onClose, siswa, onSuccess }) => {
     const [submitting, setSubmitting] = useState(false);
 
     const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+    const storageBase = apiBase.replace('/api', '');
 
     useEffect(() => {
         if (isOpen && siswa?.id) {
@@ -148,6 +150,41 @@ const ModalDetailSiswa = ({ isOpen, onClose, siswa, onSuccess }) => {
         } catch (err) {
             alert(err.response?.data?.message || 'Gagal menyimpan prestasi');
         } finally { setSubmitting(false); }
+    };
+
+    const handleViewPrestasiBukti = async (prestasiId) => {
+        try {
+            const res = await siswaAPI.viewPrestasiBukti(siswa.id, prestasiId);
+            const blob = new Blob([res.data], { type: res.headers['content-type'] });
+            const url = URL.createObjectURL(blob);
+            window.open(url, '_blank');
+        } catch (err) { alert('Gagal membuka bukti'); }
+    };
+
+    const handleViewBerkas = async (berkasId) => {
+        try {
+            const res = await siswaAPI.viewBerkas(siswa.id, berkasId);
+            const blob = new Blob([res.data], { type: res.headers['content-type'] });
+            const url = URL.createObjectURL(blob);
+            window.open(url, '_blank');
+        } catch (err) { alert('Gagal membuka berkas'); }
+    };
+
+    const handleDownloadBerkas = async (berkasId) => {
+        try {
+            const res = await siswaAPI.downloadBerkas(siswa.id, berkasId);
+            const blob = new Blob([res.data], { type: res.headers['content-type'] });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            const disposition = res.headers['content-disposition'];
+            const match = disposition && disposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+            a.download = match ? match[1].replace(/['"]/g, '') : 'berkas';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        } catch (err) { alert('Gagal mengunduh berkas'); }
     };
 
     const handleDeletePrestasi = async (id) => {
@@ -564,9 +601,9 @@ const ModalDetailSiswa = ({ isOpen, onClose, siswa, onSuccess }) => {
                                                 <td className="px-5 py-4 text-right">
                                                     <div className="flex justify-end gap-1">
                                                         {p.file_bukti && (
-                                                            <a href={`${apiBase}/storage/${p.file_bukti}`} target="_blank" className="p-2 hover:bg-blue-50 text-slate-400 hover:text-blue-500 rounded-lg transition-colors" title="Lihat Bukti">
+                                                            <button onClick={() => handleViewPrestasiBukti(p.id)} className="p-2 hover:bg-blue-50 text-slate-400 hover:text-blue-500 rounded-lg transition-colors" title="Lihat Bukti">
                                                                 <Eye className="w-4 h-4" />
-                                                            </a>
+                                                            </button>
                                                         )}
                                                         <button onClick={() => handleEditPrestasi(p)} className="p-2 hover:bg-amber-50 text-slate-400 hover:text-amber-500 rounded-lg transition-colors" title="Edit">
                                                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
@@ -640,6 +677,23 @@ const ModalDetailSiswa = ({ isOpen, onClose, siswa, onSuccess }) => {
                                 </div>
                             </form>
                         </div>
+                        {detailBeasiswa && (
+                            <div className="bg-white p-5 rounded-2xl border border-emerald-200 shadow-sm">
+                                <div className="flex items-center justify-between mb-4">
+                                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Detail Beasiswa</h3>
+                                    <button onClick={() => setDetailBeasiswa(null)} className="p-1 hover:bg-slate-100 rounded-lg transition-colors">
+                                        <X className="w-4 h-4 text-slate-400" />
+                                    </button>
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                                    <div><span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Nama</span><span className="font-semibold text-slate-800">{detailBeasiswa.nama}</span></div>
+                                    <div><span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Jenis</span><span className="text-slate-700">{detailBeasiswa.jenis || '-'}</span></div>
+                                    <div><span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Nominal</span><span className="font-semibold text-emerald-600">{detailBeasiswa.nominal ? `Rp ${Number(detailBeasiswa.nominal).toLocaleString('id-ID')}` : '-'}</span></div>
+                                    <div><span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Periode</span><span className="text-slate-700">{detailBeasiswa.tahun_mulai || '-'}{detailBeasiswa.tahun_selesai ? ` – ${detailBeasiswa.tahun_selesai}` : ''}</span></div>
+                                    <div className="md:col-span-2"><span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Keterangan</span><span className="text-slate-700">{detailBeasiswa.keterangan || '-'}</span></div>
+                                </div>
+                            </div>
+                        )}
                         {loadingTab ? renderLoader() : (
                             <div className="border border-slate-100 rounded-2xl overflow-hidden">
                                 <table className="w-full text-left">
@@ -665,12 +719,17 @@ const ModalDetailSiswa = ({ isOpen, onClose, siswa, onSuccess }) => {
                                                 </td>
                                                 <td className="px-5 py-4 text-sm font-bold text-emerald-600">{b.nominal ? `Rp ${Number(b.nominal).toLocaleString('id-ID')}` : '-'}</td>
                                                 <td className="px-5 py-4 text-right">
-                                                    <button onClick={() => { setEditBeasiswaId(b.id); handleEditBeasiswa(b); }} className="p-2 hover:bg-emerald-50 text-slate-400 hover:text-emerald-500 rounded-lg transition-colors" title="Edit">
-                                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
-                                                    </button>
-                                                    <button onClick={() => handleDeleteBeasiswa(b.id)} className="p-2 hover:bg-rose-50 text-slate-400 hover:text-rose-500 rounded-lg transition-colors">
-                                                        <Trash2 className="w-4 h-4" />
-                                                    </button>
+                                                    <div className="flex justify-end gap-1">
+                                                        <button onClick={() => setDetailBeasiswa(b)} className="p-2 hover:bg-blue-50 text-slate-400 hover:text-blue-500 rounded-lg transition-colors" title="Detail">
+                                                            <Eye className="w-4 h-4" />
+                                                        </button>
+                                                        <button onClick={() => { setEditBeasiswaId(b.id); handleEditBeasiswa(b); }} className="p-2 hover:bg-emerald-50 text-slate-400 hover:text-emerald-500 rounded-lg transition-colors" title="Edit">
+                                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                                                        </button>
+                                                        <button onClick={() => handleDeleteBeasiswa(b.id)} className="p-2 hover:bg-rose-50 text-slate-400 hover:text-rose-500 rounded-lg transition-colors">
+                                                            <Trash2 className="w-4 h-4" />
+                                                        </button>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         ))}
@@ -744,12 +803,12 @@ const ModalDetailSiswa = ({ isOpen, onClose, siswa, onSuccess }) => {
                                                 </td>
                                                 <td className="px-5 py-4 text-right">
                                                     <div className="flex justify-end gap-1">
-                                                        <a href={`${apiBase}/operator/data-siswa/${siswa.id}/berkas/${b.id}/view`} target="_blank" className="p-2 hover:bg-blue-50 text-slate-400 hover:text-blue-500 rounded-lg transition-colors" title="Lihat">
+                                                        <button onClick={() => handleViewBerkas(b.id)} className="p-2 hover:bg-blue-50 text-slate-400 hover:text-blue-500 rounded-lg transition-colors" title="Lihat">
                                                             <Eye className="w-4 h-4" />
-                                                        </a>
-                                                        <a href={`${apiBase}/operator/data-siswa/${siswa.id}/berkas/${b.id}/download`} className="p-2 hover:bg-emerald-50 text-slate-400 hover:text-emerald-500 rounded-lg transition-colors" title="Unduh">
+                                                        </button>
+                                                        <button onClick={() => handleDownloadBerkas(b.id)} className="p-2 hover:bg-emerald-50 text-slate-400 hover:text-emerald-500 rounded-lg transition-colors" title="Unduh">
                                                             <Download className="w-4 h-4" />
-                                                        </a>
+                                                        </button>
                                                         <button onClick={() => handleDeleteBerkas(b.id)} className="p-2 hover:bg-rose-50 text-slate-400 hover:text-rose-500 rounded-lg transition-colors" title="Hapus">
                                                             <Trash2 className="w-4 h-4" />
                                                         </button>
@@ -797,7 +856,7 @@ const ModalDetailSiswa = ({ isOpen, onClose, siswa, onSuccess }) => {
                         {/* Left Panel — Identity Card */}
                         <div className="w-full lg:w-[220px] shrink-0 bg-gradient-to-b from-slate-50 to-white border-r border-slate-100 p-6 flex flex-col items-center gap-4">
                             {siswa.foto ? (
-                                <img src={`${apiBase}/storage/${siswa.foto}`} alt={siswa.nama}
+                                <img src={`${storageBase}/storage/${siswa.foto}`} alt={siswa.nama}
                                     className="w-28 h-28 rounded-2xl object-cover border-2 border-white shadow-lg" />
                             ) : (
                                 <div className="w-28 h-28 rounded-2xl bg-emerald-50 flex items-center justify-center border-2 border-white shadow-lg">
