@@ -11,6 +11,7 @@ const KelasPage = () => {
 
   const [showModal, setShowModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedKelas, setSelectedKelas] = useState(null);
   const [form, setForm] = useState({ nama_kelas: '', tingkat: '1', wali_kelas_id: '', kapasitas: '32', tahun_ajaran_id: '' });
 
@@ -58,6 +59,36 @@ const KelasPage = () => {
         tahun_ajaran_id: k.tahun_ajaran_id || '' 
     });
     setShowModal(true);
+  };
+
+  const openDelete = (k) => {
+    setSelectedKelas(k);
+    setShowDeleteModal(true);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      if (selectedKelas) {
+        await kelasAPI.update(selectedKelas.id, form);
+      } else {
+        await kelasAPI.store(form);
+      }
+      setShowModal(false);
+      fetchData();
+    } catch (err) {
+      alert(err.response?.data?.message || 'Gagal menyimpan kelas');
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      await kelasAPI.destroy(selectedKelas.id);
+      setShowDeleteModal(false);
+      fetchData();
+    } catch (err) {
+      alert(err.response?.data?.message || 'Gagal menghapus kelas');
+    }
   };
 
   const tingkatColors = ['', 'bg-emerald-100 text-emerald-700', 'bg-blue-100 text-blue-700', 'bg-purple-100 text-purple-700', 'bg-orange-100 text-orange-700', 'bg-indigo-100 text-indigo-700', 'bg-pink-100 text-pink-700'];
@@ -151,6 +182,7 @@ const KelasPage = () => {
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex gap-2">
+                          <button onClick={() => { setSelectedKelas(k); setShowDetailModal(true); }} className="px-3 py-1.5 bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs font-bold rounded-lg transition-all">Detail</button>
                           <button onClick={() => openEdit(k)} className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold rounded-lg transition-all">Edit</button>
                           <button onClick={() => openDelete(k)} className="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold rounded-lg transition-all">Hapus</button>
                         </div>
@@ -172,36 +204,49 @@ const KelasPage = () => {
               <h3 className="text-lg font-bold text-slate-800">{selectedKelas ? 'Edit Data Kelas' : 'Tambah Kelas Baru'}</h3>
               <button onClick={() => setShowModal(false)} className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500">✕</button>
             </div>
-            <div className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {[
-                { label: 'Nama Kelas (contoh: I-A)', key: 'nama' },
-                { label: 'Kapasitas Siswa', key: 'kapasitas' },
-                { label: 'Wali Kelas', key: 'wali' },
-                { label: 'Tahun Ajaran', key: 'tahun' },
-              ].map(f => (
-                <div key={f.key}>
-                  <label className="block text-xs font-bold text-slate-600 mb-1.5">{f.label}</label>
-                  <input
-                    type="text"
-                    value={form[f.key]}
-                    onChange={e => setForm({ ...form, [f.key]: e.target.value })}
-                    className="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 outline-none"
-                  />
+            <form onSubmit={handleSubmit}>
+              <div className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-600 mb-1.5">Nama Kelas (contoh: I-A)</label>
+                  <input type="text" value={form.nama_kelas} onChange={e => setForm({ ...form, nama_kelas: e.target.value })} required
+                    className="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 outline-none" />
                 </div>
-              ))}
-              <div>
-                <label className="block text-xs font-bold text-slate-600 mb-1.5">Tingkat</label>
-                <select value={form.tingkat} onChange={e => setForm({ ...form, tingkat: e.target.value })} className="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 outline-none bg-white">
-                  {[1, 2, 3, 4, 5, 6].map(t => <option key={t} value={t}>Kelas {t}</option>)}
-                </select>
+                <div>
+                  <label className="block text-xs font-bold text-slate-600 mb-1.5">Kapasitas Siswa</label>
+                  <input type="number" value={form.kapasitas} onChange={e => setForm({ ...form, kapasitas: e.target.value })} required
+                    className="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 outline-none" />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-600 mb-1.5">Wali Kelas</label>
+                  <select value={form.wali_kelas_id} onChange={e => setForm({ ...form, wali_kelas_id: e.target.value })}
+                    className="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 outline-none bg-white">
+                    <option value="">Pilih Wali Kelas</option>
+                    {dataGuru.map(g => <option key={g.id} value={g.id}>{g.nama}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-600 mb-1.5">Tahun Ajaran</label>
+                  <select value={form.tahun_ajaran_id} onChange={e => setForm({ ...form, tahun_ajaran_id: e.target.value })} required
+                    className="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 outline-none bg-white">
+                    <option value="">Pilih Tahun Ajaran</option>
+                    {dataTahunAjaran.map(t => <option key={t.id} value={t.id}>{t.tahun}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-600 mb-1.5">Tingkat</label>
+                  <select value={form.tingkat} onChange={e => setForm({ ...form, tingkat: e.target.value })}
+                    className="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 outline-none bg-white">
+                    {[1, 2, 3, 4, 5, 6].map(t => <option key={t} value={t}>Kelas {t}</option>)}
+                  </select>
+                </div>
               </div>
-            </div>
-            <div className="p-6 border-t border-slate-100 flex justify-end gap-3">
-              <button onClick={() => setShowModal(false)} className="px-6 py-2.5 text-sm font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all">Batal</button>
-              <button onClick={() => setShowModal(false)} className="px-6 py-2.5 text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl transition-all">
-                {selectedKelas ? 'Simpan Perubahan' : 'Tambah Kelas'}
-              </button>
-            </div>
+              <div className="p-6 border-t border-slate-100 flex justify-end gap-3">
+                <button type="button" onClick={() => setShowModal(false)} className="px-6 py-2.5 text-sm font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all">Batal</button>
+                <button type="submit" className="px-6 py-2.5 text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl transition-all">
+                  {selectedKelas ? 'Simpan Perubahan' : 'Tambah Kelas'}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
@@ -212,10 +257,75 @@ const KelasPage = () => {
           <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-sm p-8 text-center">
             <div className="w-16 h-16 bg-rose-100 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">🗑️</div>
             <h3 className="text-lg font-bold text-slate-800 mb-2">Hapus Kelas?</h3>
-            <p className="text-sm text-slate-500 mb-6">Kelas <strong>{selectedKelas.nama}</strong> akan dihapus. Siswa yang ada akan perlu dipindah terlebih dahulu.</p>
+            <p className="text-sm text-slate-500 mb-6">Kelas <strong>{selectedKelas.nama_kelas}</strong> akan dihapus. Siswa yang ada akan perlu dipindah terlebih dahulu.</p>
             <div className="flex gap-3">
               <button onClick={() => setShowDeleteModal(false)} className="flex-1 py-3 text-sm font-bold text-slate-600 bg-slate-100 rounded-xl">Batal</button>
-              <button onClick={() => setShowDeleteModal(false)} className="flex-1 py-3 text-sm font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl">Hapus</button>
+              <button onClick={handleDelete} className="flex-1 py-3 text-sm font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl">Hapus</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Detail */}
+      {showDetailModal && selectedKelas && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-2xl overflow-hidden">
+            <div className="p-6 border-b border-slate-100 flex justify-between items-center">
+              <h3 className="text-lg font-bold text-slate-800">{selectedKelas.nama_kelas}</h3>
+              <button onClick={() => setShowDetailModal(false)} className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500">✕</button>
+            </div>
+            <div className="p-6 grid grid-cols-2 sm:grid-cols-4 gap-6 bg-slate-50 border-b border-slate-100">
+              <div>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Tingkat</span>
+                <p className="text-sm font-bold text-slate-800 mt-1">Kelas {selectedKelas.tingkat}</p>
+              </div>
+              <div>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Wali Kelas</span>
+                <p className="text-sm font-bold text-slate-800 mt-1">{selectedKelas.wali_kelas?.nama || '-'}</p>
+              </div>
+              <div>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Kapasitas</span>
+                <p className="text-sm font-bold text-slate-800 mt-1">{selectedKelas.kapasitas || '-'}</p>
+              </div>
+              <div>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Terisi</span>
+                <p className="text-sm font-bold text-slate-800 mt-1">{selectedKelas.siswas?.length || 0}</p>
+              </div>
+            </div>
+            <div className="p-6">
+              <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Daftar Siswa ({selectedKelas.siswas?.length || 0})</h4>
+              {selectedKelas.siswas?.length === 0 ? (
+                <p className="text-sm text-slate-400 text-center py-8">Belum ada siswa di kelas ini.</p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="bg-slate-50 text-left">
+                        <th className="px-4 py-2.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">No</th>
+                        <th className="px-4 py-2.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">NIS</th>
+                        <th className="px-4 py-2.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Nama</th>
+                        <th className="px-4 py-2.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">JK</th>
+                        <th className="px-4 py-2.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-50">
+                      {selectedKelas.siswas.map((s, i) => (
+                        <tr key={s.id} className="hover:bg-slate-50/50 transition-colors">
+                          <td className="px-4 py-2.5 text-xs text-slate-400">{i + 1}</td>
+                          <td className="px-4 py-2.5 text-xs font-bold text-slate-700">{s.nis || '-'}</td>
+                          <td className="px-4 py-2.5 text-sm font-semibold text-slate-800">{s.nama}</td>
+                          <td className="px-4 py-2.5 text-xs text-slate-600">{s.jenis_kelamin || '-'}</td>
+                          <td className="px-4 py-2.5">
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${s.status === 'aktif' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}>
+                              {s.status || '-'}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
           </div>
         </div>

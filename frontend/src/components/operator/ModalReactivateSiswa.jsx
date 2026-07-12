@@ -60,7 +60,7 @@ const ModalReactivateSiswa = ({ isOpen, onClose, onSuccess, siswa, kelas = [], t
                                 className="w-full px-4 py-3 bg-white border border-slate-200 rounded-2xl focus:border-emerald-500 outline-none text-sm text-slate-700">
                                 <option value="">-- Pilih Kelas --</option>
                                 {kelas.map(k => (
-                                    <option key={k.id} value={k.id}>Kelas {k.full_name || k.nama}</option>
+                                    <option key={k.id} value={k.id}>{k.nama_kelas}</option>
                                 ))}
                             </select>
                         </div>

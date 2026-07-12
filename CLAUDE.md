@@ -57,6 +57,8 @@
 - [x] Cetak Kartu PDF per Siswa — fix bug URL `pdfUrl` tanpa `/api` prefix (strip dari `apiBase`) + `<a href>` langsung; ganti pakai `handleCetakPdf` via `siswaAPI.exportPdfSatu` axios blob (Bearer token otomatis)
 - [x] Fix Bug parseJK di SiswaImport.php — Silent fail: data jenis kelamin kosong/invalid otomatis default ke 'P' tanpa error. Ganti jadi strict validation dengan throw exception agar row di-skip dan masuk ke failure log (tidak silent corruption)
 - [x] Unifikasi Format Export & Import (116 Kolom) — Fix bug: file export (67 kolom) tidak bisa reimport karena format berbeda dengan template (89 kolom EMIS). Solusi: unifikasi kedua file jadi 116 kolom (89 EMIS + 27 tambahan lengkap: kesehatan, fisik, status, transportasi, kontak, kesejahteraan, mutasi). Files: SiswaExport.php, SiswaTemplateExport.php, SiswaImport.php. Export → edit → reimport berhasil (round-trip works).
+- [x] Data Kelas — fix CRUD (form key mismatch, submit & delete ga jalan, dropdown tahun ajaran pake `t.nama` salah → `t.tahun`); tambah detail kelas modal — tampil wali kelas, kapasitas/terisi, daftar siswa (data dari eager loading index, tanpa backend baru)
+- [x] Fix dropdown kelas tidak muncul di form Aktifkan Kembali siswa — `k.full_name || k.nama` keduanya undefined (accessor tidak di-append, field `nama` tidak ada), ganti jadi `k.nama_kelas`
 
 ### Guru
 - [ ] *(belum ada)*
@@ -89,6 +91,7 @@
 - `frontend/src/components/operator/ModalTrashTahunAjaran.jsx` — recycle bin tahun ajaran
 - `frontend/src/components/operator/ModalFormSiswa.jsx` — form tambah/edit siswa multi-step 5 tahap (Identitas, Ortu, Periodik, Akademik, Konfirmasi)
 - `frontend/src/components/operator/ModalTrashSiswa.jsx` — recycle bin siswa
+- `frontend/src/pages/operator/KelasPage.jsx` — halaman data kelas, CRUD + detail kelas
 - `frontend/dist/` — build output, JANGAN diedit manual
 - `backend/ai_tools/venv/` — virtual environment Python, JANGAN disentuh
 
@@ -100,7 +103,8 @@
 > Hanya boleh ada 1 fitur aktif di sini per sesi.
 > **Jangan pindahkan ke COMPLETED sampai user secara eksplisit bilang "done" / "selesai" / "fix".**
  
-- [ ] *(kosong — belum ada sesi aktif)*
+- [ ] Fix styling halaman data siswa
+- [ ] Fix styling halaman data kelas
 
 ---
 

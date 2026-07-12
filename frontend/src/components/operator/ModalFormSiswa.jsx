@@ -302,8 +302,6 @@ const ModalFormSiswa = ({ isOpen, onClose, onSuccess, siswa, kelas = [], tahunAj
         }
     };
 
-    const apiUrl = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:8000';
-
     const handleSubmit = async () => {
         if (!validateStep(4)) {
             setStep(4);
@@ -649,7 +647,7 @@ if (isEdit) {
                                     <div className="flex flex-col justify-between pr-2" style={{ width: '20%' }}>
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 overflow-y-auto max-h-[55vh] pr-2">
                                             <FieldSelect form={form} update={update} label="Kelas" name="kelas_id" sm2 placeholder="-- Belum Ditentukan (Opsional) --"
-                                                options={kelas.reduce((acc, k) => ({ ...acc, [k.id]: `Kelas ${k.full_name || k.nama}` }), {})} />
+                                                options={kelas.reduce((acc, k) => ({ ...acc, [k.id]: k.nama_kelas }), {})} />
                                             <FieldText form={form} update={update} label="Kelas Paralel" name="kelas_pararel" placeholder="Contoh: A, B, C..." optional />
                                             <FieldSelect form={form} update={update} label="Tahun Ajaran *" name="tahun_ajaran_id" required placeholder="-- Pilih Tahun Ajaran --"
                                                 options={tahunAjarans.reduce((acc, ta) => ({ ...acc, [ta.id]: `${ta.tahun}${ta.is_active ? ' (Aktif)' : ''}` }), {})} />
@@ -742,7 +740,7 @@ if (isEdit) {
                                                     <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Data Akademik</p>
                                                 </div>
                                                 <div className="p-4 grid grid-cols-2 gap-3">
-                                                    <ReviewItem label="Kelas" value={kelas.find(k => k.id == form.kelas_id)?.full_name || kelas.find(k => k.id == form.kelas_id)?.nama || '—'} />
+                                                    <ReviewItem label="Kelas" value={kelas.find(k => k.id == form.kelas_id)?.nama_kelas || '—'} />
                                                     <ReviewItem label="Status" value={form.status || '—'} />
                                                     <ReviewItem label="Tahun Ajaran" value={tahunAjarans.find(ta => ta.id == form.tahun_ajaran_id)?.tahun || '—'} />
                                                     <ReviewItem label="Tgl Masuk" value={form.tanggal_masuk || '—'} />

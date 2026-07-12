@@ -45,7 +45,6 @@ export const siswaAPI = {
   mutasi: (id, data) => api.put(`/operator/data-siswa/${id}/mutasi`, data),
   reactivate: (id, data) =>
     api.put(`/operator/data-siswa/${id}/reactivate`, data),
-  riwayatKelas: (id) => api.get(`/operator/data-siswa/${id}/riwayat-kelas`),
   // Berkas
   getBerkas: (siswaId) => api.get(`/operator/data-siswa/${siswaId}/berkas`),
   storeBerkas: (siswaId, data) =>
@@ -76,10 +75,6 @@ export const siswaAPI = {
     api.delete(`/operator/data-siswa/${siswaId}/prestasi/${prestasiId}`),
   viewPrestasiBukti: (siswaId, prestasiId) =>
     api.get(`/operator/data-siswa/${siswaId}/prestasi/${prestasiId}/view`, {
-      responseType: "blob",
-    }),
-  downloadPrestasiBukti: (siswaId, prestasiId) =>
-    api.get(`/operator/data-siswa/${siswaId}/prestasi/${prestasiId}/download`, {
       responseType: "blob",
     }),
   // Beasiswa

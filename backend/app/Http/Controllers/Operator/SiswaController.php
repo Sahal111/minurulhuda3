@@ -154,7 +154,7 @@ class SiswaController extends Controller
 
             // Kelas
             $s->kelas_level = $s->kelas?->tingkat ?? '-';
-            $s->kelas_nama = $s->kelas?->full_name ?? '-';
+            $s->kelas_nama = $s->kelas?->nama_kelas ?? '-';
 
             $s->wali_kelas = $s->kelas?->waliKelas?->nama ?? '-';
             $s->tahun_ajaran = $s->kelas?->tahunAjaran?->tahun ?? '-';
@@ -309,7 +309,7 @@ class SiswaController extends Controller
         $siswa->catatan_kesehatan = $fisik?->catatan_kesehatan;
 
         $siswa->kelas_level = $siswa->kelas?->tingkat ?? '-';
-        $siswa->kelas_nama = $siswa->kelas?->full_name ?? '-';
+        $siswa->kelas_nama = $siswa->kelas?->nama_kelas ?? '-';
         $siswa->wali_kelas = $siswa->kelas?->waliKelas?->nama ?? '-';
         $siswa->tahun_ajaran = $siswa->kelas?->tahunAjaran?->tahun ?? '-';
 
